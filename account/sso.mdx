@@ -1,0 +1,73 @@
+---
+title: Single Sign-On (SSO)
+description: SSO is available on Business and Enterprise tiers, allowing your team to log into Cost Optix using your existing identity provider.
+---
+
+<Warning>
+  SSO is a **Business and Enterprise tier** feature. It is not available on Starter or Professional plans. See [Subscription Tiers](/getting-started/subscription-tiers) for plan details or [contact sales](mailto:sales@costoptix.com) to upgrade.
+</Warning>
+
+## Overview
+
+Single Sign-On lets your team authenticate with Cost Optix through your existing identity provider (IdP), such as Okta, Azure Active Directory, Google Workspace, or any SAML 2.0 / OIDC-compatible provider.
+
+SSO provides:
+- Centralised access management through your IdP
+- Automatic account deprovisioning when users are removed from your IdP
+- Compliance-friendly audit trails
+- No separate Cost Optix passwords to manage
+
+---
+
+## Why SSO Requires Business or Enterprise
+
+SSO requires dedicated infrastructure to maintain isolated identity provider sessions per organization. Starter and Professional customers share infrastructure, which is incompatible with the per-organization session isolation SSO requires.
+
+Business tier organizations run on a dedicated CloudCluster VM. Enterprise organizations deploy on their own infrastructure.
+
+---
+
+## Configuring SSO
+
+To configure SSO for your organization, contact [support@costoptix.com](mailto:support@costoptix.com) with the following:
+
+1. Your Cost Optix organization ID (found in **Settings → Organization**)
+2. Your identity provider name (e.g. Okta, Azure AD, Google Workspace)
+3. Whether you need SAML 2.0 or OIDC
+
+The Cost Optix team will provide you with:
+- The **SSO callback URL** to register in your IdP
+- The **Entity ID** (for SAML)
+- The **Audience URI**
+
+You will then provide:
+- Your IdP **metadata URL** or **metadata XML** (SAML), or your **OIDC discovery URL**
+- The **client credentials** (for OIDC)
+
+---
+
+## Supported Identity Providers
+
+| Provider | Protocol |
+|---|---|
+| Okta | SAML 2.0 / OIDC |
+| Microsoft Azure Active Directory | SAML 2.0 / OIDC |
+| Google Workspace | OIDC |
+| Auth0 | SAML 2.0 / OIDC |
+| OneLogin | SAML 2.0 |
+| Any SAML 2.0-compliant IdP | SAML 2.0 |
+| Any OIDC-compliant IdP | OIDC |
+
+---
+
+## User Provisioning
+
+When a user authenticates via SSO for the first time, Cost Optix will automatically create their account within your organization if their email domain matches your registered domain.
+
+Existing users who previously used email/password authentication can link their account to SSO on their first SSO login.
+
+---
+
+## Revoking SSO Access
+
+To remove a user's access, remove them from the relevant group or application in your IdP. Their Cost Optix session will be invalidated at next login. You can also manually deactivate users from **Settings → Team Members** at any time.
