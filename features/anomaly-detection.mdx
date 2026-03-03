@@ -1,0 +1,106 @@
+---
+title: Anomaly Detection
+description: Cost Optix uses statistical algorithms to detect abnormal spending patterns at the service level — before cost spikes become billing surprises.
+---
+
+## How It Works
+
+Cost Optix analyses your historical cost data per service across all connected cloud accounts. Rather than simple threshold rules ("alert if spend exceeds $X"), Cost Optix uses **statistical anomaly detection** — meaning an alert fires when your costs deviate significantly from their own historical baseline, accounting for natural growth and seasonal patterns.
+
+Anomaly detection runs automatically as a background job and results are cached for fast dashboard delivery.
+
+---
+
+## Detection Methods
+
+Cost Optix supports four detection algorithms. You can select the method per analysis run via the API or dashboard.
+
+### Rolling Z-Score (Default)
+
+The primary algorithm. For each service, Cost Optix calculates a rolling mean and standard deviation over a configurable lookback window. A cost value is flagged as anomalous if its Z-score exceeds the configured threshold.
+
+```
+Z = (current_cost - rolling_mean) / rolling_std_deviation
+```
+
+A Z-score above `2.0` (configurable) triggers an anomaly. This method is robust against gradual spend increases and is sensitive to sudden spikes.
+
+### Adaptive
+
+An enhanced version of rolling Z-score that adjusts its sensitivity based on the historical volatility of each individual service. Services with naturally high variance require a larger deviation before being flagged, while stable services are flagged on smaller deviations.
+
+This is the recommended method for mixed workloads with services that have very different spending profiles.
+
+### Standard Z-Score
+
+A simpler Z-score calculation over the full historical window rather than a rolling window. Useful for services with very stable, long-term spending patterns.
+
+### Simple Threshold
+
+A percentage-based method that flags any cost increase exceeding a configurable percentage over the prior period. Less sophisticated than Z-score methods but useful for straightforward alerting rules.
+
+---
+
+## Severity Levels
+
+Each detected anomaly is assigned a severity based on the magnitude of the deviation:
+
+| Severity | Description |
+|---|---|
+| **Critical** | Very large deviation — immediate attention recommended |
+| **High** | Significant deviation above your normal baseline |
+| **Medium** | Moderate deviation worth investigating |
+| **Low** | Minor deviation, informational |
+
+---
+
+## What Gets Detected
+
+Anomaly detection operates at the **service level**, not just the account total. This means Cost Optix can identify that, for example, your Azure Blob Storage costs spiked 300% while your overall Azure spend only increased 12% — pinpointing the root cause rather than just flagging a top-level number.
+
+Each detected anomaly includes:
+- The service name and cloud provider
+- The anomaly date
+- Actual spend vs expected spend
+- Deviation percentage
+- Severity rating
+- Detection method used
+
+---
+
+## Anomaly Workflow
+
+Anomalies can be managed directly in the dashboard:
+
+| Status | Description |
+|---|---|
+| `new` | Freshly detected, unreviewed |
+| `acknowledged` | Team member has seen it |
+| `investigating` | Actively being looked into |
+| `resolved` | Root cause identified and addressed |
+| `false_positive` | Flagged as expected behaviour |
+
+Marking anomalies helps Cost Optix improve the signal-to-noise ratio for your organization over time.
+
+---
+
+## Alerts & Notifications
+
+Anomaly alerts can be delivered to Slack, Microsoft Teams, Discord, or any custom webhook endpoint. Each alert includes the service name, severity, actual vs expected cost, and a direct link to the anomaly in your dashboard.
+
+See [Webhooks](/features/webhooks) for setup instructions.
+
+---
+
+## Tier Limits
+
+| Tier | Max anomalies tracked per month |
+|---|---|
+| Starter | 3 |
+| Professional | 100 |
+| Business | Unlimited |
+| Enterprise | Unlimited |
+
+<Note>
+  The anomaly limit applies to anomalies **stored and tracked** per month. Detection still runs across all services — anomalies beyond the limit are surfaced in the dashboard but not stored for historical review.
+</Note>
