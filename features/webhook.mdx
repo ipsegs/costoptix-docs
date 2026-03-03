@@ -1,0 +1,135 @@
+---
+title: Webhooks
+description: Receive real-time cost alerts in Slack, Microsoft Teams, Discord, or any custom HTTP endpoint.
+---
+
+## Overview
+
+Cost Optix can deliver budget and anomaly alerts to your existing communication tools via webhooks. Webhooks are available on all paid tiers.
+
+**Supported platforms:**
+- Slack
+- Microsoft Teams (Workflow — recommended)
+- Microsoft Teams (Legacy connector)
+- Discord
+- Custom HTTP endpoint
+
+---
+
+## Setting Up a Webhook
+
+1. Navigate to **Settings → Webhooks**
+2. Click **Add Webhook**
+3. Select your platform
+4. Paste your webhook URL
+5. Choose which events to subscribe to
+6. Optionally add a secret for payload verification
+7. Click **Save** and send a test delivery to verify
+
+---
+
+## Webhook URLs by Platform
+
+<Tabs>
+  <Tab title="Slack">
+    Create an **Incoming Webhook** in your Slack workspace:
+
+    1. Go to [api.slack.com/apps](https://api.slack.com/apps) and create a new app
+    2. Enable **Incoming Webhooks** in the app settings
+    3. Click **Add New Webhook to Workspace** and select a channel
+    4. Copy the webhook URL (format: `https://hooks.slack.com/services/...`)
+  </Tab>
+  <Tab title="Teams (Workflow)">
+    The recommended method for Microsoft Teams. Uses Power Automate workflows:
+
+    1. In Teams, go to the channel where you want alerts
+    2. Click **···** → **Workflows**
+    3. Search for **"Post to a channel when a webhook request is received"**
+    4. Follow the setup and copy the workflow URL (format: `https://prod-xx.westus.logic.azure.com/workflows/...`)
+
+    <Note>
+      The Workflow connector is Microsoft's current recommended approach. The legacy Office 365 connector is deprecated and will stop working in the future.
+    </Note>
+  </Tab>
+  <Tab title="Discord">
+    1. In Discord, go to the channel settings
+    2. Navigate to **Integrations → Webhooks**
+    3. Click **New Webhook**, give it a name, and copy the URL (format: `https://discord.com/api/webhooks/...`)
+  </Tab>
+  <Tab title="Custom">
+    Any HTTPS endpoint that accepts a `POST` request with a JSON body. Cost Optix sends a standard payload:
+
+    ```json
+    {
+      "event": "budget.warning",
+      "timestamp": "2025-01-15T10:30:00Z",
+      "organization_id": "your_org_id",
+      "data": {
+        "budget_name": "Production AWS",
+        "budget_amount": 5000,
+        "current_spend": 4100,
+        "utilization_percent": 82,
+        "days_remaining": 12
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Event Types
+
+Subscribe to any combination of these events per webhook:
+
+### Budget Events
+| Event | Trigger |
+|---|---|
+| `budget.warning` | Spend reaches 80% of budget |
+| `budget.critical` | Spend reaches 95% of budget |
+| `budget.exceeded` | Spend exceeds 100% of budget |
+
+### Anomaly Events
+| Event | Trigger |
+|---|---|
+| `anomaly.detected` | A new cost anomaly is detected |
+| `anomaly.critical` | A critical-severity anomaly is detected |
+
+---
+
+## Payload Verification
+
+If you set a **webhook secret**, Cost Optix signs every payload with HMAC-SHA256 and includes the signature in the `X-Signature` header:
+
+```
+X-Signature: sha256=abc123...
+```
+
+Verify the signature on your endpoint:
+
+```javascript
+const crypto = require('crypto');
+
+function verifySignature(payload, signature, secret) {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}
+```
+
+---
+
+## Delivery & Retries
+
+Cost Optix attempts webhook delivery up to **3 times** with exponential backoff if your endpoint returns a non-2xx response. You can view the full delivery history for each webhook in **Settings → Webhooks → Delivery History**, including status codes and response bodies.
+
+---
+
+## Testing
+
+Use the **Send Test** button in the webhook settings to send a sample payload to your endpoint before going live. This verifies the URL is reachable and the format is correct.
