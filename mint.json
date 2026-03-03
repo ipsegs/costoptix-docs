@@ -1,0 +1,114 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Cost Optix",
+  "logo": {
+    "dark": "/logo/logo-dark.svg",
+    "light": "/logo/logo-light.svg"
+  },
+  "favicon": "/favicon.ico",
+  "colors": {
+    "primary": "#6366f1",
+    "light": "#818cf8",
+    "dark": "#4f46e5",
+    "anchors": {
+      "from": "#6366f1",
+      "to": "#4f46e5"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Sign In",
+      "url": "https://costoptix.com/login"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started Free",
+    "url": "https://costoptix.com/register"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Changelog",
+      "icon": "list",
+      "url": "https://costoptix.com/changelog"
+    },
+    {
+      "name": "Status",
+      "icon": "circle-check",
+      "url": "https://status.costoptix.com"
+    },
+    {
+      "name": "Support",
+      "icon": "envelope",
+      "url": "mailto:support@costoptix.com"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "getting-started/subscription-tiers"
+      ]
+    },
+    {
+      "group": "Cloud Providers",
+      "pages": [
+        "providers/overview",
+        "providers/azure",
+        "providers/aws",
+        "providers/gcp",
+        "providers/heroku",
+        "providers/kubernetes"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "features/cost-dashboard",
+        "features/anomaly-detection",
+        "features/budgets",
+        "features/ai-insights",
+        "features/webhooks"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/authentication",
+        "api-reference/overview"
+      ]
+    },
+    {
+      "group": "Account",
+      "pages": [
+        "account/team-management",
+        "account/sso"
+      ]
+    },
+    {
+      "group": "Security",
+      "pages": [
+        "security"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/costoptix",
+    "linkedin": "https://linkedin.com/company/costoptix"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  },
+  "search": {
+    "prompt": "Search Cost Optix docs..."
+  }
+}
