@@ -1,0 +1,127 @@
+---
+title: Quick Start
+description: Connect your first cloud account and start seeing your costs in under 5 minutes.
+---
+
+## Step 1 — Create your account
+
+Go to [costoptix.com/register](https://costoptix.com/register) and sign up with your work email.
+
+<Note>
+  Cost Optix does not allow disposable email addresses. Use a company or personal permanent email address.
+</Note>
+
+After signing up, verify your email address using the link sent to your inbox. You will then be taken to your organization dashboard.
+
+---
+
+## Step 2 — Connect a cloud provider
+
+From your dashboard, navigate to **Settings → Cloud Accounts** and click **Add Account**.
+
+Select your cloud provider and follow the provider-specific setup:
+
+<Tabs>
+  <Tab title="Azure">
+    You will need an **Azure Service Principal** with read access to your subscription's cost data.
+
+    **Required information:**
+    - Tenant ID
+    - Client ID (Application ID)
+    - Client Secret
+    - Subscription ID
+
+    See the [Azure setup guide](/providers/azure) for step-by-step instructions on creating a Service Principal with the correct permissions.
+  </Tab>
+  <Tab title="AWS">
+    You will need an **AWS Access Key** or an **IAM Role** with Cost Explorer read permissions.
+
+    **Required information:**
+    - Access Key ID
+    - Secret Access Key
+    - (Optional) AWS Account ID
+
+    See the [AWS setup guide](/providers/aws) for the minimum IAM policy required.
+  </Tab>
+  <Tab title="GCP">
+    You will need a **GCP Service Account JSON** with BigQuery and billing read permissions.
+
+    **Required information:**
+    - Service Account JSON file (downloaded from GCP Console)
+    - Project ID
+
+    See the [GCP setup guide](/providers/gcp) for instructions.
+  </Tab>
+  <Tab title="Heroku">
+    You will need a **Heroku API Key** from your Heroku account settings.
+
+    **Required information:**
+    - Heroku API Key
+
+    See the [Heroku setup guide](/providers/heroku) for instructions.
+  </Tab>
+  <Tab title="Kubernetes">
+    Kubernetes cost visibility is collected via a lightweight agent deployed inside your cluster.
+
+    See the [Kubernetes setup guide](/providers/kubernetes) for the install script and RBAC requirements.
+  </Tab>
+</Tabs>
+
+---
+
+## Step 3 — Wait for the first data sync
+
+After saving your credentials, Cost Optix will begin fetching your cost data. Depending on your provider, the first sync can take a few minutes.
+
+| Provider | Typical first sync time | Billing lag |
+|---|---|---|
+| Azure | 2–5 minutes | Up to 5 days |
+| AWS | 1–3 minutes | Up to 3 days |
+| GCP | 1–3 minutes | Up to 3 days |
+| Heroku | Under 1 minute | 1 day |
+| Kubernetes | Real-time (agent) | None |
+
+<Info>
+  Cloud providers have their own billing lag — meaning today's costs may not appear in your dashboard for a few days. This is a provider constraint, not a Cost Optix limitation.
+</Info>
+
+---
+
+## Step 4 — Explore your dashboard
+
+Once data has synced, your dashboard will show:
+
+- **Total spend** across all connected accounts for the selected period
+- **Per-provider breakdown** with cost trends
+- **Service-level costs** — see exactly which services are driving your bill
+- **Anomaly indicators** — services flagged for unusual spending patterns
+
+---
+
+## Step 5 — Set up a budget alert (recommended)
+
+Navigate to **Budgets** and create your first budget:
+
+1. Select the account or provider to track
+2. Set a monthly budget amount
+3. Choose alert thresholds (default: 80% warning, 95% critical)
+4. Optionally connect a [webhook](/features/webhooks) to receive alerts in Slack or Teams
+
+---
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="Connect more providers" icon="cloud-plus" href="/providers/overview">
+    Add all your cloud accounts for a complete picture.
+  </Card>
+  <Card title="Set up webhooks" icon="webhook" href="/features/webhooks">
+    Get budget and anomaly alerts in Slack, Teams, or Discord.
+  </Card>
+  <Card title="Understand anomaly detection" icon="chart-line" href="/features/anomaly-detection">
+    Learn how Cost Optix detects cost spikes statistically.
+  </Card>
+  <Card title="API access" icon="code" href="/api-reference/authentication">
+    Integrate Cost Optix into your own tooling.
+  </Card>
+</CardGroup>
