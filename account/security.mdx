@@ -1,0 +1,57 @@
+
+---
+title: Security
+description: How Cost Optix protects your cloud credentials, cost data, and user sessions.
+---
+
+## Credential Encryption
+
+All cloud provider credentials — service principal secrets, API keys, service account JSON, kubeconfig files — are encrypted using **AES-256-GCM** before being written to the database. The encryption key is stored separately from the credentials and is never logged or returned in API responses.
+
+SSO client secrets are encrypted with the same mechanism and are never exposed, even to administrators.
+
+## Session Security
+
+Cost Optix uses **session-based authentication** with HTTP-only cookies:
+
+- Sessions are stored in Redis with an **8-hour sliding inactivity timeout** — each authenticated request refreshes the window
+- Session cookies are `HttpOnly`, `Secure` (HTTPS only), and `SameSite=Lax`
+- No JWT tokens are returned to or stored in the browser
+- Sessions are invalidated immediately on logout
+- Administrators can revoke all sessions for a user from the admin panel
+
+## CSRF Protection
+
+All mutating requests (POST, PUT, PATCH, DELETE) require a matching `X-CSRF-Token` header. The token is set in a non-`HttpOnly` cookie on every response and read automatically by the Cost Optix frontend. Requests without a valid token are rejected with HTTP 403.
+
+API key requests do not require a CSRF token.
+
+## Transport Security
+
+All traffic is served over HTTPS with TLS certificates managed automatically. HTTP requests are redirected to HTTPS.
+
+## Network Controls
+
+The Cost Optix infrastructure applies a strict firewall policy. Only ports 80 and 443 are publicly accessible. Internal services are accessible only via a private network. SSH access is restricted to authorised addresses over an encrypted tunnel.
+
+## Read-Only Cloud Access
+
+Cost Optix requests only **read-only access** to your cloud accounts. No write, deploy, or administrative permissions are requested or required for any provider. Credentials are used solely to fetch cost and billing data.
+
+## Data Isolation
+
+Each organisation's data is stored in a logically isolated SQLite database shard, separate per organisation and per cloud provider. There is no shared table between organisations.
+
+## Vulnerability Disclosure
+
+If you discover a security vulnerability, disclose it responsibly to [security@costoptix.com](mailto:security@costoptix.com). Do not open a public GitHub issue for security reports.
+
+## Enterprise Self-Hosted
+
+Enterprise customers deploy Cost Optix entirely within their own environment:
+
+- All data stays within your infrastructure
+- No cost data is transmitted to Cost Optix servers
+- You supply and manage your own encryption keys
+- AI calls go directly from your infrastructure to your chosen AI provider using your own keys
+
