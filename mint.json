@@ -74,6 +74,7 @@
         "features/cost-dashboard",
         "features/anomaly-detection",
         "features/budgets",
+        "features/tag-explorer",
         "features/ai-insights",
         "features/webhooks"
       ]
