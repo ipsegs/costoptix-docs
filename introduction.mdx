@@ -22,37 +22,20 @@ Cost Optix helps engineering teams, finance teams, and executives understand and
   </Card>
 </CardGroup>
 
-## Core Capabilities
-
-**Unified Multi-Cloud Cost Visibility**
-See all your cloud spending — Azure, AWS, GCP, Heroku, Kubernetes, and more — aggregated into a single dashboard with per-service, per-account, and cross-provider breakdowns.
-
-**Anomaly Detection**
-Cost Optix uses rolling Z-score and adaptive statistical algorithms to detect abnormal spending patterns at the service level, not just account totals. Alerts fire before your bill surprises you.
-
-**Budget Management**
-Set budgets per account or provider, define warning (80%) and critical (95%) thresholds, and receive real-time alerts via Slack, Microsoft Teams, Discord, or any custom webhook.
-
-**AI-Powered Insights**
-Get natural-language cost optimization recommendations powered by AI, tailored to your actual spending patterns and cloud resource usage.
-
-**Webhook Notifications**
-Integrate cost alerts into your existing workflows. Cost Optix supports Slack, Microsoft Teams (Workflow and Legacy), Discord, and custom HTTP endpoints.
-
 ## Supported Cloud Providers
 
-| Provider | Type | Auth Method |
+| Provider | Type | Status |
 |---|---|---|
-| Microsoft Azure | Cloud | Service Principal |
-| Amazon Web Services | Cloud | Access Key / IAM Role |
-| Google Cloud Platform | Cloud | Service Account JSON |
-| Heroku | Platform | API Key |
-| Kubernetes | Container | Kubeconfig |
-| DigitalOcean | Cloud | API Key |
-| Vercel | Platform | API Key |
-| Railway | Platform | API Key |
-| Cloudflare | CDN | API Key |
-| Linode | Cloud | API Key |
+| Microsoft Azure | Cloud | ✅ Available |
+| Amazon Web Services | Cloud | ✅ Available |
+| Google Cloud Platform | Cloud | ✅ Available |
+| Heroku | Platform | ✅ Available |
+| Kubernetes | Container | 🔜 Coming soon |
+| DigitalOcean | Cloud | 🔜 Coming soon |
+| Vercel | Platform | 🔜 Coming soon |
+| Railway | Platform | 🔜 Coming soon |
+| Cloudflare | CDN | 🔜 Coming soon |
+| Linode | Cloud | 🔜 Coming soon |
 
 ## Who is Cost Optix for?
 
@@ -60,12 +43,6 @@ Integrate cost alerts into your existing workflows. Cost Optix supports Slack, M
 - **Finance teams** who need budget tracking, forecasting, and audit-ready cost reports
 - **Executives** who need high-level cloud portfolio health and spend trends
 
-## Architecture Overview
-
-Cost Optix is a SaaS platform hosted at [costoptix.com](https://costoptix.com). Your cloud provider credentials are stored securely, and cost data is fetched on a scheduled basis using a three-tier caching strategy (Redis → local database → live provider API) to keep your dashboard fast and up to date.
-
-For Kubernetes clusters, an optional lightweight agent can be deployed directly inside your cluster to collect real-time metrics without exposing your kubeconfig to external services.
-
 <Info>
-  Cost Optix is available on four subscription tiers: **Starter**, **Professional**, **Business**, and **Enterprise**. Some features — including SSO — are available on Business and Enterprise tiers only. See [Subscription Tiers](/getting-started/subscription-tiers) for a full comparison.
+  Cost Optix is available on four subscription tiers: **Starter**, **Professional**, **Business**, and **Enterprise**. Some features — including SSO and Tag Explorer — are only available on paid tiers. See [Subscription Tiers](/getting-started/subscription-tiers) for a full comparison.
 </Info>
