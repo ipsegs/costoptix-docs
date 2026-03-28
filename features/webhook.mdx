@@ -5,12 +5,12 @@ description: Receive real-time cost alerts in Slack, Microsoft Teams, Discord, o
 
 ## Overview
 
-Cost Optix can deliver budget and anomaly alerts to your existing communication tools via webhooks. Webhooks are available on all paid tiers.
+Cost Optix can deliver budget and anomaly alerts to your existing communication tools via webhooks. Webhooks are available on all plans.
 
 **Supported platforms:**
 - Slack
 - Microsoft Teams (Workflow — recommended)
-- Microsoft Teams (Legacy connector)
+- Microsoft Teams (Legacy connector — deprecated)
 - Discord
 - Custom HTTP endpoint
 
@@ -24,7 +24,7 @@ Cost Optix can deliver budget and anomaly alerts to your existing communication 
 4. Paste your webhook URL
 5. Choose which events to subscribe to
 6. Optionally add a secret for payload verification
-7. Click **Save** and send a test delivery to verify
+7. Click **Save** and use **Test** to verify delivery
 
 ---
 
@@ -40,39 +40,24 @@ Cost Optix can deliver budget and anomaly alerts to your existing communication 
     4. Copy the webhook URL (format: `https://hooks.slack.com/services/...`)
   </Tab>
   <Tab title="Teams (Workflow)">
-    The recommended method for Microsoft Teams. Uses Power Automate workflows:
+    The recommended method for Microsoft Teams. Uses Power Automate:
 
     1. In Teams, go to the channel where you want alerts
     2. Click **···** → **Workflows**
     3. Search for **"Post to a channel when a webhook request is received"**
-    4. Follow the setup and copy the workflow URL (format: `https://prod-xx.westus.logic.azure.com/workflows/...`)
+    4. Follow the setup wizard and copy the workflow URL (format: `https://prod-xx.westus.logic.azure.com/workflows/...`)
 
     <Note>
-      The Workflow connector is Microsoft's current recommended approach. The legacy Office 365 connector is deprecated and will stop working in the future.
+      The Workflow connector is Microsoft's current recommended approach. The legacy Office 365 connector is deprecated.
     </Note>
   </Tab>
   <Tab title="Discord">
-    1. In Discord, go to the channel settings
-    2. Navigate to **Integrations → Webhooks**
-    3. Click **New Webhook**, give it a name, and copy the URL (format: `https://discord.com/api/webhooks/...`)
+    1. In Discord, open the channel settings
+    2. Navigate to **Integrations → Webhooks → New Webhook**
+    3. Give it a name and copy the URL (format: `https://discord.com/api/webhooks/...`)
   </Tab>
   <Tab title="Custom">
-    Any HTTPS endpoint that accepts a `POST` request with a JSON body. Cost Optix sends a standard payload:
-
-    ```json
-    {
-      "event": "budget.warning",
-      "timestamp": "2025-01-15T10:30:00Z",
-      "organization_id": "your_org_id",
-      "data": {
-        "budget_name": "Production AWS",
-        "budget_amount": 5000,
-        "current_spend": 4100,
-        "utilization_percent": 82,
-        "days_remaining": 12
-      }
-    }
-    ```
+    Any HTTPS endpoint that accepts a `POST` request with a JSON body. Cost Optix sends a standard JSON payload — see [Payload Format](#payload-format) below.
   </Tab>
 </Tabs>
 
@@ -80,32 +65,81 @@ Cost Optix can deliver budget and anomaly alerts to your existing communication 
 
 ## Event Types
 
-Subscribe to any combination of these events per webhook:
-
 ### Budget Events
+
 | Event | Trigger |
 |---|---|
-| `budget.warning` | Spend reaches 80% of budget |
-| `budget.critical` | Spend reaches 95% of budget |
-| `budget.exceeded` | Spend exceeds 100% of budget |
+| `budget.warning` | Spend reaches the warning threshold (default 80%) |
+| `budget.critical` | Spend reaches the critical threshold (default 95%) |
+| `budget.exceeded` | Spend exceeds 100% of the budget |
 
 ### Anomaly Events
+
 | Event | Trigger |
 |---|---|
-| `anomaly.detected` | A new cost anomaly is detected |
-| `anomaly.critical` | A critical-severity anomaly is detected |
+| `anomaly.detected` | A cost anomaly is detected |
+
+### Report Events
+
+| Event | Trigger |
+|---|---|
+| `report.weekly` | Weekly cost summary |
+| `report.monthly` | Monthly cost summary |
+
+---
+
+## Payload Format
+
+All deliveries use `POST` with `Content-Type: application/json`.
+
+### Budget alert
+
+```json
+{
+  "event": "budget.warning",
+  "timestamp": "2025-03-01T14:32:00Z",
+  "organization_id": "org_abc123",
+  "data": {
+    "budget_name": "Production AWS",
+    "budget_amount": 5000.00,
+    "current_spend": 4100.00,
+    "utilization_percent": 82.0,
+    "predicted_spend": 5800.00,
+    "days_remaining": 14,
+    "account": "aws:123456789012",
+    "budget_id": "bud_xyz789"
+  }
+}
+```
+
+### Anomaly alert
+
+```json
+{
+  "event": "anomaly.detected",
+  "timestamp": "2025-03-01T09:15:00Z",
+  "organization_id": "org_abc123",
+  "data": {
+    "service_name": "Amazon EC2",
+    "account": "123456789012",
+    "provider": "aws",
+    "date": "2025-03-01",
+    "amount": 340.50,
+    "expected": 210.00,
+    "deviation_percent": 62.1,
+    "type": "spike",
+    "severity": "high"
+  }
+}
+```
+
+For Slack, Teams, and Discord, Cost Optix sends a formatted message — not raw JSON. Budget alerts include a colour-coded card with spend details. Custom webhooks receive the raw JSON above.
 
 ---
 
 ## Payload Verification
 
-If you set a **webhook secret**, Cost Optix signs every payload with HMAC-SHA256 and includes the signature in the `X-Signature` header:
-
-```
-X-Signature: sha256=abc123...
-```
-
-Verify the signature on your endpoint:
+If you set a **webhook secret**, Cost Optix includes an `X-Webhook-Signature` header on every delivery signed with HMAC-SHA256. Verify it on your endpoint:
 
 ```javascript
 const crypto = require('crypto');
@@ -126,10 +160,13 @@ function verifySignature(payload, signature, secret) {
 
 ## Delivery & Retries
 
-Cost Optix attempts webhook delivery up to **3 times** with exponential backoff if your endpoint returns a non-2xx response. You can view the full delivery history for each webhook in **Settings → Webhooks → Delivery History**, including status codes and response bodies.
+Cost Optix attempts delivery up to **3 times** with exponential backoff on non-2xx responses. View the full delivery history for each webhook in **Settings → Webhooks → History**, including HTTP status codes and response bodies.
 
 ---
 
-## Testing
+## Rate Limits
 
-Use the **Send Test** button in the webhook settings to send a sample payload to your endpoint before going live. This verifies the URL is reachable and the format is correct.
+| Action | Limit |
+|---|---|
+| Test a webhook | 5 per webhook per 5 minutes |
+| Create webhooks | 20 per organisation per hour |
