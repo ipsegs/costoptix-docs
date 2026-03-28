@@ -1,0 +1,42 @@
+
+---
+title: Team Management
+description: Invite users, assign roles, and manage access for your organisation.
+---
+
+## Roles
+
+| Role | Access |
+|---|---|
+| `admin` | Full access — manage accounts, users, billing, webhooks, SSO, and all cost data |
+| `member` | Read access to cost data, dashboards, budgets, and anomalies. Cannot modify organisation settings or manage users |
+
+The first user who creates an organisation is assigned `admin` automatically.
+
+## User Limits
+
+| Plan | Max users |
+|---|---|
+| Starter | 1 |
+| Professional | 3 |
+| Business | 50 |
+| Enterprise | Unlimited |
+
+## Inviting Users
+
+Go to **Admin → Users → Invite User**. Enter the invitee's email address and select their role. Cost Optix sends an invitation email with a time-limited activation link.
+
+If SSO is enabled on your plan, users with your registered email domain are created automatically on first login (JIT provisioning) — no manual invitation needed.
+
+## Changing a User's Role
+
+Go to **Admin → Users**, find the user, and click **Edit**. Role changes take effect on the user's next request.
+
+## Deactivating and Removing Users
+
+**Deactivating** a user immediately invalidates their session and blocks future logins without deleting their history. **Deleting** a user removes them permanently.
+
+## Bulk Operations
+
+The admin panel supports bulk invite, activate, deactivate, and delete across multiple users at once.
+
