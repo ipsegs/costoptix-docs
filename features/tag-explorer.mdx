@@ -1,0 +1,59 @@
+---
+title: Tag Explorer
+description: Analyse cloud spend by resource tag across all connected providers. Available on Professional and above.
+---
+
+<Info>
+  Tag Explorer is available on **Professional, Business, and Enterprise** plans.
+</Info>
+
+## Overview
+
+The Tag Explorer lets you break down cloud spend by any resource tag key and see which tag values are driving cost. It works across all connected providers — you can see how much your `team=payments` resources cost across AWS, Azure, and GCP combined, without exporting CSVs or writing queries.
+
+## Selecting an Account
+
+Use the account switcher in the top navigation to scope the Tag Explorer to a specific connected account. Tag keys and values are fetched for the selected account and provider.
+
+## Browsing Tag Keys
+
+The left panel lists all tag keys detected on the selected account. Click a key to load the cost breakdown for that key — for example, selecting `env` shows total spend for `env=production`, `env=staging`, `env=dev`, and any untagged resources.
+
+## Cost Breakdown
+
+For each tag key, Cost Optix shows:
+
+- **Tag value** — the specific value (e.g. `production`)
+- **Total cost** — spend attributed to resources with that tag value in the selected period
+- **Percentage** — share of total spend for that key
+- **Untagged cost** — spend from resources that have no value for this tag key
+
+## How Tag Data Is Fetched
+
+Tag data loads in two phases to keep the interface fast:
+
+1. **Phase 1 — on page load:** Tag keys are synced from the provider's API. For Azure this uses the Consumption Tags API; for AWS and GCP, keys are read from the local tag aggregates table.
+
+2. **Phase 2 — on demand:** When you select a tag key, Cost Optix fetches the cost breakdown for that specific key. For Azure this calls the Usage Details API scoped to the key. For GCP it runs a BigQuery UNNEST query over the billing export dataset.
+
+This means the initial page load is always fast, and detailed cost data is only fetched when you need it.
+
+## Date Range
+
+Use the date picker to select a time window. Presets include last 7 days, last 30 days, this month, and last month. Custom date ranges are also supported.
+
+## Drilling into Resources
+
+Click a tag value to see the individual resources tagged with that value — resource name, resource ID, resource group (Azure), type, and location. Filter and search within the resource list, and paginate through large result sets.
+
+## Exporting
+
+Both the cost breakdown and the resource list can be exported to CSV using the **Export** button in each view.
+
+## Untagged Resources
+
+Cost Optix surfaces untagged spend alongside tagged spend. Resources with no value for the selected tag key appear in the **Untagged** row. This helps identify resources missing tags that are hard to attribute to a team or project.
+
+## Tag-Scoped Budgets
+
+Tag keys and values from the Tag Explorer can be used as filters when creating a budget, so you can track spend for a specific tag combination against a budget limit. See [Budgets](/features/budgets#tag-scoped-budgets) for details.
