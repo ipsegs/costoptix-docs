@@ -2,10 +2,10 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Cost Optix",
   "logo": {
-    "dark": "/logo/logo-dark.svg",
-    "light": "/logo/logo-light.svg"
+    "dark": "/favicon.png",
+    "light": "/favicon.png"
   },
-  "favicon": "/favicon.ico",
+  "favicon": "/favicon.png",
   "colors": {
     "primary": "#6366f1",
     "light": "#818cf8",
