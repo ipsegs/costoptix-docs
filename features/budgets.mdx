@@ -1,0 +1,76 @@
+---
+title: Budgets
+description: Set spend limits per account, track utilisation in real time, and receive alerts at configurable thresholds.
+---
+
+## Overview
+
+Budgets let you define a spend ceiling for a cloud account (or across all accounts) and receive alerts when spend crosses warning or critical thresholds. Cost Optix tracks actual spend throughout the month and projects end-of-period spend using historical patterns.
+
+## Creating a Budget
+
+Go to **Budgets → New Budget**:
+
+| Field | Description |
+|---|---|
+| Name | A descriptive label |
+| Amount | The spend limit in USD |
+| Period | `monthly` |
+| Account | A specific connected account, or `multi-account` for all accounts |
+| Warning threshold | Percentage triggering a warning alert (default 80%) |
+| Critical threshold | Percentage triggering a critical alert (default 95%) |
+
+## Alert Thresholds
+
+| State | Default trigger | Webhook event |
+|---|---|---|
+| Warning | 80% of budget | `budget.warning` |
+| Critical | 95% of budget | `budget.critical` |
+| Exceeded | 100% of budget | `budget.exceeded` |
+
+Thresholds are configurable per budget. See [Webhooks](/features/webhooks) to receive alerts in Slack, Teams, or Discord.
+
+## Budget Risk (Value at Risk)
+
+Alongside current spend, each budget card shows a **Predicted** value — a statistically derived estimate of worst-case end-of-period spend. This is calculated from up to 11 months of historical data for that account. When historical data is limited, it falls back to linear extrapolation.
+
+## Tag-Scoped Budgets
+
+<Info>
+  Tag-scoped budgets are available on **Professional and above**.
+</Info>
+
+A tag-scoped budget tracks spend only for resources matching a specific tag key/value combination, rather than an entire account. Useful for tracking spend by team, environment, or project.
+
+### Adding tag filters
+
+When creating a budget, add one or more tag filter rules:
+
+| Field | Description |
+|---|---|
+| Key | The tag key (e.g. `team`, `env`, `project`) |
+| Operator | `=` for exact match, `in` for multiple values |
+| Value | The tag value, or comma-separated list for `in` |
+
+**Examples:**
+```
+team = payments
+env in [production, staging]
+project = checkout-v2
+```
+
+Multiple filters on a single budget are AND-ed — spend must match all filters to be counted.
+
+### How tag-scoped spend is calculated
+
+Cost Optix resolves tag-scoped spend from the same data source as the Tag Explorer:
+
+- **Azure** — Consumption Tags API + Usage Details API
+- **AWS** — tag cost aggregates (synced from Cost Explorer)
+- **GCP** — BigQuery UNNEST query over the billing export dataset
+
+For `multi-account` budgets with tag filters, Cost Optix sums the matching tag-scoped spend across every active account.
+
+## Editing and Deleting
+
+Open a budget and click **Edit** to update any field. Changes take effect immediately. Deleting a budget is permanent.
