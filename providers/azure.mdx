@@ -1,0 +1,128 @@
+---
+title: Microsoft Azure
+description: Connect your Azure subscription to Cost Optix using a Service Principal with read-only access to cost and billing data.
+---
+
+<Info>
+  Cost Optix reads cost data from the **Azure Cost Management API**. You will need an Azure Service Principal with **Cost Management Reader** and **Reader** roles on the target subscription.
+</Info>
+
+## Prerequisites
+
+- Azure CLI installed, **or** access to the Azure Portal
+- Permission to create Service Principals in your Entra ID (Azure Active Directory) tenant
+- The Subscription ID you want to monitor
+
+---
+
+## Required Permissions
+
+| Role | Scope | Purpose |
+|---|---|---|
+| Cost Management Reader | Subscription | Read cost and billing data via the Cost Management API |
+| Reader | Subscription | Enumerate resources, resource groups, and resource tags |
+
+Both roles are required. Cost Management Reader alone is not sufficient for tag enumeration.
+
+---
+
+## Setup: Service Principal (Recommended)
+
+### Step 1 — Log in and select your subscription
+
+```bash
+az login
+
+# List subscriptions to find your ID
+az account list --output table
+
+# Set the subscription to monitor
+az account set --subscription "<SUBSCRIPTION_ID>"
+```
+
+### Step 2 — Create the Service Principal
+
+This command creates the app registration, generates a secret, and assigns the Reader role in one step. **The secret (password) is only shown once — save it immediately.**
+
+```bash
+az ad sp create-for-rbac \
+  --name "cost-optix-reader" \
+  --role "Reader" \
+  --scopes "/subscriptions/<SUBSCRIPTION_ID>" \
+  --years 2
+```
+
+The output contains:
+
+| Field | Maps to |
+|---|---|
+| `appId` | **Client ID** |
+| `password` | **Client Secret** |
+| `tenant` | **Tenant ID** |
+
+### Step 3 — Add Cost Management Reader
+
+```bash
+SP_APP_ID="<appId from above>"
+
+az role assignment create \
+  --assignee "$SP_APP_ID" \
+  --role "Cost Management Reader" \
+  --scope "/subscriptions/<SUBSCRIPTION_ID>"
+```
+
+### Step 4 — Enter credentials in Cost Optix
+
+Navigate to **Admin → Accounts → Add Account**, select **Microsoft Azure**, and enter:
+
+- **Tenant ID** — from the `tenant` field above
+- **Client ID** — from the `appId` field above
+- **Client Secret** — from the `password` field above
+- **Subscription ID** — your Azure subscription ID
+
+---
+
+## Setup: Managed Identity
+
+If Cost Optix is running on an Azure resource (VM, Container App, or AKS pod) with a Managed Identity assigned, you can use identity-based authentication without storing any secrets.
+
+1. Assign the **Cost Management Reader** and **Reader** roles to the Managed Identity on the target subscription (same commands as Step 2–3 above, replacing the Service Principal `--assignee` with the Managed Identity's principal ID).
+2. In Cost Optix, select **Managed Identity** as the authentication method. No additional credentials are required.
+
+---
+
+## Billing Lag
+
+Azure cost data has a lag of up to **5 days**. Today's spend will not appear immediately. This is an Azure platform constraint, not a Cost Optix limitation.
+
+| Data type | Typical availability |
+|---|---|
+| Daily cost totals | T+1 to T+5 days |
+| Resource-level tags | Updated on each sync |
+| Usage Details (Tag Explorer) | T+1 to T+5 days |
+
+---
+
+## Tag Explorer
+
+The Azure Tag Explorer uses the **Usage Details API** to fetch per-resource tag data. This requires the **Reader** role in addition to Cost Management Reader. Tag keys are loaded on page entry; tag value cost breakdowns are fetched on demand.
+
+<Note>
+  The Tag Explorer fetches from the Usage Details API in real time. Large subscriptions with many resources may take a few seconds to load a tag key's cost breakdown.
+</Note>
+
+---
+
+## Troubleshooting
+
+**"AuthorizationFailed" or "Forbidden"**
+Verify both **Reader** and **Cost Management Reader** are assigned at the subscription scope — not at a resource group scope.
+
+**"InvalidSubscription" or subscription not found**
+Confirm the Subscription ID is correct and that the Service Principal's tenant matches the subscription's tenant.
+
+**Cost data shows zeros or is missing recent days**
+Azure billing data can lag up to 5 days. Check the Azure portal's Cost Analysis blade to confirm data is available there before investigating further.
+
+**Client secret expired**
+Service Principal secrets have an expiry. Create a new secret in **Entra ID → App registrations → [your app] → Certificates & secrets** and update the credential in Cost Optix.

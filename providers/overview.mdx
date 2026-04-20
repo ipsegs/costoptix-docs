@@ -1,0 +1,73 @@
+---
+title: Cloud Providers Overview
+description: Cost Optix supports multiple cloud platforms and services. Connect as many accounts as your plan allows.
+---
+
+## Supported Providers
+
+Cost Optix is built provider-agnostic. The following providers are currently available:
+
+| Provider | Type | Auth Method | Billing Lag | Status |
+|---|---|---|---|---|
+| [Microsoft Azure](/providers/azure) | Cloud | Service Principal / Managed Identity | Up to 5 days | ✅ Available |
+| [Amazon Web Services](/providers/aws) | Cloud | Access Keys / IAM Role | 1–3 days | ✅ Available |
+| [Google Cloud Platform](/providers/gcp) | Cloud | Service Account JSON | 1–3 days | ✅ Available |
+| Kubernetes | Container | In-cluster agent | Real-time | 🔜 Coming Soon |
+| Heroku | Platform | API Key | 1 day | 🔜 Coming Soon |
+
+Additional providers are continuously being integrated. If you need a provider that is not yet listed, contact [support@costoptix.com](mailto:support@costoptix.com).
+
+---
+
+## How Provider Accounts Work
+
+Each **account** in Cost Optix maps to a single cloud subscription, project, or cluster:
+
+- An **Azure** account corresponds to a single Azure subscription
+- An **AWS** account corresponds to a single AWS account (12-digit account ID)
+- A **GCP** account corresponds to a single GCP project with a linked BigQuery billing export
+
+You can connect multiple accounts of the same or different provider types. Cost Optix keeps their data isolated per account and lets you view costs per account or aggregated across all connected accounts.
+
+---
+
+## How Many Accounts Can I Connect?
+
+The number of accounts you can connect depends on your plan:
+
+| Plan | Cloud Accounts |
+|---|---|
+| Starter | 2 |
+| Professional | 5 |
+| Business | 50 |
+| Enterprise | Unlimited |
+
+See [Subscription Tiers](/getting-started/subscription-tiers) for a full plan comparison.
+
+---
+
+## Connecting Your First Account
+
+1. In your Cost Optix dashboard, go to **Admin → Accounts**
+2. Click **Add Account**
+3. Select your cloud provider
+4. Follow the provider-specific setup guide (linked in the table above)
+5. Click **Save** — Cost Optix will immediately attempt to verify the credentials and queue a data sync
+
+After a successful connection, your first cost data will appear within the provider's typical billing lag window.
+
+---
+
+## Data Security
+
+Cost Optix only ever requests **read-only access** to your cloud accounts. It never creates, modifies, or deletes cloud resources or makes purchases on your behalf.
+
+All credentials are encrypted at rest using AES-256-GCM and encrypted in transit using TLS 1.3. Each organisation's data and credentials are stored in an isolated database — no data is shared across organisations.
+
+See the [Security](/security) page for full details.
+
+---
+
+## Removing a Provider Account
+
+To disconnect an account, go to **Admin → Accounts**, find the account, and click **Remove**. This deletes all stored credentials and cost data associated with that account from Cost Optix. Your cloud provider account is unaffected.

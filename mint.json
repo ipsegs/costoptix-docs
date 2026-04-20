@@ -40,7 +40,7 @@
     {
       "name": "Status",
       "icon": "circle-check",
-      "url": "https://status.costoptix.com"
+      "url": "https://costoptix.com/status"
     },
     {
       "name": "Support",
@@ -64,7 +64,6 @@
         "providers/azure",
         "providers/aws",
         "providers/gcp",
-        "providers/heroku",
         "providers/kubernetes"
       ]
     },
