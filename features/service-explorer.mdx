@@ -1,0 +1,115 @@
+---
+title: Service Explorer
+description: Filter, sort, and inspect every cloud service with anomaly flags, risk levels, growth metrics, and month-by-month cost history.
+---
+
+## Overview
+
+The Service Explorer is the most detailed per-service view in Cost Optix. It combines two complementary tables — an analytics view with growth and risk scoring, and a monthly cost matrix — letting you interrogate any service in your account across any date range.
+
+The page is account-scoped. Select an account from the top navigation to load data.
+
+---
+
+## Views
+
+The Service Explorer has two tabs:
+
+**Analytics View** — rows are services; columns include total cost, CAGR, trend, confidence, anomaly flag, risk level, and health status. Built for filtering and triage.
+
+**Monthly View** — rows are services; columns are calendar months. Built for spotting which months drove cost changes and comparing services side by side over time.
+
+---
+
+## Analytics View
+
+### Columns
+
+| Column | Description |
+|---|---|
+| **Service** | Service name as reported by the provider |
+| **Total Cost** | Spend across the full selected range |
+| **Avg Monthly** | Average monthly cost across months with data |
+| **Trend** | Increasing / Stable / Decreasing — direction of cost change |
+| **CAGR** | Compound Annual Growth Rate for this service |
+| **Confidence** | Reliability of trend and CAGR based on months of data available |
+| **MoM %** | Month-over-month change: most recent month vs the one before |
+| **Anomaly** | Whether an anomaly was detected for this service in the range |
+| **Risk Level** | Critical / High / Medium / Low — from the enhanced risk model |
+| **Health** | Critical / Watch / Savings / Healthy — from the service health categorisation |
+
+All columns are sortable. Click a header to sort; click again to reverse.
+
+### Filters
+
+Use the filter bar to narrow the table by:
+
+- **Search** — free-text search on service name
+- **Confidence** — High, Medium, Low, or Insufficient
+- **Risk Level** — Critical, High, Medium, or Low
+- **Anomalies** — show only services with detected anomalies, or only those without
+- **Trend** — Increasing, Stable, or Decreasing
+- **Health Status** — Critical, Watch, Savings, or Healthy
+
+Filters combine with AND logic — a service must match all active filters to appear.
+
+The **Clear Filters** button resets all filters and the search term at once. Filter state is preserved when you navigate away and return within the same session.
+
+### URL Filter Shortcut
+
+The Service Explorer supports a `?filter=critical` or `?filter=watch` query parameter in the URL. Links from the Cost Dashboard's service health cards use this to open the table pre-filtered to the relevant category.
+
+---
+
+## Monthly View
+
+The monthly view renders a cost matrix: every service that had spend in the selected range appears as a row, with one column per calendar month. Each cell shows that service's spend in that month.
+
+Use this view to:
+- Compare services side by side across the same months
+- Identify which month a new service first appeared
+- Spot services where a specific month was anomalously expensive
+- See services that stopped incurring charges mid-period
+
+---
+
+## Exporting
+
+Click **Export** from either tab to download the current view as a CSV. For the analytics view, the export respects active filters — only visible rows are included.
+
+An advanced export modal is available for larger datasets with options for export type (summary, detailed, analytics) and metadata.
+
+---
+
+## Anomaly and Risk Flags
+
+Services flagged with an anomaly have at least one day in the selected range where spend deviated significantly from the statistical baseline. The flag is sourced from the same anomaly detection engine that powers the Anomaly Detection page.
+
+Risk levels (Critical, High, Medium, Low) come from the enhanced risk model and account for factors including volatility, growth rate, and anomaly history. A service can be "Healthy" in the health status column but still be "High" risk if it is growing rapidly.
+
+---
+
+## Data Requirements
+
+Growth metrics (CAGR, Total Change, Confidence) require at least two months of billing data for a service. Services with only one month of data will show `—` or `Insufficient` in those columns.
+
+Anomaly flags are only available for services with enough historical data to establish a baseline. New services (less than 7 days of history) will not be flagged.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Cost Explorer" icon="chart-line" href="/features/cost-explorer">
+    Portfolio-level analytics with concentration risk and CAGR by service.
+  </Card>
+  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
+    Full anomaly workflow management and alert configuration.
+  </Card>
+  <Card title="Tag Explorer" icon="tag" href="/features/tag-explorer">
+    Break down service costs further by resource tag.
+  </Card>
+  <Card title="Daily Spend" icon="calendar" href="/features/daily-spend">
+    Day-by-day sparklines for any service in the selected period.
+  </Card>
+</CardGroup>
