@@ -88,14 +88,14 @@ Clicking any row in the service table expands a sparkline — a bar-per-day brea
 
 ### Bar Colours
 
-Sparkline bars are coloured using **MAD-based robust Z-score detection**, the same statistical algorithm used by the anomaly detection engine:
+Sparkline bars are coloured using the same statistical detection used by the anomaly detection engine:
 
 | Colour | Meaning |
 |---|---|
-| 🔴 **Red** | Anomalous spike — Z-score > 2.5 above baseline, or confirmed by the anomaly detection engine |
+| 🔴 **Red** | Anomalous spike — statistically significant deviation above the service baseline, or confirmed by the anomaly detection engine |
 | 🟠 **Amber** | Peak day — highest cost in the period but within normal statistical range |
 | 🔵 **Blue** | Normal — cost within expected range |
-| 🟢 **Green** | Notably cheap — Z-score < −2.5 below baseline |
+| 🟢 **Green** | Notably cheap — statistically significant deviation below the service baseline |
 
 ### Baseline
 
