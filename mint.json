@@ -72,11 +72,16 @@
       "pages": [
         "features/cost-dashboard",
         "features/daily-spend",
+        "features/cost-explorer",
+        "features/service-explorer",
         "features/anomaly-detection",
         "features/budgets",
         "features/tag-explorer",
         "features/ai-insights",
-        "features/webhooks"
+        "features/webhooks",
+        "features/multi-account",
+        "features/quarterly-report",
+        "features/provider-news"
       ]
     },
     {
