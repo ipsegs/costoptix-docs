@@ -1,0 +1,177 @@
+---
+title: Daily Spend
+description: Day-by-day cost breakdown with service-level sparklines, DoD change, trend analysis, and CSV export — available on all plans.
+---
+
+## Overview
+
+The Daily Spend page shows your cloud costs at the day level. While the main [Cost Dashboard](/features/cost-dashboard) summarises your billing month, Daily Spend lets you zoom in to see exactly which day costs spiked, which services drove it, and how today compares to yesterday.
+
+The page is account-scoped. Select an account from the top navigation before loading data.
+
+---
+
+## Date Range
+
+Choose a preset or a custom range using the date controls at the top of the page.
+
+**Presets:** Last 7 days, Last 14 days, Last 30 days, Last 60 days, Last 90 days.
+
+**Custom range:** Use the calendar picker to select any start and end date. The maximum custom range is 90 days.
+
+Today's data is always flagged as a **partial day** (⚡) because cloud providers finalise billing hours after actual usage occurs. The partial day is included in the period total but excluded from averages, baselines, and trend calculations to avoid skewing results.
+
+---
+
+## KPI Strip
+
+The KPI strip at the top of the page shows the most important headline numbers for the selected period at a glance.
+
+| KPI | What it shows |
+|---|---|
+| **Period Total** | Sum of all daily spend across the selected range, including today's partial data |
+| **Avg / Day** | Total spend ÷ number of *complete* days only — today is excluded |
+| **Peak Day** | The single most expensive complete day and its date |
+| **Lowest Day** | The cheapest day with non-zero spend and its date |
+| **DoD Change** | Day-over-day percentage change between the two most recent complete days |
+| **Trend** | Whether spend is increasing, decreasing, or stable across the period |
+| **Weekday Avg** | Average daily spend on weekdays vs weekends (shown when both exist) |
+| **Services** | Number of distinct services with spend, and the Pareto count (how many drive 80% of cost) |
+
+### Avg / Day vs Burn Rate
+
+**Avg / Day** on this page averages only fully settled, complete days. This makes it a precise historical baseline. It differs from the **burn rate** on the Cost Dashboard, which uses the current month's total divided by days elapsed — a forward-looking metric for forecasting.
+
+---
+
+## Charts
+
+### Total Daily Spend
+
+A bar chart showing combined spend across all services for each day in the selected range. Use this to spot which days had abnormal total costs before drilling into the service table below.
+
+Today's bar is visually distinguished with a partial indicator when data is still being settled by the provider.
+
+### Spend by Service (Stacked Area)
+
+A stacked area chart showing the top services as separate colour-coded layers. The Y-axis is the combined daily cost; each layer represents one service's contribution to that day's total.
+
+Services beyond the top tier are grouped into an **Other** band at the bottom of the stack. Hovering over the chart shows a tooltip with per-service costs for that day.
+
+---
+
+## Service Breakdown Table
+
+The service table lists every service that recorded spend in the selected period. Click any row to expand it and reveal the sparkline.
+
+**Columns:**
+
+| Column | Description |
+|---|---|
+| **Service** | Service name |
+| **Total** | Total spend for this service across the full period |
+| **Avg/Day** | Average daily spend across active days only |
+| **Peak** | The highest single-day cost for this service |
+| **Active** | Number of days the service recorded non-zero spend |
+| **DoD** | Day-over-day percentage change for the two most recent complete days |
+| **Share** | Percentage of total period spend, shown as a bar |
+
+All columns are sortable. Click a column header to sort; click again to reverse direction.
+
+Use the **Filter services** input to search by service name. The tab count updates to show matching results out of total.
+
+---
+
+## Sparklines
+
+Clicking any row in the service table expands a sparkline — a bar-per-day breakdown for that specific service.
+
+### Bar Colours
+
+Sparkline bars are coloured using **MAD-based robust Z-score detection**, the same statistical algorithm used by the anomaly detection engine:
+
+| Colour | Meaning |
+|---|---|
+| 🔴 **Red** | Anomalous spike — Z-score > 2.5 above baseline, or confirmed by the anomaly detection engine |
+| 🟠 **Amber** | Peak day — highest cost in the period but within normal statistical range |
+| 🔵 **Blue** | Normal — cost within expected range |
+| 🟢 **Green** | Notably cheap — Z-score < −2.5 below baseline |
+
+### Baseline
+
+The baseline is the **median** daily cost for that service, not the mean. The median is used because it is unaffected by spikes — it represents what a typical day looks like for that service. Days coloured red are genuinely unusual relative to that service's own history, not just expensive in absolute terms.
+
+### Sparkline Stats
+
+Below the bars, each expanded row shows:
+- **Total** — period total for this service
+- **Average** — average daily cost
+- **Baseline** — median daily cost (the anomaly threshold reference)
+- **Peak** — highest single day
+- **Active days** — how many of the complete days had non-zero spend
+- **Latest DoD** — day-over-day change for the last two complete days
+
+### Resource Drill-Down
+
+Click **View resources** inside an expanded sparkline to load the individual resources behind that service for the selected date range. Resources are streamed in via a live connection and show resource name, resource group, location, and daily cost contribution. Click **Hide resources** to close the panel.
+
+---
+
+## Insights Tab
+
+Switch to the **Insights** tab next to the service table for computed analysis of the current period.
+
+### Terminology Reference
+
+The Insights tab includes a built-in glossary explaining DoD, Avg / Day, Baseline, Active Days, Partial Day, and sparkline bar colours — useful for sharing the page with team members who are new to the platform.
+
+### Trend Analysis
+
+Cost Optix measures trend by splitting the selected period into two equal halves and comparing the average daily spend in each. A period showing 15% higher average spend in its second half is classified as **increasing** by 15%. This approach is more robust than a simple first-to-last comparison because it is not distorted by a single anomalous day at either end of the range.
+
+### Volatility Analysis
+
+The Insights tab surfaces volatility metrics including:
+- Peak-to-average ratio — how many times larger the peak day was compared to the daily average
+- Spend range — dollar difference between the peak and cheapest active day
+- Weekday vs weekend ratio — whether workday infrastructure is significantly more expensive than weekend
+
+### Pareto / 80-20 Insight
+
+The Insights tab identifies the Pareto set: how many services account for 80% of total spend in the selected period. The top services in that set are listed. This is the fastest way to identify where optimisation effort will have the most impact.
+
+---
+
+## Exporting
+
+Two CSV exports are available from the **Service Breakdown** tab header:
+
+- **Daily Totals** — one row per day with total combined spend across all services
+- **By Service** — one row per service per day, giving the full per-service daily matrix
+
+Both exports include the account identifier and date range in the filename.
+
+---
+
+## Tier Availability
+
+Daily Spend is available on all plans including Starter.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Cost Dashboard" icon="chart-bar" href="/features/cost-dashboard">
+    Monthly executive summary, service health, and actionable insights.
+  </Card>
+  <Card title="Anomaly Detection" icon="chart-line" href="/features/anomaly-detection">
+    Statistical spike detection — same algorithm used to colour sparkline bars.
+  </Card>
+  <Card title="Budgets" icon="wallet" href="/features/budgets">
+    Set monthly spend limits and receive threshold alerts.
+  </Card>
+  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
+    Ask natural language questions about your daily spend patterns.
+  </Card>
+</CardGroup>
