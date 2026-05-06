@@ -1,0 +1,137 @@
+---
+title: AI Insights
+description: A context-aware AI assistant built into every page — curated questions, free-form chat, anomaly root cause analysis, and quota management across all tiers.
+---
+
+## Overview
+
+Cost Optix includes an AI assistant accessible from every page via a floating chat widget. It can answer questions about your cloud spending, explain cost anomalies, identify optimisation opportunities, and analyse portfolio health — all grounded in your actual billing data for the selected account and date range.
+
+No data leaves the platform to train external models. The AI only reasons over the cost data already loaded in your session.
+
+---
+
+## Opening the Widget
+
+Click the **AI chat bubble** in the bottom-left corner of any page to open the assistant. The widget shows a welcome message and, if an account is selected and cost data is loaded, a set of suggested questions tailored to what data is currently available.
+
+The widget can be **expanded** to a wider layout using the expand button in the header — useful for reading longer analyses or working through a multi-step conversation.
+
+---
+
+## Curated Questions
+
+When cost data is loaded for the selected account, the assistant presents a set of pre-built analysis questions organised by category. These are not generic prompts — they are assembled server-side based on which data types are present in your session (cost records, portfolio analytics, budget risk data, anomaly data, daily spend data).
+
+**Categories and example questions:**
+
+| Category | Examples |
+|---|---|
+| Overview | Portfolio health check |
+| Costs | Cost summary, Month-over-month comparison |
+| Trends | Growth drivers, Daily spend pattern |
+| Anomalies | Cost spikes and anomalies, Daily spike analysis |
+| Optimisation | Top optimisation opportunities |
+| Risk | Diversification and concentration risk, Budget risk forecast |
+
+Questions that require data not yet loaded appear in a separate **unavailable** section showing which data types are missing. Clicking them tells you exactly what to load.
+
+### How Questions Are Answered
+
+Each curated question uses a structured prompt that requires the AI to use only exact figures from your data — never estimates or generic advice. Responses always include:
+
+- Specific dollar amounts, not vague descriptions like "significant increase"
+- Named services, not "some services"
+- Actionable steps tied to actual resources in your account
+- Exact percentages for all changes
+
+---
+
+## Free-Form Chat
+
+Type any question into the input box to ask something not covered by the curated list. The assistant has access to the same data context as the curated questions — the services, costs, portfolio analytics, anomalies, and daily spend currently loaded on the page.
+
+The time range used for free-form questions is inferred from the question text and the current page context. Queries mentioning "this week" or "last 7 days" use a 7-day range; questions about trends or CAGR automatically use a longer 180-day range.
+
+**Example questions you can ask:**
+
+- "Which service grew the fastest last quarter?"
+- "Why did my Azure costs spike on the 14th?"
+- "How does my weekday spend compare to weekends?"
+- "What's driving my storage costs?"
+- "Am I on track to stay within budget this month?"
+
+---
+
+## Root Cause Analysis
+
+The AI assistant integrates directly with the anomaly detection system. On the Anomaly Detection page, each anomaly card has a **Root Cause Analysis** button that runs a two-phase investigation:
+
+**Phase 1 — Statistical analysis (no AI query consumed):** Cost Optix computes which specific resources changed on the anomaly date, ranks them by confidence and dollar impact, and identifies the change type (new resource, scaled up, scaled down, removed).
+
+**Phase 2 — AI explanation:** The structured Phase 1 results are sent to the AI with a strict prompt requiring it to explain — in plain language — what happened, why, and what to do about it. This consumes one AI query.
+
+After the AI explanation loads, clicking **Ask follow-up questions** in the anomaly panel opens the chat widget with the full root cause context pre-loaded. You can then ask follow-up questions about the specific anomaly without consuming additional quota for the context load.
+
+**Data limitations for root cause analysis:**
+- Anomalies older than 14 days use service-level data only — individual resource names are not available on AWS and Azure due to provider API constraints
+- Newly activated services with less than 7 days of history do not have a reliable baseline for comparison
+
+---
+
+## Context Awareness
+
+The assistant is always aware of:
+
+- **Selected account** — provider, account ID, and display name
+- **Current page** — answers are scoped to the page context (daily spend questions on the Daily Spend page, portfolio questions on the Cost Explorer, etc.)
+- **Loaded data** — services, monthly cost breakdowns, anomalies, portfolio analytics, budget risk, and daily spend data currently in the session
+- **Date range** — the active date range selected in the interface
+
+The assistant will tell you if it cannot answer a question because the required data has not been loaded.
+
+---
+
+## Quota and Tier Limits
+
+AI queries are metered monthly. Each question asked (curated or free-form) consumes one query. Loading the curated questions list and loading root cause Phase 1 data do **not** consume quota.
+
+| Tier | AI insights / month |
+|---|---|
+| Starter | 5 |
+| Professional | 50 |
+| Business | 100 |
+| Enterprise | Unlimited |
+
+When your monthly quota is exhausted, a banner appears in the widget with an upgrade link. Quota resets on the first day of each calendar month.
+
+### Quota Resolution
+
+The effective monthly quota is the higher of your base subscription tier's included queries and any AI add-on you have purchased. Upgrading your base plan (e.g. Starter to Professional) automatically increases AI quota without requiring a separate purchase.
+
+---
+
+## AI Model
+
+The primary model is **Gemini 2.5 Flash**, routed via Cloudflare AI Gateway. Business and Enterprise tiers have access to advanced AI models. Enterprise plans can bring their own AI provider keys (OpenAI, Anthropic, Google, etc.) configured at the organisation level.
+
+Response caching is used where safe — identical questions on the same data context may be served from cache at no quota cost.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
+    Root cause analysis is triggered from the anomaly detail panel.
+  </Card>
+  <Card title="Cost Explorer" icon="chart-line" href="/features/cost-explorer">
+    Portfolio health and growth driver questions use Cost Explorer data.
+  </Card>
+  <Card title="Daily Spend" icon="calendar" href="/features/daily-spend">
+    Daily pattern, spike, and projection questions are available on the Daily Spend page.
+  </Card>
+  <Card title="Subscription Tiers" icon="credit-card" href="/getting-started/subscription-tiers">
+    AI query limits by plan.
+  </Card>
+</CardGroup>
