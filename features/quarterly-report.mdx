@@ -1,0 +1,107 @@
+---
+title: Quarterly Report
+description: Q1–Q4 cost breakdown across all cloud accounts and providers — grand totals, quarter-over-quarter growth rates, and top service and account rankings.
+---
+
+<Info>
+  The Quarterly Report is available on **Professional, Business, and Enterprise** plans.
+</Info>
+
+## Overview
+
+The Quarterly Report aggregates your cloud spend into calendar quarters (Q1–Q4) and surfaces quarter-over-quarter growth rates, a ranked breakdown of services and accounts, and per-quarter service detail. It is designed for finance reviews, planning cycles, and executive reporting.
+
+Unlike the other dashboards which are account-scoped, the Quarterly Report can cover all accounts at once or be filtered to a single account.
+
+---
+
+## Account Scope
+
+Use the **account selector** in the page header to switch between:
+
+- **All Accounts** (default) — aggregates spend across every active account
+- **A specific account** — scopes the report to a single connected account
+
+---
+
+## Date Range
+
+Use the date picker to select the year or range to report on. The report automatically maps your selected range to calendar quarters (Jan–Mar, Apr–Jun, Jul–Sep, Oct–Dec). Quarters with no data appear in the grid as empty rather than being hidden.
+
+---
+
+## Summary Cards
+
+Four KPI cards appear at the top of the report:
+
+| Card | Description |
+|---|---|
+| **Grand Total** | Total spend across all quarters in the selected range |
+| **Avg / Quarter** | Grand total divided by the number of quarters |
+| **Quarters with Data** | How many quarters had non-zero spend, out of the total covered |
+| **Top Services Tracked** | Number of distinct services ranked in the top services table |
+
+---
+
+## Quarter Breakdown Grid
+
+Each quarter is shown as a card displaying:
+
+- **Quarter label** (e.g. Q2 2025) and date range (e.g. Apr 1 – Jun 30, 2025)
+- **Total cost** for the quarter
+- **QoQ growth rate** — percentage change vs the previous quarter (shown as `—` for the first quarter)
+- **Record count** — number of individual billing records in that quarter
+- **Service count** — number of distinct services that had spend
+- **Account count** — number of accounts that contributed spend
+- **Top 5 services** for the quarter with their costs
+
+Growth rates use colour coding: green for decreasing cost (saving), red for increasing cost (growth).
+
+---
+
+## Quarter-over-Quarter Growth Rates
+
+QoQ growth is calculated as the percentage change between each quarter's total cost and the previous quarter's total. The first quarter in the range always shows `—` because there is no prior quarter to compare against.
+
+A positive QoQ rate means spend increased. A negative rate means spend decreased. Neither is inherently good or bad — it depends on whether growth was planned and whether it aligns with your cloud budget.
+
+---
+
+## Top Services (All Quarters)
+
+A ranked list of the highest-spending services across all quarters combined. Each entry shows the service name and its total spend across the full report period.
+
+This view answers "which service cost us the most this year?" across all accounts and quarters simultaneously.
+
+---
+
+## Top Accounts (All Quarters)
+
+A ranked list of the highest-spending accounts across all quarters combined. Each entry shows the account key and its total spend.
+
+This view is most useful when the report is scoped to **All Accounts** — it identifies which accounts drove the most cost over the year.
+
+---
+
+## Tier Availability
+
+The Quarterly Report requires Professional or above. On Starter, the page displays an upgrade prompt. The report is accessible immediately after upgrading and connecting at least one account with billing history.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Multi-Account Dashboard" icon="building" href="/features/multi-account">
+    Real-time portfolio view across all accounts.
+  </Card>
+  <Card title="Cost Explorer" icon="chart-line" href="/features/cost-explorer">
+    Service-level CAGR and growth metrics for deeper trend analysis.
+  </Card>
+  <Card title="Budgets" icon="wallet" href="/features/budgets">
+    Set quarterly or monthly spend limits with threshold alerts.
+  </Card>
+  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
+    Ask natural language questions about quarter-over-quarter trends.
+  </Card>
+</CardGroup>
