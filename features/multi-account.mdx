@@ -1,0 +1,140 @@
+---
+title: Multi-Account Dashboard
+description: Unified cost visibility across all connected cloud accounts and providers — portfolio totals, per-account breakdowns, service aggregation, and side-by-side comparison.
+---
+
+<Info>
+  The Multi-Account Dashboard is available on **Professional, Business, and Enterprise** plans.
+</Info>
+
+## Overview
+
+The Multi-Account Dashboard aggregates spend from every active cloud account you have connected — across all providers — into a single view. Instead of switching account by account, you see the total portfolio cost, how each account contributes, which services are the biggest spenders portfolio-wide, and how accounts compare against each other.
+
+---
+
+## Date Range
+
+The Multi-Account Dashboard shares the global date range with the rest of the app. Use the **date button** in the page header to open the picker and change the range. All tabs update simultaneously.
+
+---
+
+## Tabs
+
+The dashboard is split into four tabs.
+
+### Overview
+
+The Overview tab is the starting point. It shows:
+
+**KPI row:**
+
+| Metric | Description |
+|---|---|
+| **Total Portfolio Spend** | Combined cost across all active accounts for the selected range |
+| **Daily Average** | Portfolio total divided by days in the range |
+| **Projected Monthly** | Daily average × 30 — a simple monthly projection |
+| **Active Accounts** | Number of accounts with data, and the providers represented |
+| **Unique Services** | Total distinct services across all accounts, and the total cost record count |
+| **Portfolio Health** | 0–100 score; colour-coded from green (healthy) to red (critical) |
+| **Concentration Risk** | High / Medium / Low — based on how much of total spend sits in the top account |
+
+**Spend by Provider** — a ranked list of providers with their share of total portfolio cost.
+
+**Top Services** — the highest-spending services across all accounts combined.
+
+**Portfolio Insights** — auto-generated observations such as multi-cloud detection, top cost driver identification, and efficiency differences between accounts.
+
+---
+
+### Accounts
+
+The Accounts tab lists every active account with:
+
+- Account name and provider
+- Total cost for the selected range
+- Share of portfolio spend (percentage bar)
+- Daily average cost
+- Number of services
+- Cost efficiency score (cost per service)
+
+Accounts are sorted by total cost descending. Click any account row to navigate directly to that account's single-account dashboard.
+
+---
+
+### Services
+
+The Services tab aggregates service costs across all accounts. Services with the same name from different accounts are summed together, giving you a true cross-account service spend total.
+
+Each row shows:
+- Service name
+- Total cost across all accounts
+- Number of accounts where this service appeared
+- Percentage of total portfolio spend
+
+This view answers questions like "how much does my organisation spend on database services in total across every AWS, Azure, and GCP account?"
+
+---
+
+### Comparison
+
+The Comparison tab places all accounts side by side for direct comparison. It shows:
+
+- **Cost Leader** — the account with the highest total spend
+- **Most Efficient** — the account with the lowest cost-per-service ratio
+- **Per-account efficiency scores** — cost per service for each account
+- **Cost Leader breakdown** — the top services driving the highest-cost account
+
+Auto-generated comparison insights surface patterns such as significant efficiency differences between accounts, concentration of spend in one account, or multi-provider distribution.
+
+---
+
+## Concentration Risk
+
+Concentration risk measures how much of total portfolio spend sits in a single account:
+
+| Level | Trigger |
+|---|---|
+| **High** | Top account represents 80%+ of total portfolio spend |
+| **Medium** | Top account represents 60–79% |
+| **Low** | Top account represents less than 60% |
+
+High concentration risk does not mean something is wrong — a team with one primary cloud account will always show high concentration. It is a signal to monitor, not an alert.
+
+---
+
+## Portfolio Health Score
+
+The health score is calculated from factors including: whether active accounts have data, cost variance between accounts, and the proportion of accounts with non-zero spend in the period. The score ranges from 0 to 100 and is colour-coded:
+
+| Score | Label |
+|---|---|
+| 80–100 | Healthy |
+| 60–79 | Fair |
+| 40–59 | Needs attention |
+| 0–39 | Critical |
+
+---
+
+## Tier Availability
+
+The Multi-Account Dashboard requires Professional or above. On Starter (1 account maximum), the page is replaced with an upgrade prompt. The feature is automatically accessible once you upgrade and have more than one account connected.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Cost Dashboard" icon="chart-bar" href="/features/cost-dashboard">
+    Single-account monthly summary with executive KPIs.
+  </Card>
+  <Card title="Quarterly Report" icon="file-chart" href="/features/quarterly-report">
+    Q1–Q4 cost breakdown across all accounts and providers.
+  </Card>
+  <Card title="Budgets" icon="wallet" href="/features/budgets">
+    Multi-account budgets that track spend across all connected accounts.
+  </Card>
+  <Card title="Cost Explorer" icon="chart-line" href="/features/cost-explorer">
+    Deep-dive service analytics for a single account.
+  </Card>
+</CardGroup>
