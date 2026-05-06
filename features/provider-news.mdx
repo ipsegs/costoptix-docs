@@ -1,0 +1,95 @@
+---
+title: Provider News
+description: Cost-relevant announcements, pricing changes, and service updates from your connected cloud providers — filtered, ranked by severity, and dismissible.
+---
+
+## Overview
+
+The Provider News page surfaces billing-relevant announcements from the official RSS feeds of your connected cloud providers. Rather than manually monitoring provider blogs and changelogs, Cost Optix fetches, filters, and ranks updates that could affect your cloud costs — pricing changes, deprecations, new services, and cost-management features.
+
+---
+
+## How News Is Collected
+
+Cost Optix pulls from official provider RSS feeds on a scheduled basis. Sources include:
+
+| Provider | Sources |
+|---|---|
+| AWS | AWS What's New, AWS Cost Management Blog, AWS News Blog |
+| Azure | Azure Updates, Azure Blog |
+| GCP | Google Cloud Release Notes, Google Cloud Blog |
+| Heroku | Heroku Changelog |
+
+Items are filtered to include only cost-relevant content — pricing announcements, billing changes, service deprecations, and cost management updates. General engineering or product news unrelated to cost is excluded.
+
+Only items from the last 90 days are shown. Older items are removed automatically.
+
+---
+
+## Severity Levels
+
+Each news item is assigned a severity level based on its content:
+
+| Severity | Meaning |
+|---|---|
+| **Critical** | Pricing changes, billing model changes, deprecations with a direct cost impact |
+| **High** | Service changes likely to affect cost indirectly |
+| **Medium** | General announcements worth monitoring |
+| **Low** | Minor updates with minimal cost relevance |
+
+The page header shows a count of critical items so high-priority news is visible at a glance.
+
+---
+
+## Impact Indicator
+
+Items marked **⚡ May impact your infrastructure** are matched against the services and providers you actually have connected. If a news item mentions a service you are actively using, it surfaces with an impact flag.
+
+---
+
+## Filtering
+
+Use the filter sidebar to narrow displayed items by:
+
+- **Provider** — AWS, Azure, GCP, Heroku, or any combination
+- **Severity** — Critical, High, Medium, Low
+- **Type** — Announcements, Cost updates, General, Changelog
+- **Search** — free text search across title and description
+
+Filters combine with AND logic. Use **Clear Filters** to reset all active filters at once.
+
+---
+
+## Pagination
+
+News items are paginated at 10 per page. Use the Previous / Next buttons at the bottom of the list to navigate, or use filters to narrow to the items most relevant to you.
+
+---
+
+## Dismissing Items
+
+Click the **×** button on any news item to dismiss it. Dismissed items are hidden from your view but not deleted — they move out of the active list so they no longer count against your critical or total counts. Dismissed items cannot be un-dismissed from the UI.
+
+News items that appear in the compact **Provider Updates** widget on the main Cost Dashboard can also be dismissed from there — dismissals sync to the full news page.
+
+---
+
+## Provider Updates Widget
+
+A compact version of the news feed appears inline on the Cost Dashboard, showing up to 2 of the most recent cost-relevant items. Items tagged as impacting your infrastructure are prioritised. Click **View all →** to open the full Provider News page.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Cost Dashboard" icon="chart-bar" href="/features/cost-dashboard">
+    The Provider Updates widget appears inline on the main dashboard.
+  </Card>
+  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
+    Statistical detection of cost spikes, complementing provider-reported changes.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/features/webhooks">
+    Receive anomaly and budget alerts alongside provider updates in Slack or Teams.
+  </Card>
+</CardGroup>
