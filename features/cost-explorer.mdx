@@ -1,0 +1,149 @@
+---
+title: Cost Explorer
+description: Service-level cost breakdown with CAGR, trend analysis, portfolio risk metrics, and per-provider filtering across your selected date range.
+---
+
+## Overview
+
+The Cost Explorer is a deep-dive view into your cloud spending at the service level. Where the Cost Dashboard gives you a monthly health summary, the Cost Explorer lets you slice costs by date range, sort and filter by any metric, and inspect growth rates and confidence scores for every service — all in one place.
+
+The page is account-scoped. Select an account from the top navigation before loading data.
+
+---
+
+## Date Range
+
+Use the date picker to select any historical range. Partial months are detected automatically: a warning banner appears showing each month's coverage (e.g. "Oct: 15/31 days — Partial") so you can tell at a glance whether figures represent full months or partial periods.
+
+---
+
+## Service Table
+
+The main table lists every service that recorded spend in the selected range. Each row shows:
+
+| Column | Description |
+|---|---|
+| **Service** | Service name as reported by the provider |
+| **Total Cost** | Total spend for this service across the full date range |
+| **Avg Monthly** | Total cost divided by the number of months with data |
+| **Peak Month** | The highest single-month cost |
+| **Trend** | Direction of cost change: Increasing, Stable, or Decreasing |
+| **CAGR** | Compound Annual Growth Rate — the annualised growth rate of this service's costs |
+| **Total Change** | Percentage change from first to last month in the range |
+| **Confidence** | Reliability of the trend and CAGR calculation based on data completeness |
+| **MoM** | Month-over-month change: current month vs last month |
+| **Anomaly** | Flag indicating whether an anomaly was detected for this service |
+
+All columns are sortable. Click a column header to sort; click again to reverse direction.
+
+### Provider Filter
+
+Use the provider filter dropdown to show only services from a specific cloud provider. The filter uses heuristic matching on the service name — useful when you have multiple providers connected and want to isolate one.
+
+### Partial Month Warning
+
+When your date range includes partial months, a dismissible banner explains which months are incomplete and by what percentage. Partial months affect averages and growth rate calculations — the warning helps you interpret figures correctly.
+
+---
+
+## Growth Metrics
+
+Growth metrics are calculated from the monthly cost time series for each service. They require at least two months of data to be meaningful.
+
+### CAGR (Compound Annual Growth Rate)
+
+CAGR measures the average annual growth rate of a service's costs over the selected period, ignoring month-to-month volatility. A service growing steadily from $100/month to $200/month over 12 months has a CAGR of approximately 100%.
+
+- **Positive CAGR** — service costs are growing year-over-year
+- **Negative CAGR** — service costs are declining
+- **Near-zero CAGR** — service is stable
+
+### Total Change
+
+The percentage change from the first month in the range to the last. Unlike CAGR, this is a simple point-to-point comparison and does not account for the path taken.
+
+### Confidence
+
+| Level | Meaning |
+|---|---|
+| 🟢 High | 6+ months of data; trend is reliable |
+| 🔵 Medium | 3–5 months of data; trend is directionally useful |
+| 🟡 Low | 1–2 months of data; CAGR may be misleading |
+| ⚪ Insufficient | Not enough data to calculate |
+
+Low-confidence figures should be treated as directional indicators only, not precise projections.
+
+---
+
+## Portfolio Analytics
+
+When portfolio analytics are available for the selected account and range, a collapsible panel on the right sidebar shows portfolio-level risk metrics derived from the full service set:
+
+| Metric | Description |
+|---|---|
+| **Portfolio CAGR** | Overall growth rate across all services combined |
+| **Diversification Score** | 0–100 score measuring how spread spending is across services. Higher = better diversified |
+| **HHI** | Herfindahl-Hirschman Index — mathematical concentration measure. Lower = more diversified |
+| **Top 3 Concentration** | Percentage of total spend held by the three largest services |
+| **Risk Level** | Low / Medium / High / Critical — overall portfolio risk assessment |
+| **Resilience Score** | How well the portfolio would absorb a spike in any one service |
+| **New vs Existing Services** | Split between services that appeared in the period vs services that already existed |
+
+### Adaptive Risk Status
+
+The adaptive risk model recalibrates periodically based on recent spending patterns. When the model detects a significant trend change or flags that recalibration is needed, an indicator appears in the analytics status panel.
+
+### Cost Concentration Panel
+
+The concentration panel ranks the top services by their share of total portfolio spend, with a visual bar for each. Services representing more than 30% of total spend are flagged as potential single points of failure.
+
+---
+
+## Analytics Table View
+
+Switch to the **Analytics** tab to see a filterable, sortable table combining growth metrics with risk indicators for every service. This view adds:
+
+- **Risk Level** filter — show only Critical, High, Medium, or Low risk services
+- **Anomaly** filter — show only services with detected anomalies
+- **Confidence** filter — filter by data reliability
+- **Trend** filter — Increasing, Stable, or Decreasing
+- **Health Status** filter — from the service health categorisation
+
+The analytics table also supports CSV export for the current filtered view.
+
+---
+
+## Monthly Breakdown View
+
+Switch to the **Monthly** tab to see a month-by-month cost matrix: services as rows, months as columns, with each cell showing that service's spend in that month. Use this view to spot which specific months drove cost changes for any service.
+
+---
+
+## Exporting
+
+Use the **Export** button to download the current filtered and sorted view as a CSV file. For large datasets, an advanced export modal offers additional options including export type (summary, detailed, analytics) and metadata inclusion.
+
+---
+
+## Rate Limit Handling
+
+If the daily API call limit for your plan is reached, a rate limit banner replaces the error state and explains when the limit resets (midnight UTC / 1:00 AM WAT). Partial data collected before the limit was hit is still shown rather than discarded.
+
+---
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Cost Dashboard" icon="chart-bar" href="/features/cost-dashboard">
+    Monthly executive summary with service health and burn rate.
+  </Card>
+  <Card title="Service Explorer" icon="table" href="/features/service-explorer">
+    Filter and sort services with full analytics and anomaly flags.
+  </Card>
+  <Card title="Daily Spend" icon="calendar" href="/features/daily-spend">
+    Day-by-day breakdown with sparklines and DoD change.
+  </Card>
+  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
+    Ask natural language questions about growth drivers and portfolio health.
+  </Card>
+</CardGroup>
