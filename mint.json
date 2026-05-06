@@ -71,6 +71,7 @@
       "group": "Features",
       "pages": [
         "features/cost-dashboard",
+        "features/daily-spend",
         "features/anomaly-detection",
         "features/budgets",
         "features/tag-explorer",
