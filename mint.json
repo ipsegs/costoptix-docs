@@ -25,12 +25,6 @@
     "name": "Get Started Free",
     "url": "https://costoptix.com/signup"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    }
-  ],
   "anchors": [
     {
       "name": "Status",
@@ -82,8 +76,7 @@
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/authentication",
-        "api-reference/overview"
+        "api-reference/authentication"
       ]
     },
     {
@@ -91,12 +84,6 @@
       "pages": [
         "account/team-management",
         "account/sso"
-      ]
-    },
-    {
-      "group": "Security",
-      "pages": [
-        "security"
       ]
     }
   ],
