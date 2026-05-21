@@ -4,32 +4,25 @@ description: Connect your GCP billing account to Cost Optix using a Service Acco
 ---
 
 <Info>
-  Cost Optix reads GCP cost data from a **BigQuery billing export** you configure in your GCP project. You must enable the **Detailed usage cost** export — the Standard export does not provide the resource-level detail Cost Optix needs for anomaly detection and per-resource breakdowns.
+  Cost Optix reads GCP cost data from a **BigQuery billing export** you configure in your GCP project. You must enable the **Detailed usage cost** export — the Standard export only provides service-level totals and does not include per-resource breakdowns, anomaly detection data, or label (tag) information.
 </Info>
 
 ## Prerequisites
 
-- `gcloud` CLI installed and authenticated
-- Permission to create service accounts and IAM bindings in the GCP project
-- A Cloud Billing account with an active BigQuery billing export
+- `gcloud` CLI installed and authenticated (`gcloud auth login`)
+- Permission to create service accounts and assign IAM roles in the GCP project
+- A Cloud Billing account linked to the project
+- A GCP project dedicated to hosting the BigQuery billing export (can be the same project you are monitoring)
 
 ---
 
-## Step 1 — Enable BigQuery Billing Export
+## How it works
 
-Cost Optix queries your billing data from BigQuery. If you have not already set up the export:
+GCP does not expose a direct cost query API. Cost Optix queries billing data from a BigQuery dataset that GCP writes to on a daily schedule. This means:
 
-1. In the GCP Console, go to **Billing → Billing export**
-2. Click **Edit settings** under **BigQuery export**
-3. Select your BigQuery project and dataset (create a new dataset if needed)
-4. Enable **Detailed usage cost** — not Standard usage cost
-5. Click **Save**
-
-<Warning>
-  The Detailed usage cost export is required. The Standard export only provides service-level aggregates and does not include per-resource or per-label breakdowns.
-</Warning>
-
-BigQuery billing export data has a **1–3 day lag**. Today's costs are not available in real time.
+- Data has a **1–3 day lag** by design — this is a GCP platform constraint, not a Cost Optix limitation
+- Every FinOps tool that supports GCP (CloudHealth, Apptio, etc.) has the same lag for the same reason
+- Azure and AWS data is available in near-real time because those providers expose live query APIs
 
 ---
 
@@ -43,10 +36,65 @@ BigQuery billing export data has a **1–3 day lag**. Today's costs are not avai
 
 ---
 
-## Step 2 — Create the Service Account
+## Step 1 — Create a dedicated GCP project (recommended)
+
+Using a dedicated project for the billing export keeps costs and IAM clean. Skip this step if you already have a suitable project.
 
 ```bash
-gcloud config set project <PROJECT_ID>
+# Create the project
+gcloud projects create <BILLING_EXPORT_PROJECT_ID> \
+  --name "Cost Optix Billing Export"
+
+# Link it to your billing account
+gcloud billing projects link <BILLING_EXPORT_PROJECT_ID> \
+  --billing-account=<BILLING_ACCOUNT_ID>
+
+# Enable required APIs
+gcloud services enable bigquery.googleapis.com \
+  --project=<BILLING_EXPORT_PROJECT_ID>
+
+gcloud services enable cloudbilling.googleapis.com \
+  --project=<BILLING_EXPORT_PROJECT_ID>
+```
+
+---
+
+## Step 2 — Create the BigQuery dataset
+
+The dataset must exist before you enable billing export, otherwise GCP has nowhere to write the data.
+
+```bash
+# Create the dataset (us or EU region — must match your billing export setting)
+bq --location=US mk --dataset <BILLING_EXPORT_PROJECT_ID>:billing_export
+```
+
+<Warning>
+  Create the dataset **before** enabling billing export in the GCP Console. If the dataset does not exist when export is first enabled, GCP cannot create the table and no data will be written.
+</Warning>
+
+---
+
+## Step 3 — Enable Detailed BigQuery Billing Export
+
+1. In the GCP Console, go to **Billing → Billing export**
+2. Click **Edit settings** under **BigQuery export**
+3. Set the **Project** to your billing export project
+4. Set the **Dataset** to `billing_export` (or whatever you named it in Step 2)
+5. Enable **Detailed usage cost** — not Standard usage cost
+6. Click **Save**
+
+<Warning>
+  **Detailed usage cost is required.** The Standard export provides only service-level totals. Without Detailed export, Cost Optix cannot show per-resource breakdowns, anomaly detection will be limited to service-level data, and label (tag) information will be missing.
+</Warning>
+
+GCP will automatically create a table named `gcp_billing_export_resource_v1_<BILLING_ACCOUNT_ID>` inside the dataset. Do not create this table manually — let GCP create it on first export.
+
+---
+
+## Step 4 — Create the Service Account
+
+```bash
+gcloud config set project <BILLING_EXPORT_PROJECT_ID>
 
 gcloud iam service-accounts create cost-optix \
   --display-name "Cost Optix" \
@@ -57,13 +105,11 @@ gcloud iam service-accounts create cost-optix \
 
 ---
 
-## Step 3 — Grant BigQuery Roles
-
-Grant `bigquery.user` (to run query jobs) and `bigquery.dataViewer` (to read billing rows). If your billing export is in a different project from where you created the service account, replace `<BQ_PROJECT_ID>` accordingly.
+## Step 5 — Grant BigQuery Roles
 
 ```bash
-SA_EMAIL="cost-optix@<PROJECT_ID>.iam.gserviceaccount.com"
-BQ_PROJECT="<BQ_PROJECT_ID>"
+SA_EMAIL="cost-optix@<BILLING_EXPORT_PROJECT_ID>.iam.gserviceaccount.com"
+BQ_PROJECT="<BILLING_EXPORT_PROJECT_ID>"
 
 gcloud projects add-iam-policy-binding "$BQ_PROJECT" \
   --member="serviceAccount:$SA_EMAIL" \
@@ -76,15 +122,15 @@ gcloud projects add-iam-policy-binding "$BQ_PROJECT" \
 
 ---
 
-## Step 4 — Grant Billing Account Viewer
+## Step 6 — Grant Billing Account Viewer
 
-The Billing Viewer role must be granted at the **billing account level**, not at the project level.
+This role must be granted at the **billing account level** — not the project level. Project-level roles do not grant billing account visibility.
 
 ```bash
-# List billing accounts to find your BILLING_ACCOUNT_ID (format: XXXXXX-XXXXXX-XXXXXX)
+# List billing accounts to find your ID (format: XXXXXX-XXXXXX-XXXXXX)
 gcloud billing accounts list
 
-SA_EMAIL="cost-optix@<PROJECT_ID>.iam.gserviceaccount.com"
+SA_EMAIL="cost-optix@<BILLING_EXPORT_PROJECT_ID>.iam.gserviceaccount.com"
 BILLING_ACCOUNT="<BILLING_ACCOUNT_ID>"
 
 gcloud billing accounts add-iam-policy-binding "$BILLING_ACCOUNT" \
@@ -94,58 +140,112 @@ gcloud billing accounts add-iam-policy-binding "$BILLING_ACCOUNT" \
 
 ---
 
-## Step 5 — Create and Download the Service Account Key
+## Step 7 — Download the Service Account Key
+
+<Warning>
+  Some GCP organisations enforce `constraints/iam.disableServiceAccountKeyCreation`. If the command below fails with a policy violation, you need to temporarily allow key creation at the org level. See the troubleshooting section below.
+</Warning>
 
 ```bash
-SA_EMAIL="cost-optix@<PROJECT_ID>.iam.gserviceaccount.com"
-
 gcloud iam service-accounts keys create cost-optix-key.json \
-  --iam-account="$SA_EMAIL"
+  --iam-account="cost-optix@<BILLING_EXPORT_PROJECT_ID>.iam.gserviceaccount.com"
+
+# Verify the key was created
+cat cost-optix-key.json
 ```
 
-This creates a `cost-optix-key.json` file. Keep this file secure — it is the credential Cost Optix will use.
+Keep this file secure — it is the credential Cost Optix will use to access your billing data.
 
 ---
 
-## Step 6 — Enter Credentials in Cost Optix
+## Step 8 — Enter Credentials in Cost Optix
 
-Navigate to **Organization Admin → Accounts → Add Account**, select **Google Cloud Platform**, and enter:
+Navigate to **Admin → Accounts → Add Account**, select **Google Cloud Platform**, choose **Service Account JSON Key**, and enter:
 
-- **Service Account JSON** — paste the entire contents of `cost-optix-key.json`
-- **Project ID** — the GCP project ID (e.g. `my-project-123`)
-- **Billing Export Project ID** — the project containing your BigQuery billing export dataset
-- **BigQuery Dataset ID** — the dataset name you configured in Step 1 (e.g. `billing_export`)
+| Field | Value |
+|---|---|
+| Project ID | The GCP project ID Cost Optix should monitor |
+| Service Account JSON | Paste the entire contents of `cost-optix-key.json` |
+
+Cost Optix will auto-discover the billing export table inside the `billing_export` dataset. If your dataset has a different name, you can specify it explicitly.
 
 ---
 
-## Billing Lag
+## Billing lag
 
-GCP billing data exported to BigQuery typically has a **1–3 day lag**.
+GCP billing data exported to BigQuery has a **1–3 day lag**. This is a GCP platform constraint — today's costs are not available yet.
 
 | Data type | Typical availability |
 |---|---|
 | Daily cost totals | T+1 to T+3 days |
 | Resource-level detail | T+1 to T+3 days |
+| Gemini API / AI usage | T+1 to T+3 days (same pipeline) |
 | Labels (tag equivalent) | Included in Detailed usage export |
+
+Cost Optix will automatically sync when data becomes available. No action is required on your part after initial setup.
+
+---
+
+## Services tracked
+
+Cost Optix reads all services from your BigQuery billing export, including:
+
+- **Compute Engine** — VM instances, disks, networking
+- **Cloud Storage** — storage, operations, retrieval
+- **BigQuery** — analysis, storage, streaming
+- **Gemini API / Vertex AI** — token usage, model inference
+- **Cloud SQL, GKE, Cloud Run** — database and container workloads
+- **Cloud Logging, Cloud Monitoring** — observability costs
+- Any other GCP service that appears in the Detailed billing export
 
 ---
 
 ## Tag Explorer (Labels)
 
-GCP uses **labels** instead of tags. Labels are included in the Detailed usage cost export. Cost Optix reads label keys and values directly from BigQuery — no additional configuration is required beyond the Detailed export being enabled.
+GCP uses **labels** instead of tags. Labels are included in the Detailed usage cost export at no extra configuration. Cost Optix reads label keys and values directly from BigQuery — no additional setup is required beyond the Detailed export being enabled.
 
 ---
 
 ## Troubleshooting
 
+**Key creation blocked by org policy**
+
+If `gcloud iam service-accounts keys create` fails with a policy violation (`constraints/iam.disableServiceAccountKeyCreation`), your organisation has disabled service account key creation. To temporarily allow it:
+
+```bash
+# Requires roles/orgpolicy.policyAdmin on the organisation
+gcloud organizations add-iam-policy-binding <ORG_ID> \
+  --member="user:<YOUR_EMAIL>" \
+  --role="roles/orgpolicy.policyAdmin"
+
+# Create a file named allow-sa-keys.json:
+# { "constraint": "constraints/iam.disableServiceAccountKeyCreation",
+#   "booleanPolicy": {} }
+
+gcloud resource-manager org-policies set-policy allow-sa-keys.json \
+  --organization=<ORG_ID>
+
+# Download the key, then re-lock the policy:
+gcloud resource-manager org-policies delete \
+  constraints/iam.disableServiceAccountKeyCreation \
+  --organization=<ORG_ID>
+```
+
 **"Access Denied" or "Permission denied on BigQuery dataset"**
-Confirm `roles/bigquery.dataViewer` is granted on the specific dataset (not just the project). Dataset-level IAM is separate from project-level IAM in BigQuery.
+
+Confirm `roles/bigquery.dataViewer` is granted on the specific dataset. Dataset-level IAM is separate from project-level IAM in BigQuery — a project-level role alone is not sufficient.
 
 **"Billing account not found" or billing data missing**
-Verify `roles/billing.viewer` is assigned at the billing account level, not the project level. This is a common mistake — project-level roles do not grant billing account visibility.
 
-**No data or all zeros**
-Check that the BigQuery billing export is configured and the **Detailed usage cost** option is selected. The Standard export will result in missing per-resource data. Also confirm the dataset and project IDs entered in Cost Optix match exactly what is configured in the Billing export settings.
+Verify `roles/billing.viewer` is assigned at the **billing account level**, not the project level. This is the most common setup mistake.
+
+**No data after 3+ days**
+
+Check that the BigQuery billing export is configured and **Detailed usage cost** is selected. Also confirm:
+- The dataset existed before export was enabled
+- The project and dataset IDs in Cost Optix match exactly what is configured in GCP Billing export settings
+- The service account has both BigQuery roles (`bigquery.user` + `bigquery.dataViewer`)
 
 **Service account key compromised or lost**
-Create a new key in **IAM & Admin → Service Accounts → [your service account] → Keys** and delete the old key. Update the credential in Cost Optix immediately.
+
+Create a new key in **IAM & Admin → Service Accounts → [your service account] → Keys** and delete the old key. Update the credential in Cost Optix under **Admin → Accounts → Edit Account** immediately.
