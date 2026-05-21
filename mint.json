@@ -33,11 +33,6 @@
   ],
   "anchors": [
     {
-      "name": "Changelog",
-      "icon": "list",
-      "url": "https://costoptix.com/changelog"
-    },
-    {
       "name": "Status",
       "icon": "circle-check",
       "url": "https://costoptix.com/status"
