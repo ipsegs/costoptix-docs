@@ -12,7 +12,7 @@ Cost Optix is built provider-agnostic. The following providers are currently ava
 | [Microsoft Azure](/providers/azure) | Cloud | Service Principal / Managed Identity | Up to 5 days | ✅ Available |
 | [Amazon Web Services](/providers/aws) | Cloud | Access Keys / IAM Role | 1–3 days | ✅ Available |
 | [Google Cloud Platform](/providers/gcp) | Cloud | Service Account JSON | 1–3 days | ✅ Available |
-| Kubernetes | Container | In-cluster agent | Real-time | 🔜 Coming Soon |
+| [Kubernetes](/providers/kubernetes) | Container | In-cluster agent | Real-time | ✅ Available |
 
 Additional providers are continuously being integrated. If you need a provider that is not yet listed, contact [support@costoptix.com](mailto:support@costoptix.com).
 
@@ -25,6 +25,7 @@ Each **account** in Cost Optix maps to a single cloud subscription, project, or 
 - An **Azure** account corresponds to a single Azure subscription
 - An **AWS** account corresponds to a single AWS account (12-digit account ID)
 - A **GCP** account corresponds to a single GCP project with a linked BigQuery billing export
+- A **Kubernetes** account corresponds to a single cluster reporting via the in-cluster agent
 
 You can connect multiple accounts of the same or different provider types. Cost Optix keeps their data isolated per account and lets you view costs per account or aggregated across all connected accounts.
 
