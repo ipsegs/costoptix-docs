@@ -25,7 +25,7 @@ Each **account** in Cost Optix maps to a single cloud subscription, project, or 
 - An **Azure** account corresponds to a single Azure subscription
 - An **AWS** account corresponds to a single AWS account (12-digit account ID)
 - A **GCP** account corresponds to a single GCP project with a linked BigQuery billing export
-- A **Kubernetes** account corresponds to a single cluster reporting via the in-cluster agent
+- A **Kubernetes** cluster reports via the in-cluster agent rather than stored credentials
 
 You can connect multiple accounts of the same or different provider types. Cost Optix keeps their data isolated per account and lets you view costs per account or aggregated across all connected accounts.
 
@@ -35,32 +35,46 @@ You can connect multiple accounts of the same or different provider types. Cost 
 
 The number of accounts you can connect depends on your plan:
 
-| Plan | Cloud Accounts |
-|---|---|
-| Starter | 2 |
-| Professional | 5 |
-| Business | 50 |
-| Enterprise | Unlimited |
+| Plan | Cloud Accounts | Kubernetes Clusters |
+|---|---|---|
+| Starter | 2 | 1 |
+| Professional | 5 | 3 |
+| Business | 50 | 10 |
+| Enterprise | Unlimited | Unlimited |
 
 See [Subscription Tiers](/getting-started/subscription-tiers) for a full plan comparison.
 
 ---
 
-## Connecting Your First Account
+## Connecting a Credential-Based Provider
 
-1. In your Cost Optix dashboard, go to **Admin → Accounts**
+Azure, AWS, and GCP connect by storing read-only credentials. This is done by an organization admin:
+
+1. Open the **Organization Admin** page and select the **Accounts** tab
 2. Click **Add Account**
 3. Select your cloud provider
 4. Follow the provider-specific setup guide (linked in the table above)
-5. Click **Save** — Cost Optix will immediately attempt to verify the credentials and queue a data sync
+5. Save — Cost Optix verifies the credentials and queues a data sync
 
-After a successful connection, your first cost data will appear within the provider's typical billing lag window.
+After a successful connection, your first cost data appears within the provider's typical billing lag window.
+
+<Info>
+  If you are not an organization admin, the **Accounts** page shows your connected accounts in read-only mode. Ask an admin to add or change cloud accounts.
+</Info>
+
+---
+
+## Connecting Kubernetes
+
+Kubernetes does not use stored credentials. Instead, a lightweight agent runs inside your cluster and reports metrics to Cost Optix. Open the **Kubernetes** section in the dashboard and follow the guided onboarding to name your cluster, create an agent key, and run the installer.
+
+See the [Kubernetes guide](/providers/kubernetes) for the full walkthrough, including per-team chargeback.
 
 ---
 
 ## Data Security
 
-Cost Optix only ever requests **read-only access** to your cloud accounts. It never creates, modifies, or deletes cloud resources or makes purchases on your behalf.
+Cost Optix only ever requests **read-only access** to your cloud accounts and clusters. It never creates, modifies, or deletes resources or makes purchases on your behalf.
 
 All credentials are encrypted at rest using AES-256-GCM and encrypted in transit using TLS 1.3. Each organisation's data and credentials are stored in an isolated database — no data is shared across organisations.
 
@@ -70,4 +84,6 @@ See the [Security](/security) page for full details.
 
 ## Removing a Provider Account
 
-To disconnect an account, go to **Organization Admin → Accounts**, find the account, and click **Remove**. This deletes all stored credentials and cost data associated with that account from Cost Optix. Your cloud provider account is unaffected.
+To disconnect a credential-based account, open the **Organization Admin** page, select the **Accounts** tab, find the account, and click **Delete**. This removes all stored credentials and cost data associated with that account from Cost Optix. Your cloud provider account is unaffected.
+
+To remove a Kubernetes cluster, uninstall the agent from the cluster and delete the cluster from the Kubernetes section. See the [Kubernetes guide](/providers/kubernetes#removing-a-cluster) for details.
