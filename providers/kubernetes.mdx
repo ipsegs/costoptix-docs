@@ -1,23 +1,233 @@
 ---
 title: Kubernetes
-description: Kubernetes cost visibility is coming soon to Cost Optix.
+description: Per-team chargeback and workload-level cost attribution for any Kubernetes cluster, powered by a lightweight in-cluster agent. Works alongside your cloud provider accounts for correlated cloud and cluster costs.
 ---
 
+## Overview
+
+Cost Optix brings **chargeback-grade cost attribution** to Kubernetes. A lightweight in-cluster agent collects namespace, pod, and node resource metrics every few minutes and reports them to Cost Optix, where they are turned into per-workload and per-team costs.
+
+Unlike cloud billing, which arrives days late, Kubernetes cost in Cost Optix is derived from live resource metrics — so you see spend accrue in near real time, with **no billing lag**.
+
 <Info>
-  Kubernetes support is currently in development and will be available in an upcoming release.
+  Kubernetes works on **any** cluster — managed (EKS, AKS, GKE, DigitalOcean, Linode) or self-hosted (k3s, bare-metal, on-prem). The agent reads the standard Kubernetes API and `metrics.k8s.io`; it does not depend on any single cloud provider.
 </Info>
 
-## Coming Soon
+<CardGroup cols={2}>
+  <Card title="Workload attribution" icon="diagram-project">
+    Costs are resolved to the owning Deployment, StatefulSet, DaemonSet, or Job using Kubernetes OwnerReferences — not just raw pods.
+  </Card>
+  <Card title="Per-team chargeback" icon="users">
+    Claim workloads to teams and get an auditable month-to-date cost per team on the Teams page.
+  </Card>
+  <Card title="Sealed daily ledger" icon="lock">
+    Each completed day is sealed into an immutable cost ledger, so historical chargeback figures never drift.
+  </Card>
+  <Card title="Right-sizing signals" icon="gauge">
+    Request vs. actual CPU and memory usage per workload, so you can spot over-provisioned pods.
+  </Card>
+</CardGroup>
 
-Cost Optix will support Kubernetes cost visibility via a lightweight **in-cluster agent** that collects namespace, pod, and node resource metrics and maps them to cost estimates — with no billing lag.
+---
 
-Planned capabilities include:
+## How It Works
 
-- Per-namespace and per-workload cost breakdown
-- CPU and memory request vs. actual usage
-- Node pool cost attribution
-- Works alongside your existing cloud provider accounts (AKS, EKS, GKE) for correlated cloud + cluster costs
+<Steps>
+  <Step title="The agent collects metrics">
+    A single-replica Deployment runs in a dedicated `cost-optix` namespace. On each collection cycle it reads namespace, pod, and node metrics from the Kubernetes API and `metrics.k8s.io`, then pushes a compact batch to Cost Optix over TLS.
+  </Step>
+  <Step title="Pods are resolved to workloads">
+    Each pod is mapped to its controlling workload by walking the OwnerReferences chain — pod → ReplicaSet → Deployment, or directly to a StatefulSet, DaemonSet, or Job. Cost is attributed to the workload, not the ephemeral pod name.
+  </Step>
+  <Step title="Cost is integrated from requests and usage">
+    Resource-hours are multiplied by node-derived rates to produce per-workload cost. Every workload cost reconciles exactly to the cluster total — no cost is dropped or double-counted.
+  </Step>
+  <Step title="Completed days are sealed">
+    A daily rollup job seals each finished day into an append-only ledger. Sealed days are immutable, which is what makes month-to-date chargeback figures stable and audit-ready.
+  </Step>
+</Steps>
 
-## Get Notified
+---
 
-If Kubernetes support is important to your workflow, reach out at [support@costoptix.com](mailto:support@costoptix.com) — early access requests help us prioritise.
+## Requirements
+
+Before installing the agent, confirm your cluster meets these:
+
+| Requirement | Detail |
+|---|---|
+| `kubectl` access | Configured and pointed at the target cluster |
+| metrics-server | Installed and serving `metrics.k8s.io` (most managed clusters include it by default) |
+| Cluster permissions | Ability to create a namespace, ServiceAccount, ClusterRole, and Deployment |
+| Outbound TLS | The cluster can reach `https://costoptix.com` on port 443 |
+| A Cost Optix API key | Created in **Settings → API Keys**, with read and write scope |
+
+<Info>
+  If `metrics.k8s.io` is not available, install the [Kubernetes metrics-server](https://github.com/kubernetes-sigs/metrics-server) first. Without it, the agent cannot read live CPU and memory usage.
+</Info>
+
+---
+
+## Connect a Cluster
+
+Cost Optix walks you through connecting a cluster in three guided steps. The flow generates a scoped agent key and builds a ready-to-run install command for you — there is nothing to fill in by hand.
+
+<Steps>
+  <Step title="Name the cluster and pick where it runs">
+    Enter a **Cluster ID** — a unique name you'll recognise, like `prod-eu-cluster` (spaces become dashes). Then choose **where it runs** from `azure`, `aws`, `gcp`, `digitalocean`, `linode`, `k3s`, `bare-metal`, or `on-prem`. This selection is used only to match accurate node pricing.
+  </Step>
+  <Step title="Create an agent key">
+    Click **Create agent key**. The key is scoped to read and report metrics, and it is dropped straight into the install command in the next step. Copy it when prompted — it won't be shown again.
+
+    <Info>
+      Creating keys requires account-management permission. If you don't have it, ask an organization admin to create an agent key, then paste it into the command.
+    </Info>
+  </Step>
+  <Step title="Run the installer">
+    Point `kubectl` at the target cluster, then copy and run the generated command. Once the agent reports its first metrics, the cluster appears automatically — the page is watching for it.
+  </Step>
+</Steps>
+
+The install command produced by the flow looks like this, with your key, cluster ID, environment, and endpoint already filled in:
+
+```bash
+curl -fsSL https://costoptix.com/install/k8s.sh | bash -s -- \
+  <agent-key> <cluster-id> <cloud-provider> https://costoptix.com
+```
+
+The installer creates the `cost-optix` namespace, a least-privilege ServiceAccount and ClusterRole, the API-key Secret, the agent ConfigMap, and a single-replica Deployment — then waits for the rollout to become ready.
+
+### Prefer to apply a manifest directly?
+
+The onboarding flow also offers a manifest option. If you run GitOps or want to review every object first, set these values in the agent manifest and `kubectl apply` it:
+
+```yaml
+COST_OPTIX_API_KEY: "<agent-key>"
+CLUSTER_ID: "<cluster-id>"
+COST_OPTIX_CLOUD_PROVIDER: "<cloud-provider>"
+COST_OPTIX_ENDPOINT: "https://costoptix.com"
+```
+
+Pin the container image to a specific version tag rather than `:latest`. The ClusterRole the agent needs is least-privilege and reads exactly these resources:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cost-optix-agent
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get"]
+```
+
+<Warning>
+  The `apps/replicasets` `get` rule is required for workload attribution. Without it, the pod → ReplicaSet → Deployment ownership chain cannot resolve, and pods fall back to being attributed by ReplicaSet name instead of their owning Deployment.
+</Warning>
+
+---
+
+## Verify the Install
+
+The onboarding flow detects your cluster automatically once the agent's first report lands — typically within a few collection cycles. To check the agent directly, inspect the pod and its logs:
+
+```bash
+kubectl get pods -n cost-optix
+kubectl logs -n cost-optix -l app.kubernetes.io/name=cost-optix-agent -f
+```
+
+The agent exposes health endpoints on port `8090`:
+
+| Endpoint | Meaning |
+|---|---|
+| `/healthz` | The agent process is up and serving |
+| `/readyz` | At least one successful collection has completed and the API key is valid |
+
+A failing **readiness** probe (without the pod restarting) usually means a bad or unscoped API key — check the logs.
+
+---
+
+## Per-Team Chargeback
+
+Once the agent is reporting, the **Teams** page turns workload costs into per-team spend.
+
+<Steps>
+  <Step title="Add a team">
+    Go to **Settings → Teams** and click **Add Team**. Give it a name, and optionally a notification target for its reports and alerts.
+  </Step>
+  <Step title="Claim its workloads">
+    Use the workload selector to claim workloads for the team. You can claim a specific workload (by cluster, namespace, and workload name) or a whole namespace at once. Each workload can be owned by only one team — if you try to claim one another team already owns, Cost Optix rejects it and tells you which team holds it, so totals never double-count.
+  </Step>
+  <Step title="Read month-to-date spend">
+    Each team card shows its direct cost plus its share of idle cost, summed from the sealed ledger for completed days plus today's live accrual. The coverage strip shows how much of your cluster spend is claimed versus unassigned, and you can export the full breakdown as CSV.
+  </Step>
+</Steps>
+
+<Info>
+  Per-team chargeback on the Teams page is a **Professional** feature. The Kubernetes agent, cluster metrics, and workload views are available on lower tiers; team-level attribution requires Professional or above. See [Subscription Tiers](/getting-started/subscription-tiers).
+</Info>
+
+How costs are split:
+
+- **Direct cost** is the sum of a team's claimed workloads.
+- **Idle cost** (unclaimed cluster overhead) is redistributed proportionally across teams by their direct cost.
+- **Unassigned cost** — workloads no team has claimed — is reported separately and never split, so you always know your coverage gap.
+
+---
+
+## Upgrading the Agent
+
+Pin a specific image version in production and upgrade deliberately:
+
+```bash
+kubectl set image deployment/cost-optix-agent \
+  agent=ghcr.io/costoptix/cost-optix-agent:<VERSION> -n cost-optix
+```
+
+The agent runs as a single replica by design — a second replica would push duplicate metrics. During node drains and cluster upgrades, the single pod is rescheduled cleanly within seconds.
+
+---
+
+## Removing a Cluster
+
+To stop collection and remove the agent:
+
+```bash
+kubectl delete namespace cost-optix
+```
+
+This removes the agent, its ServiceAccount, and its RBAC, so the cluster stops reporting. To remove the cluster and its historical cost data from Cost Optix, delete the cluster from the Kubernetes cluster view in the dashboard.
+
+---
+
+## Security
+
+The agent requests **read-only** access to cluster metadata and metrics. It never creates, modifies, or deletes workloads. It runs as a non-root user with a read-only root filesystem, drops all Linux capabilities, and ships as a minimal image with no shell or package manager.
+
+The only outbound connection is to the Cost Optix API over TLS. For tighter control, you can restrict egress with a NetworkPolicy limiting traffic to the Cost Optix API, the kube-apiserver, and DNS.
+
+See the [Security](/security) page for full platform details.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Cloud Providers Overview" icon="cloud" href="/providers/overview">
+    Connect Azure, AWS, GCP, and more for correlated cloud and cluster costs.
+  </Card>
+  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
+    Statistical detection of cost spikes across your clusters and clouds.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/features/webhooks">
+    Send budget and anomaly alerts to Slack, Teams, or Discord.
+  </Card>
+  <Card title="Subscription Tiers" icon="layer-group" href="/getting-started/subscription-tiers">
+    See which features are available on each plan.
+  </Card>
+</CardGroup>
