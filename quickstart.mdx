@@ -17,9 +17,9 @@ After signing up, verify your email address using the link sent to your inbox. Y
 
 ## Step 2 — Connect a cloud provider
 
-From your dashboard, navigate to **Admin → Accounts** and click **Add Account**.
+Most providers connect from **Admin → Accounts → Add Account** using read-only credentials. **Kubernetes is different** — it does not use Add Account. Instead you install a lightweight in-cluster agent from the **Kubernetes** section of the dashboard (see the Kubernetes tab below).
 
-Select your cloud provider and follow the provider-specific setup:
+Select your provider and follow the setup:
 
 <Tabs>
   <Tab title="Azure">
@@ -59,9 +59,16 @@ Select your cloud provider and follow the provider-specific setup:
     See the [Heroku setup guide](/providers/heroku) for instructions.
   </Tab>
   <Tab title="Kubernetes">
-    You will need a **kubeconfig** file with read access to your cluster.
+    Kubernetes does not use a kubeconfig or stored credentials, and it is **not** added from **Admin → Accounts**. Instead, a lightweight agent runs inside your cluster and reports metrics to Cost Optix in real time.
 
-    See the [Kubernetes setup guide](/providers/kubernetes) for RBAC requirements.
+    Set it up from the **Kubernetes** section of the dashboard. The guided onboarding walks you through three steps: name your cluster, create a scoped agent key, and run the generated installer command — the key and command are filled in for you.
+
+    **Before you start, confirm your cluster has:**
+    - `kubectl` access, pointed at the target cluster
+    - `metrics-server` installed (required for CPU and memory usage data)
+    - Permission to create a namespace, ServiceAccount, ClusterRole, and Deployment
+
+    The cluster appears automatically once the agent reports its first metrics. See the [Kubernetes setup guide](/providers/kubernetes) for the full walkthrough, including the GitOps manifest option and per-team chargeback.
   </Tab>
 </Tabs>
 
@@ -69,7 +76,7 @@ Select your cloud provider and follow the provider-specific setup:
 
 ## Step 3 — Wait for the first data sync
 
-After saving your credentials, Cost Optix will begin fetching your cost data.
+Once a provider is connected, Cost Optix will begin collecting your cost data.
 
 | Provider | Typical first sync | Billing lag |
 |---|---|---|
