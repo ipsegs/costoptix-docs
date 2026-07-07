@@ -56,13 +56,13 @@ Before installing the agent, confirm your cluster meets these:
 | Requirement | Detail |
 |---|---|
 | `kubectl` access | Configured and pointed at the target cluster |
-| metrics-server | Installed and serving `metrics.k8s.io` (most managed clusters include it by default) |
+| metrics-server *(for usage data)* | Needed for live CPU/memory usage, right-sizing signals, and efficiency scores. Without it the agent still installs and reports allocation-based cost — those usage-derived views are simply unavailable. Most managed clusters include it by default. |
 | Cluster permissions | Ability to create a namespace, ServiceAccount, ClusterRole, and Deployment |
 | Outbound TLS | The cluster can reach `https://costoptix.com` on port 443 |
-| A Cost Optix API key | Created in **Settings → API Keys**, with read and write scope |
+| A Cost Optix agent key | The guided flow creates one for you, scoped to `k8s:ingest`. If you create one manually in **Settings → API Keys**, give it the `k8s:ingest` scope only. |
 
 <Info>
-  If `metrics.k8s.io` is not available, install the [Kubernetes metrics-server](https://github.com/kubernetes-sigs/metrics-server) first. Without it, the agent cannot read live CPU and memory usage.
+  metrics-server is optional but recommended. If `metrics.k8s.io` isn't available, the agent still installs and reports allocation-based cost — but request-vs-actual usage, right-sizing signals, and efficiency scores stay unavailable until you install the [Kubernetes metrics-server](https://github.com/kubernetes-sigs/metrics-server).
 </Info>
 
 ---
@@ -76,7 +76,7 @@ Cost Optix walks you through connecting a cluster in three guided steps. The flo
     Enter a **Cluster ID** — a unique name you'll recognise, like `prod-eu-cluster` (spaces become dashes). Then choose **where it runs** from `azure`, `aws`, `gcp`, `digitalocean`, `linode`, `k3s`, `bare-metal`, or `on-prem`. This selection is used only to match accurate node pricing.
   </Step>
   <Step title="Create an agent key">
-    Click **Create agent key**. The key is scoped to read and report metrics, and it is dropped straight into the install command in the next step. Copy it when prompted — it won't be shown again.
+    Click **Create agent key**. The key is scoped to `k8s:ingest` — it can only push metrics, nothing else — and it is dropped straight into the install command in the next step. Copy it when prompted — it won't be shown again.
 
     <Info>
       Creating keys requires account-management permission. If you don't have it, ask an organization admin to create an agent key, then paste it into the command.
@@ -146,7 +146,7 @@ The agent exposes health endpoints on port `8090`:
 | Endpoint | Meaning |
 |---|---|
 | `/healthz` | The agent process is up and serving |
-| `/readyz` | At least one successful collection has completed and the API key is valid |
+| `/readyz` | At least one successful collection has completed and recent pushes are succeeding |
 
 A failing **readiness** probe (without the pod restarting) usually means a bad or unscoped API key — check the logs.
 
@@ -195,13 +195,15 @@ The agent runs as a single replica by design — a second replica would push dup
 
 ## Removing a Cluster
 
-To stop collection and remove the agent:
+To stop collection and remove the agent, delete the namespace **and** its cluster-scoped RBAC:
 
 ```bash
 kubectl delete namespace cost-optix
+kubectl delete clusterrole cost-optix-agent
+kubectl delete clusterrolebinding cost-optix-agent
 ```
 
-This removes the agent, its ServiceAccount, and its RBAC, so the cluster stops reporting. To remove the cluster and its historical cost data from Cost Optix, delete the cluster from the Kubernetes cluster view in the dashboard.
+Deleting the namespace removes the agent, its ServiceAccount, Secret, and ConfigMap. The ClusterRole and ClusterRoleBinding are **cluster-scoped**, so they survive a namespace delete and must be removed separately (above). To remove the cluster and its historical cost data from Cost Optix, delete the cluster from the Kubernetes cluster view in the dashboard.
 
 ---
 
