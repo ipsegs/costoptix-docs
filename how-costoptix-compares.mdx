@@ -1,0 +1,212 @@
+
+---
+title: How CostOptix Compares
+description: What CostOptix does, what it does not do, and when you should buy something else.
+---
+
+Most vendor comparison pages exist to make the vendor win. This one exists so you can rule us out in five minutes if we are wrong for you.
+
+Everything below is checkable in the product. Where we are weaker than an alternative, we say which alternative and why.
+
+<Info>
+  Competitor details verified **17 July 2026**. We describe how other vendors price, not what they charge, because published numbers go stale and a stale number on a page like this defeats its purpose. Check their pricing pages directly.
+</Info>
+
+---
+
+## The short version
+
+Every Kubernetes cost tool tells you roughly what each team spent.
+
+CostOptix tells you what Finance actually paid, after discounts, reservations, spot and negotiated pricing.
+
+Those numbers reconcile to the invoice, to the cent. We call it invoice-reconciled chargeback.
+
+That is the difference.
+
+**CostOptix is a multi-cloud cost platform (Azure, AWS, GCP, Heroku) with Kubernetes chargeback as its flagship capability, at a flat price.** We have not found another self-serve product that combines invoice-reconciled Kubernetes chargeback, multi-cloud visibility and flat pricing. We are not the broadest platform on this page, and several vendors below have more breadth. We name them.
+
+### Where we fit, in fifteen seconds
+
+| Capability | CostOptix | Elsewhere |
+|---|---|---|
+| Multi-cloud cost visibility | Yes | Yes. This is table stakes. |
+| Kubernetes chargeback | Yes | Kubecost and OpenCost, as estimates |
+| Invoice-reconciled chargeback | Yes | Rare. Enterprise platforms, on annual contracts. |
+| Immutable sealed billing history | Yes | Rare |
+| Flat self-serve pricing | Yes | Usually a share of spend or savings |
+| Unit economics | No | CloudZero |
+| Commitment management | No | Vantage, nOps, Zesty |
+| SaaS and AI vendor spend | No | Vantage, Finout |
+
+Buy it if you want your cloud accounts in one place with anomaly detection, budgets and forecasting, and will not sign a percentage-of-spend contract. If you also run Kubernetes, the chargeback engine bills clusters back to teams with numbers that survive an argument.
+
+Do not buy it if you need per-customer unit economics, automated commitment purchasing, chargeback for non-Kubernetes cloud spend, or a tool that recommends savings across AWS, Azure and GCP. We do not do those things. Others do them well.
+
+---
+
+## What we are actually good at
+
+### Invoice-reconciled chargeback
+
+Most Kubernetes cost tools produce an estimate: metrics multiplied by list price. Finance cannot use an estimate. It does not match the bill, someone explains the gap every month, and eventually nobody trusts the number.
+
+At month close, every attributed line is scaled by:
+
+```
+factor = invoiced_node_cost / estimated_cluster_total
+```
+
+Reservations, savings plans, spot and negotiated discounts are absorbed into that ratio rather than modelled instrument by instrument. **The billed lines sum to your amortised cloud invoice exactly, at cent precision**, with a deterministic remainder carry. A property test asserts the invariant across 20,000 randomised bills, and the month-close job refuses to seal a bill that does not balance.
+
+<Accordion title="How the attribution survives an audit">
+  Reconciliation is per cluster, so a linked cluster's discount never smears onto teams running elsewhere. Clusters without a configured billing link (dedicated hardware, or a link not yet set up) seal at estimated rates instead, and every bill records its reconciliation status as full, partial or none, so a mixed org is never silently presented as fully reconciled.
+
+  Idle cost, meaning node capacity you paid for but nobody requested, is redistributed across teams in proportion to direct cost, with the same exact-cent carry. Unclaimed workloads land on an explicit `__unassigned__` cost center or spread across teams by policy. Nothing is reported separately and quietly dropped.
+
+  Pods resolve to their owning Deployment, StatefulSet, DaemonSet or Job via OwnerReferences, so attribution survives pod churn. Teams claim workloads or whole namespaces under a single-owner constraint enforced at write time, so totals cannot double-count.
+</Accordion>
+
+### Sealed history
+
+Completed days are sealed into a daily cost ledger, and the reconciled monthly bill is immutable by contract: the seal refuses to overwrite an existing month, so corrections happen as a new artifact, never as a rewrite. A chargeback figure you sent a team in March still reads the same in September. Tools that recompute from current data quietly change last quarter's numbers. If you have ever argued with a team lead about their bill, this matters more than any feature on this page.
+
+### Cloud cost visibility that needs no cluster
+
+Everything in this section works with zero Kubernetes clusters connected. To be clear about the market first: dashboards, anomaly alerts, budgets and tag reporting are table stakes. Vantage, CloudZero, Cloudability, Finout and nOps all have them. What differs is the mechanics underneath, so that is what we describe.
+
+Anomaly detection is adaptive per service. It selects a statistical method based on how much history each service has, uses median-based baselines so one past spike cannot inflate what "normal" looks like, and catches emergence, meaning a service going from $0 to real spend, which pure deviation math misses. Root cause is two-phase: a deterministic pass computes which resources changed on the anomaly date, ranked by confidence and dollar impact, before any AI is involved, so the numbers exist independently of the narration. The full resource list behind any anomaly is filterable, sortable and exportable. Alerts push to Slack, Teams or Discord.
+
+Budgets do more than threshold alerts. Each carries warning and critical thresholds with webhook events, a predicted worst-case end of period derived from up to 11 months of history, and a projected breach date. When a budget comes under pressure, it names the resources responsible: each contributor shows recent daily spend against its own baseline, flagged as a spike, a new resource or steady growth, so "we are going over" arrives with "and here is why" attached. Budgets scope to one account, to every account, or to a tag combination across accounts, and the suggested amount at creation is anchored on that account's volatility-adjusted VaR ceiling rather than a round number.
+
+The daily view treats today as the partial day it is: averages and baselines come from complete days only, every service carries a median baseline, and any service drills down to per-resource daily costs for the period. A month-over-month resource comparison lists top increases, top decreases, new resources and deleted resources by name, with each resource's share of the month's total change.
+
+Tag Explorer breaks any account's spend down by tag key, reports tag coverage as a percentage, and surfaces untagged cost as its own line instead of hiding it. Amortised cost is the default everywhere, so reservation purchases do not appear as fake spikes. The dashboard pairs a VaR 95% cost ceiling with a linear projection so you see the spread, not one confident number, and triages services into critical, watch and healthy instead of a wall of equal-weight charts.
+
+### Flat pricing
+
+Free Starter. $150/month Professional. Business and Enterprise quoted. No percentage of cloud spend at any tier, ever.
+
+Percentage pricing means the tool bills you more precisely as your cloud bill grows, which is the moment you most want to cut it.
+
+**The honest counterpoint:** percentage pricing is not a racket. Those vendors process line-item billing data at volumes that genuinely cost more as your bill grows, and the fee usually bundles a named FinOps advisor who reviews your spend monthly. We do not sell that at any tier. If you want a human in the loop, that is a real reason to pay them instead.
+
+Kubernetes cluster limits by tier: Starter connects 1 cluster, Professional 3, Business 10, Enterprise unlimited. If you run five clusters, Professional is not your plan.
+
+### A tool that admits what it does not know
+
+Four examples from the source:
+
+- Recommendations come from deterministic producers. The AI narrates findings that already exist; it never generates one.
+- When the pricing catalog has no cross-type data for your cluster's region, the node sizing context says so explicitly and instructs the model not to invent instance types or prices.
+- The Linode pricing syncer (which prices LKE cluster nodes) skips GPU plans entirely rather than apply a CPU/memory cost split that would be confidently wrong on an accelerator.
+- Anomaly root cause on data older than 14 days reports at service level and tells you so, rather than guessing at resource names.
+
+Every vendor bolted an LLM onto a dashboard last year. Most are architecturally free to make something up. This one is not, and it is enforced in four separate subsystems.
+
+---
+
+## What we do not do
+
+| Gap | Detail | Who to use instead |
+|---|---|---|
+| **Cloud-side optimisation** | Recommendations today are Kubernetes pod rightsizing and anomaly follow-up. If you run no clusters, we will not find you savings on your VM fleet. | Vantage, nOps, Zesty |
+| **Chargeback outside Kubernetes** | Cloud resource spend gets Tag Explorer, not per-team billing. Your VM fleet is not charged back. | Finout, Cloudability |
+| **Unit economics** | No cost per customer, per feature or per tenant. | CloudZero |
+| **Commitment management** | No RI or Savings Plan recommendations or purchasing. Reconciliation absorbs their effect on your bill; it does not advise you on buying them. | Vantage, nOps, Zesty |
+| **Verified savings** | Recommendation savings are projected. Nothing measures whether the saving materialised after you mark one implemented. | See below |
+| **Cross-provider tag rollups** | Tag Explorer is one account and one tag key per query. No exploratory view of `team=payments` summed across AWS, Azure and GCP. A tag-scoped multi-account budget can track one tag combination across every account, but that is a limit tracker, not a rollup view. | Finout, Vantage |
+| **100% allocation of untagged cloud spend** | Kubernetes chargeback allocates every dollar by design. Cloud-side reports the tags you have and will not synthesise allocation rules. | Finout virtual tagging |
+| **Hourly granularity** | Kubernetes accrues live from metrics but seals daily. Cloud cost is daily. No hour-level spike forensics. | Most |
+| **SaaS and AI vendor spend** | Cloud and Kubernetes only. No Datadog, Snowflake, MongoDB, OpenAI or Anthropic ingestion. | Vantage, Finout |
+| **FOCUS export** | Not available. If finance standardises on FOCUS, this is a real gap. | Cloudability, Vantage |
+| **Named FinOps advisor** | Not sold at any tier. | The percentage vendors |
+
+### On projected versus verified savings
+
+Every recommendation carries a projected monthly saving. When you mark one implemented, nothing currently measures whether that saving landed. The number stays projected.
+
+We could show you a "verified savings" figure. We would have to make it up. If a vendor shows you one, ask precisely what measures it and over what window.
+
+---
+
+## Pricing models
+
+| Tool | How you are charged |
+|---|---|
+| **CostOptix** | Flat fee. Free tier, then $150/month, then quoted. Never a share of cloud spend. |
+| CloudZero | Quoted against annualised cloud spend. No public pricing. |
+| IBM Cloudability | Percentage of managed cloud spend. |
+| Finout | Quoted, scales with cloud spend. Annual contracts typical. |
+| Vantage | Tiered by tracked monthly spend, free below a low cap. Optimisation priced as a share of savings. |
+| nOps | Free visibility tier; optimisation priced as a percentage of realised savings. |
+| Native tools | Free or near-free, one provider only. |
+
+---
+
+## Versus Kubernetes-only tools
+
+**Where Kubecost and OpenCost win:** longer raw container-level retention, and per-pod idle attribution rather than a cluster-level idle pool redistributed proportionally. If you need idle attributed to the specific pod that triggered a node scale-up, that is a different model from ours.
+
+**Where we win:** they cannot reconcile to your Azure invoice, because they cannot see it. Cluster cost and cloud bill land in one place, against one invoice, on one immutable basis.
+
+---
+
+## Versus native provider tools
+
+If you use one cloud, have no plans to add another, and are happy checking the console manually, the native tool is free and we are probably not worth $150.
+
+We start earning it when you have accounts across providers and want one number, want anomaly alerts pushed to Slack rather than checked manually, want more than 30 to 90 days of queryable history, or want cluster cost sitting next to cloud cost.
+
+We do not replace native tools for provider-specific operations: tag policy enforcement, budget actions, native RI purchase flows.
+
+---
+
+## Versus enterprise FinOps platforms
+
+CloudZero, Cloudability and Finout are more capable than we are. That is the honest statement. They allocate spend more completely, do unit economics, and come with implementation support.
+
+They also assume an annual contract, a quoting cycle, a longer onboarding, and a bill that grows with your cloud bill. If you have a FinOps team and seven figures of annual cloud spend, that trade is often correct, and you should talk to them.
+
+We are for the band beneath: real multi-cloud spend, often with Kubernetes in the middle of it, no FinOps headcount, and a need to know what changed and why this week without a procurement cycle. A feature-count comparison against those platforms is one we lose on purpose. The comparison we win is the one that matters to that buyer: invoice-reconciled chargeback, at a price that does not grow with the bill it is supposed to shrink.
+
+---
+
+## Accuracy caveats worth knowing before you buy
+
+- **Resource-level root cause has a 14-day limit on AWS and Azure.** Beyond that, provider API constraints mean analysis falls back to service level. Within 14 days you get named resources ranked by dollar impact. Beyond it you get "Virtual Machines rose $4,200" and no resource list. GCP is unaffected: BigQuery billing export has no lookback limit, so resource-level root cause works at any age there.
+- **Anomaly detection needs a baseline.** Services with under 5 days of history will not fire, and detection strength scales with history: full rolling detection needs 21 days, standard statistical detection needs 10, and below that a simpler percentage check runs. Services averaging under $1/day are skipped entirely to keep micro-spend noise out of your alerts.
+- **Billing lag is the provider's.** Azure up to 5 days, AWS and GCP 1 to 3. Today's cost is never final today.
+- **Kubernetes cost accrues live** from agent metrics with no billing lag, but it is an allocation estimate until month close reconciles it to the invoice.
+- **Invoice reconciliation needs a billing link per cluster.** A cluster without one bills at estimated rates, which is correct for dedicated or bare-metal hardware and a known limitation for cloud clusters until the link is configured. The bill's reconciliation status tells you which case you are in.
+- **Node sizing alternatives approximate allocatable capacity** at 92% CPU and 90% memory of raw specs, because per-SKU kube-reserved overhead is not in any pricing catalog. Fit against your *current* instance type uses real allocatable figures from the agent.
+- **Azure alternatives are demand-shaped.** Azure rates resolve on demand per SKU, which makes them exact and allow-list free, but the catalog fills with instance types that have actually been observed. AWS rates come from a bulk catalog, so AWS alternatives are broader.
+- **Forecasts are projections.** A VaR 95% ceiling shows alongside a linear projection so you can see the spread. Neither is a promise.
+- **Credits and refunds appear as negative amounts** and are counted as-is in cost reporting. At bill reconciliation, an invoice that nets negative for the month is treated as no invoice: teams are never billed negative dollars, and the condition is surfaced as a data problem instead.
+
+---
+
+## Getting your data out
+
+Cost data exports as streaming CSV with a preflight row count. No export fee, no contractual exit period on self-serve plans. Downgrades take effect at the end of the cycle. Accounts exceeding the new tier's limits become read-only rather than deleted, and historical data is preserved for 30 days after cancellation, so export before then if you are leaving for good.
+
+Limits: one provider per export request, so a multi-cloud org pulls one file per provider. The quick monthly export caps at 5,000 rows. Starter is capped at 100 API calls a day.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Subscription Tiers" icon="credit-card" href="/getting-started/subscription-tiers">
+    Full plan comparison and limits.
+  </Card>
+  <Card title="Kubernetes" icon="server" href="/providers/kubernetes">
+    Chargeback, reconciliation and the agent.
+  </Card>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Connect an account and judge it yourself.
+  </Card>
+  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
+    Quota, model and data limitations.
+  </Card>
+</CardGroup>
