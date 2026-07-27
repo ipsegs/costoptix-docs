@@ -5,7 +5,11 @@ description: Statistical cost spike detection that catches unexpected spend befo
 
 ## How It Works
 
-Cost Optix uses rolling Z-score and adaptive statistical algorithms to establish a baseline of expected spend per service and per account. When actual spend deviates significantly from the expected range, an anomaly is raised at the service level — not just the account total.
+Cost Optix establishes a baseline of expected spend independently for every service, then raises an anomaly when a day departs from that service's own history. Detection runs at the service level, not on the account total.
+
+The baseline is built from the **median** and **median absolute deviation** rather than the mean and standard deviation. A single unusually expensive day pulls a mean and its standard deviation far enough that the next real anomaly reads as normal. The median barely moves, so past spikes do not blind the detector to future ones.
+
+Method selection is adaptive per service, based on how much history that service has. Services with two weeks or more are evaluated against a rolling 7-day window; shorter histories are evaluated against their full window. Services with under a week of data are not scored at all rather than scored with false confidence.
 
 This means Cost Optix can identify that, for example, your Azure Blob Storage costs spiked 300% while your overall Azure spend only increased 12% — pinpointing the root cause rather than just flagging a top-level number.
 
@@ -16,6 +20,14 @@ Each detected anomaly includes:
 - Deviation percentage
 - Severity rating
 - Detection method used
+
+---
+
+### Near-zero baselines
+
+Services averaging under $1/day are treated as noise rather than as a baseline. Free-tier overflow and billing rounding artifacts can leave a service sitting at fractions of a cent, and anchoring the maths there turns a genuine $0 to $64 first appearance into a 3,815,359% deviation.
+
+A service crossing that floor for the first time is reported as an emergence, with the actual dollar amount and no deviation percentage. A service with a perfectly flat non-zero baseline, where the deviation measure is exactly zero, falls back to a 20% change threshold so a stable service with one large spike is never silently dropped.
 
 ---
 
