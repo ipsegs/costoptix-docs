@@ -86,6 +86,12 @@
         "account/team-management",
         "account/sso"
       ]
+    },
+    {
+      "group": "Security",
+      "pages": [
+        "security"
+      ]
     }
   ],
   "footerSocials": {
