@@ -1,0 +1,81 @@
+---
+title: Security
+description: How Cost Optix handles your cloud credentials, what access it requests, and how your data is isolated.
+---
+
+## Access model
+
+Cost Optix requests **read-only access** to your cloud accounts and clusters. It never creates, modifies, or deletes resources, and never makes purchases on your behalf.
+
+This is enforced by the permissions you grant, not only by our code. The IAM policy in the [AWS setup guide](/providers/aws) contains no write actions. The GCP setup grants `roles/billing.viewer`, `roles/bigquery.user`, and `roles/bigquery.dataViewer` and nothing else. If Cost Optix ever attempted a write, your cloud provider would reject it.
+
+| Provider | Access granted |
+|---|---|
+| AWS | Cost Explorer reads, CloudWatch metric reads, S3 reads for billing reports, `sts:GetCallerIdentity` |
+| Azure | Cost Management and Consumption API reads |
+| GCP | Billing account metadata reads, BigQuery reads against the billing export dataset |
+| Kubernetes | In-cluster metrics and workload metadata, read-only |
+
+---
+
+## Credential storage
+
+Credentials are encrypted at rest using **AES-256-GCM** and in transit using **TLS 1.3**.
+
+Each organisation's data and credentials are stored in an isolated database. No cost data or credentials are shared across organisations.
+
+Deleting an account from **Organization Admin → Accounts** removes its stored credentials and cost data from Cost Optix. Your cloud provider account is unaffected.
+
+---
+
+## The Kubernetes agent
+
+Kubernetes clusters do not use stored credentials. A lightweight agent runs inside your cluster and reports metrics outbound.
+
+- **Outbound only.** The agent opens a connection to the Cost Optix API over TLS. Nothing needs to reach into your cluster, and no inbound firewall rule is required.
+- **Non-root.** The container runs as UID/GID 1000 under a dedicated unprivileged user.
+- **Minimal image.** Alpine base with CA certificates and an init process. No shell, no package manager, no extras.
+- **Read-only.** The agent collects metrics and workload metadata. It never scales, resizes, evicts, or otherwise modifies anything in your cluster.
+
+To remove it, uninstall the agent and delete the cluster from the Kubernetes section. See the [Kubernetes guide](/providers/kubernetes) for details.
+
+---
+
+## Authentication
+
+**Single Sign-On** is available on Business and Enterprise plans via OpenID Connect. SSO configuration must pass a connection test before it can be enabled, which prevents lockouts from misconfigured credentials. See [SSO](/account/sso).
+
+**Role-based access.** Users hold roles within an organisation, and administrative actions such as adding cloud accounts or managing users require admin permission. Non-admin users see connected accounts in read-only mode.
+
+---
+
+## Webhook verification
+
+If you set a webhook secret, every delivery carries an `X-Webhook-Signature` header signed with HMAC-SHA256 over the payload. Verify it at your endpoint so you can confirm a delivery genuinely came from Cost Optix. Sample verification code is in the [Webhooks guide](/features/webhooks#payload-verification).
+
+---
+
+## Infrastructure isolation
+
+| Tier | Hosting |
+|---|---|
+| Starter | Shared managed infrastructure, logically isolated tenant |
+| Professional | Shared managed infrastructure, logically isolated tenant |
+| Business | Dedicated managed infrastructure |
+| Enterprise | Self-hosted in your own VM or cloud environment |
+
+Enterprise deployments run entirely within your environment. Cost data never leaves your infrastructure.
+
+---
+
+## Data retention
+
+Historical cost data is retained according to your plan: 30 days on Starter, 90 days on Professional, 12 months on Business, and unlimited on Enterprise. See [Subscription Tiers](/getting-started/subscription-tiers).
+
+You can export cost data to CSV at any time. There is no exit fee and no lock-in on your own data.
+
+---
+
+## Reporting a vulnerability
+
+Email **security@costoptix.com** with details and reproduction steps. We will acknowledge receipt and keep you updated on remediation. Please do not disclose publicly until we have had a chance to respond.
