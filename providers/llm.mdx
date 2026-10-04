@@ -1,0 +1,152 @@
+---
+title: AI Coding Tools
+description: Track what coding agents such as Claude Code and Gemini CLI cost, what the usage is worth at API rates, and whether each seat is on the right plan.
+---
+
+<Info>
+  LLM Usage is in **preview**. It works today, and numbers and features may still change as we add more tools.
+</Info>
+
+## Overview
+
+AI coding tools already report their usage over OpenTelemetry. Point them at CostOptix and every session shows up on the **LLM Usage** page within about a minute, tagged with the team you choose.
+
+CostOptix answers three questions:
+
+- **What do we actually pay?** From the plans you enter: seats, pay-per-token, or a fixed monthly amount.
+- **What is the usage worth?** The same usage priced at API rates, so you can compare it with what you pay.
+- **Is each person on the right plan?** Idle seats, people who would be better off on a higher or lower tier, and where pay-per-token would be cheaper.
+
+| Tool | Status |
+|---|---|
+| Claude Code | Supported |
+| Gemini CLI | Supported, in preview |
+
+Prompts, responses and email addresses are never stored. People are identified by a pseudonymous key, and admins can give each key a display name.
+
+---
+
+## Connect a tool
+
+Open **LLM Usage** and click **Connect a tool**.
+
+<Steps>
+  <Step title="Name the team (optional)">
+    Every event is tagged with this team, so spend is attributed without anyone mapping people to teams. Use one config per team, or leave it blank and tag later.
+  </Step>
+  <Step title="Create a telemetry key">
+    The key can only push usage telemetry. It cannot read cost data or change anything, so it is safe on every developer's machine. If you are not an admin, ask one to create it.
+  </Step>
+  <Step title="Add the config">
+    Copy the generated settings into the tool. Then run a prompt or two. The page refreshes itself, so usage appears without a reload.
+  </Step>
+</Steps>
+
+<Tabs>
+  <Tab title="Claude Code">
+    **One developer:** add the variables to your shell profile, then start Claude Code as usual.
+
+    **Whole organisation:** put the same values in the `env` block of the Claude Code managed settings your admins deploy. Every developer is covered without touching their machines.
+
+    The generated config looks like this:
+
+    ```bash
+    export CLAUDE_CODE_ENABLE_TELEMETRY="1"
+    export OTEL_LOGS_EXPORTER="otlp"
+    export OTEL_EXPORTER_OTLP_LOGS_PROTOCOL="http/protobuf"
+    export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT="https://costoptix.com/api/v1/llm/otlp/v1/logs"
+    export OTEL_EXPORTER_OTLP_HEADERS="X-API-Key=<telemetry-key>"
+    export OTEL_LOGS_EXPORT_INTERVAL="60000"
+    export OTEL_METRICS_INCLUDE_REPOSITORY="1"
+    export OTEL_RESOURCE_ATTRIBUTES="team.id=<team>"
+    ```
+
+    Spend by repository needs Claude Code 2.1.269 or newer.
+  </Tab>
+  <Tab title="Gemini CLI">
+    Add the variables to your shell profile, then start Gemini CLI as usual. For a whole organisation, deploy the same variables through your device management.
+
+    ```bash
+    export GEMINI_TELEMETRY_ENABLED="true"
+    export GEMINI_TELEMETRY_TARGET="local"
+    export GEMINI_TELEMETRY_OTLP_PROTOCOL="http"
+    export GEMINI_TELEMETRY_OTLP_ENDPOINT="https://costoptix.com/api/v1/llm/otlp"
+    export GEMINI_TELEMETRY_LOG_PROMPTS="false"
+    export OTEL_EXPORTER_OTLP_HEADERS="X-API-Key=<telemetry-key>"
+    export OTEL_RESOURCE_ATTRIBUTES="team.id=<team>"
+    ```
+
+    Gemini CLI reports tokens but no cost. Add your model rates under **Settings → LLM Plans** to see usage value.
+  </Tab>
+</Tabs>
+
+<Tip>
+  Always copy the config from the app. It fills in your key and the correct endpoint, and only adds `OTEL_RESOURCE_ATTRIBUTES` when you name a team.
+</Tip>
+
+---
+
+## Set up your plans
+
+Telemetry does not say which plan anyone is on, so actual cost comes from what you enter in **Settings → LLM Plans**.
+
+### Add a plan
+
+Start from a vendor preset or from scratch. Presets are prices we checked on the vendor's own pricing page, with the date and region shown. Either way you get your own copy to edit. When a vendor changes a preset price, CostOptix offers the new price and you choose whether to use it from today.
+
+| Pricing model | Use it for |
+|---|---|
+| **Per seat** | A fixed price per person per month, such as Pro, Max, Team or Code Assist |
+| **Pay per token** | Usage billing. Cost comes from your model prices, or the tool's own estimate. |
+| **Seat plus usage** | A seat fee plus usage on top |
+| **Fixed monthly** | One flat amount, such as a server running an open-source model |
+
+Prices are per month. For annual plans, enter the per-month rate. Plans can be in any currency.
+
+### Assign plans to people
+
+Within a source, the most specific assignment wins: a person, then their team, then their cost centre, then the whole organisation. Use the pseudonymous user key from the usage page. Email addresses are not accepted.
+
+### Model prices
+
+Add per-million-token rates (input, output, cache read, cache write) when a tool reports no cost, or to use your contracted rates instead of list prices. A rate applies from its start date until the next one. The page lists any model in the last 90 days that has no price, including new model versions.
+
+---
+
+## The LLM Usage page
+
+The cards at the top cover the current calendar month. Everything below covers the range you pick, in UTC.
+
+| Tab | What it shows |
+|---|---|
+| **Overview** | Actual cost and API-equivalent value, day by day and by model |
+| **Plan fit** | Paid seats, active people, unused seats, and a suggestion per person |
+| **Efficiency** | Cache use, cache rebuilds, rate limits, refusals, and where tokens went, including MCP servers |
+| **Sessions** | The most valuable sessions in the range |
+| **Breakdown** | Value by team, person, model or repository |
+
+Days seal after 06:15 UTC the following day. Sealed days are final. Today's figures are live and can still move.
+
+<Note>
+  **API-equivalent value is not a charge on seat plans.** On a seat plan the usage is included in the seat. The value shows how much the same work would cost at API rates, which is how you judge whether a seat is worth it.
+</Note>
+
+<Note>
+  Suggestions only see coding-agent usage. Chat apps and other tools that send no telemetry are not counted, so check with the person before removing a seat.
+</Note>
+
+Per-person figures are visible to admins only.
+
+---
+
+## Budgets and alerts
+
+- **LLM budgets.** Create a budget with the **AI / LLM** scope to track actual plan cost in USD. See [Budgets](/features/budgets).
+- **Runaway sessions.** CostOptix alerts when a session's value over the last hour passes three times your normal hourly rate (the 95th percentile of the last 14 days). Subscribe a webhook to **Runaway AI Session** to receive it. See [Webhooks](/features/webhooks).
+- **Plan savings.** Idle seats and better-fitting plans appear on the **AI plans** tab of [Recommendations](/features/recommendations). Two weeks after you mark one done, CostOptix checks that the change held.
+
+---
+
+## Removing a tool
+
+Remove the telemetry settings from the tool, or from your managed settings, then revoke the telemetry key in **Settings → API Keys**.

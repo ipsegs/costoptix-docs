@@ -9,7 +9,7 @@ description: Configure OIDC-based SSO for your organisation directly from the da
 
 ## Overview
 
-Cost Optix supports Single Sign-On via **OpenID Connect (OIDC)**. Once configured, users with your organisation's email domain are automatically routed to your identity provider when they click **Continue with SSO** on the login page. SSO is configured entirely from within the dashboard — no support ticket required.
+CostOptix supports Single Sign-On via **OpenID Connect (OIDC)**. Once configured, users with your organisation's email domain are automatically routed to your identity provider when they click **Continue with SSO** on the login page. SSO is configured entirely from within the dashboard, with no support ticket required.
 
 Compatible identity providers include Okta, Auth0, Google Workspace, Microsoft Entra ID (Azure AD), Keycloak, and any OIDC-compliant IdP.
 
@@ -25,7 +25,7 @@ Enter your organisation's email domain (e.g. `acme.com`). Users entering an emai
 
 ### 2. Enter your Issuer URL
 
-Paste the base URL of your identity provider, then click **Auto-discover**. Cost Optix fetches the OIDC discovery document at `<issuer>/.well-known/openid-configuration` and populates the authorization, token, userinfo, and JWKS endpoints automatically.
+Paste the base URL of your identity provider, then click **Auto-discover**. CostOptix fetches the OIDC discovery document at `<issuer>/.well-known/openid-configuration` and populates the authorization, token, userinfo, and JWKS endpoints automatically.
 
 Common issuer URLs:
 
@@ -37,7 +37,7 @@ Common issuer URLs:
 | Microsoft Entra ID | `https://login.microsoftonline.com/<tenant-id>/v2.0` |
 | Keycloak | `https://your-keycloak.example.com/realms/your-realm` |
 
-### 3. Register Cost Optix in your IdP
+### 3. Register CostOptix in your IdP
 
 In your identity provider, create a new OIDC application. Set the **Redirect URI** to:
 
@@ -49,13 +49,13 @@ Copy the **Client ID** and **Client Secret** from your IdP and paste them into t
 
 ### 4. Configure scopes and JIT provisioning
 
-The default scopes are `openid email profile` — sufficient for user identification and account creation. You can add custom scopes if needed.
+The default scopes are `openid email profile`, which is enough for user identification and account creation. You can add custom scopes if needed.
 
-**Just-in-time (JIT) provisioning** automatically creates a Cost Optix user the first time someone authenticates via SSO, without requiring a prior invitation. Enabled by default. New users are assigned the **Default role** you set (`member` or `admin`).
+**Just-in-time (JIT) provisioning** automatically creates a CostOptix user the first time someone authenticates via SSO, without requiring a prior invitation. Enabled by default. New users are assigned the **Default role** you set (`member` or `admin`).
 
 ### 5. Test and enable
 
-Click **Save**, then **Test connection**. Cost Optix re-runs OIDC discovery and verifies the endpoints are reachable. Once the test passes, toggle **Enable SSO** to activate it.
+Click **Save**, then **Test connection**. CostOptix re-runs OIDC discovery and verifies the endpoints are reachable. Once the test passes, toggle **Enable SSO** to activate it.
 
 <Warning>
   SSO must pass a successful connection test before it can be enabled. This prevents lockouts from misconfigured credentials.
@@ -65,7 +65,7 @@ Click **Save**, then **Test connection**. Cost Optix re-runs OIDC discovery and 
 
 ## How Login Routing Works
 
-When a user enters their email on the login page and clicks **Continue with SSO**, Cost Optix:
+When a user enters their email on the login page and clicks **Continue with SSO**, CostOptix:
 
 1. Extracts the email domain
 2. Looks up the SSO config registered for that domain
@@ -92,9 +92,9 @@ Users can also be directed to SSO via a direct link: `https://costoptix.com/logi
 
 ## Attribute Mapping
 
-By default, Cost Optix maps these OIDC claims to user attributes:
+By default, CostOptix maps these OIDC claims to user attributes:
 
-| OIDC claim | Cost Optix field |
+| OIDC claim | CostOptix field |
 |---|---|
 | `email` | Email address |
 | `given_name` | First name |
@@ -104,6 +104,6 @@ By default, Cost Optix maps these OIDC claims to user attributes:
 
 ## Revoking Access
 
-Remove the user from the relevant group or application in your IdP — their Cost Optix session is invalidated at next login. You can also immediately deactivate users from **Admin → Users** at any time.
+Remove the user from the relevant group or application in your IdP. Their CostOptix session is invalidated at next login. You can also immediately deactivate users from **Organization Admin → Users** at any time.
 
 To disable SSO without deleting the configuration, use the **Enable / Disable** toggle. To remove the configuration entirely, click **Delete configuration**.

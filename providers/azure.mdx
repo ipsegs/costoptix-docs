@@ -1,10 +1,10 @@
 ---
 title: Microsoft Azure
-description: Connect your Azure subscription to Cost Optix using a Service Principal with read-only access to cost and billing data.
+description: Connect your Azure subscription to CostOptix using a Service Principal with read-only access to cost and billing data.
 ---
 
 <Info>
-  Cost Optix reads cost data from the **Azure Cost Management API**. You will need an Azure Service Principal with **Cost Management Reader** and **Reader** roles on the target subscription.
+  CostOptix reads cost data from the **Azure Cost Management API**. You will need an Azure Service Principal with **Cost Management Reader** and **Reader** roles on the target subscription.
 </Info>
 
 ## Prerequisites
@@ -28,7 +28,7 @@ Both roles are required. Cost Management Reader alone is not sufficient for tag 
 
 ## Setup: Service Principal (Recommended)
 
-### Step 1 — Log in and select your subscription
+### Step 1: Log in and select your subscription
 
 ```bash
 az login
@@ -40,9 +40,9 @@ az account list --output table
 az account set --subscription "<SUBSCRIPTION_ID>"
 ```
 
-### Step 2 — Create the Service Principal
+### Step 2: Create the Service Principal
 
-This command creates the app registration, generates a secret, and assigns the Reader role in one step. **The secret (password) is only shown once — save it immediately.**
+This command creates the app registration, generates a secret, and assigns the Reader role in one step. **The secret (password) is only shown once. Save it immediately.**
 
 ```bash
 az ad sp create-for-rbac \
@@ -60,7 +60,7 @@ The output contains:
 | `password` | **Client Secret** |
 | `tenant` | **Tenant ID** |
 
-### Step 3 — Add Cost Management Reader
+### Step 3: Add Cost Management Reader
 
 ```bash
 SP_APP_ID="<appId from above>"
@@ -71,29 +71,29 @@ az role assignment create \
   --scope "/subscriptions/<SUBSCRIPTION_ID>"
 ```
 
-### Step 4 — Enter credentials in Cost Optix
+### Step 4: Enter credentials in CostOptix
 
 Navigate to **Organization Admin → Accounts → Add Account**, select **Microsoft Azure**, and enter:
 
-- **Tenant ID** — from the `tenant` field above
-- **Client ID** — from the `appId` field above
-- **Client Secret** — from the `password` field above
-- **Subscription ID** — your Azure subscription ID
+- **Tenant ID**: from the `tenant` field above
+- **Client ID**: from the `appId` field above
+- **Client Secret**: from the `password` field above
+- **Subscription ID**: your Azure subscription ID
 
 ---
 
 ## Setup: Managed Identity
 
-If Cost Optix is running on an Azure resource (VM, Container App, or AKS pod) with a Managed Identity assigned, you can use identity-based authentication without storing any secrets.
+If CostOptix is running on an Azure resource (VM, Container App, or AKS pod) with a Managed Identity assigned, you can use identity-based authentication without storing any secrets.
 
 1. Assign the **Cost Management Reader** and **Reader** roles to the Managed Identity on the target subscription (same commands as Step 2–3 above, replacing the Service Principal `--assignee` with the Managed Identity's principal ID).
-2. In Cost Optix, select **Managed Identity** as the authentication method. No additional credentials are required.
+2. In CostOptix, select **Managed Identity** as the authentication method. No additional credentials are required.
 
 ---
 
 ## Billing Lag
 
-Azure cost data has a lag of up to **5 days**. Today's spend will not appear immediately. This is an Azure platform constraint, not a Cost Optix limitation.
+Azure cost data has a lag of up to **5 days**. Today's spend will not appear immediately. This is an Azure platform constraint, not a CostOptix limitation.
 
 | Data type | Typical availability |
 |---|---|
@@ -113,10 +113,21 @@ The Azure Tag Explorer uses the **Usage Details API** to fetch per-resource tag 
 
 ---
 
+## What else these roles power
+
+The same two roles are enough for the Azure-only parts of [Recommendations](/features/recommendations):
+
+- **Orphaned resources.** CostOptix uses Azure Resource Graph (covered by **Reader**) to find resources attached to nothing that still bill, such as unattached disks, unassociated public IPs, empty load balancers and stale snapshots.
+- **Commitments.** Savings plan and reservation recommendations use Azure's own purchase recommendations where available.
+
+No extra permissions are needed.
+
+---
+
 ## Troubleshooting
 
 **"AuthorizationFailed" or "Forbidden"**
-Verify both **Reader** and **Cost Management Reader** are assigned at the subscription scope — not at a resource group scope.
+Verify both **Reader** and **Cost Management Reader** are assigned at the subscription scope, not at a resource group scope.
 
 **"InvalidSubscription" or subscription not found**
 Confirm the Subscription ID is correct and that the Service Principal's tenant matches the subscription's tenant.
@@ -125,4 +136,4 @@ Confirm the Subscription ID is correct and that the Service Principal's tenant m
 Azure billing data can lag up to 5 days. Check the Azure portal's Cost Analysis blade to confirm data is available there before investigating further.
 
 **Client secret expired**
-Service Principal secrets have an expiry. Create a new secret in **Entra ID → App registrations → [your app] → Certificates & secrets** and update the credential in Cost Optix.
+Service Principal secrets have an expiry. Create a new secret in **Entra ID → App registrations → [your app] → Certificates & secrets** and update the credential in CostOptix.

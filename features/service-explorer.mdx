@@ -5,7 +5,7 @@ description: Filter, sort, and inspect every cloud service with anomaly flags, r
 
 ## Overview
 
-The Service Explorer is the most detailed per-service view in Cost Optix. It combines two complementary tables — an analytics view with growth and risk scoring, and a monthly cost matrix — letting you interrogate any service in your account across any date range.
+The Service Explorer is the most detailed per-service view in CostOptix. It combines two complementary tables, an analytics view with growth and risk scoring and a monthly cost matrix, letting you interrogate any service in your account across any date range.
 
 The page is account-scoped. Select an account from the top navigation to load data.
 
@@ -15,9 +15,9 @@ The page is account-scoped. Select an account from the top navigation to load da
 
 The Service Explorer has two tabs:
 
-**Analytics View** — rows are services; columns include total cost, CAGR, trend, confidence, anomaly flag, risk level, and health status. Built for filtering and triage.
+**Analytics View**: rows are services; columns include total cost, CAGR, trend, confidence, anomaly flag, risk level, and health status. Built for filtering and triage.
 
-**Monthly View** — rows are services; columns are calendar months. Built for spotting which months drove cost changes and comparing services side by side over time.
+**Monthly View**: rows are services; columns are calendar months. Built for spotting which months drove cost changes and comparing services side by side over time.
 
 ---
 
@@ -30,13 +30,13 @@ The Service Explorer has two tabs:
 | **Service** | Service name as reported by the provider |
 | **Total Cost** | Spend across the full selected range |
 | **Avg Monthly** | Average monthly cost across months with data |
-| **Trend** | Increasing / Stable / Decreasing — direction of cost change |
+| **Trend** | Increasing / Stable / Decreasing: direction of cost change |
 | **CAGR** | Compound Annual Growth Rate for this service |
 | **Confidence** | Reliability of trend and CAGR based on months of data available |
 | **MoM %** | Month-over-month change: most recent month vs the one before |
 | **Anomaly** | Whether an anomaly was detected for this service in the range |
-| **Risk Level** | Critical / High / Medium / Low — from the enhanced risk model |
-| **Health** | Critical / Watch / Savings / Healthy — from the service health categorisation |
+| **Risk Level** | Critical / High / Medium / Low: from the enhanced risk model |
+| **Health** | Critical / Watch / Savings / Healthy: from the service health categorisation |
 
 All columns are sortable. Click a header to sort; click again to reverse.
 
@@ -44,14 +44,14 @@ All columns are sortable. Click a header to sort; click again to reverse.
 
 Use the filter bar to narrow the table by:
 
-- **Search** — free-text search on service name
-- **Confidence** — High, Medium, Low, or Insufficient
-- **Risk Level** — Critical, High, Medium, or Low
-- **Anomalies** — show only services with detected anomalies, or only those without
-- **Trend** — Increasing, Stable, or Decreasing
-- **Health Status** — Critical, Watch, Savings, or Healthy
+- **Search**: free-text search on service name
+- **Confidence**: High, Medium, Low, or Insufficient
+- **Risk Level**: Critical, High, Medium, or Low
+- **Anomalies**: show only services with detected anomalies, or only those without
+- **Trend**: Increasing, Stable, or Decreasing
+- **Health Status**: Critical, Watch, Savings, or Healthy
 
-Filters combine with AND logic — a service must match all active filters to appear.
+Filters combine with AND logic: a service must match all active filters to appear.
 
 The **Clear Filters** button resets all filters and the search term at once. Filter state is preserved when you navigate away and return within the same session.
 
@@ -75,7 +75,7 @@ Use this view to:
 
 ## Exporting
 
-Click **Export** from either tab to download the current view as a CSV. For the analytics view, the export respects active filters — only visible rows are included.
+Click **Export** from either tab to download the current view as a CSV. For the analytics view, the export respects active filters, so only visible rows are included.
 
 An advanced export modal is available for larger datasets with options for export type (summary, detailed, analytics) and metadata.
 
@@ -91,9 +91,9 @@ Risk levels (Critical, High, Medium, Low) come from the enhanced risk model and 
 
 ## Data Requirements
 
-Growth metrics (CAGR, Total Change, Confidence) require at least two months of billing data for a service. Services with only one month of data will show `—` or `Insufficient` in those columns.
+Growth metrics (CAGR, Total Change, Confidence) require at least two months of billing data for a service. Services with only one month of data show a dash or `Insufficient` in those columns.
 
-Anomaly flags are only available for services with enough historical data to establish a baseline. New services (less than 7 days of history) will not be flagged.
+Anomaly flags are only available for services with enough historical data to establish a baseline. Services with fewer than 5 days of history are not flagged.
 
 ---
 

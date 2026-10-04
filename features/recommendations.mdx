@@ -1,0 +1,122 @@
+---
+title: Recommendations
+description: Savings opportunities across cloud, Kubernetes, hosts and AI plans, with savings checked against the bill after you act.
+---
+
+## Overview
+
+Open **Optimisation** in the navigation. CostOptix analyses your spend every night at 05:00 UTC and lists what you can act on, with the projected monthly saving for each finding.
+
+Every finding comes from a fixed set of rules applied to your billing and usage data. The AI assistant can explain findings, but it never invents them.
+
+---
+
+## Tabs
+
+| Tab | What it finds | Scope |
+|---|---|---|
+| **Savings** | Every saving for the selected account, from all engines | Selected account |
+| **Orphaned** | Resources attached to nothing that still bill | Every Azure account |
+| **Commitments** | Services billing steadily on demand with no commitment applied | Selected AWS or Azure account |
+| **Kubernetes** | Pod rightsizing, node sizing and idle capacity | Selected cluster |
+| **Hosts** | Idle services on a machine | Selected host |
+| **AI plans** | Idle seats and plans that do not fit how people use them | Your LLM plans |
+| **Anomalies** | High and critical anomalies from the last 90 days, to investigate | Selected account |
+
+Filter by engine, status, provider or text, and export what you see as CSV.
+
+### Orphaned resources
+
+Azure only. CostOptix uses Azure Resource Graph to find resources that are attached to nothing but still cost money, including:
+
+- Unattached disks and stale snapshots
+- Unassociated public IPs
+- Empty load balancers, application gateways and Traffic Manager profiles
+- Idle App Service plans, virtual network gateways and empty SQL elastic pools
+- Unused NAT gateways, DDoS plans and Front Door WAF policies
+- Disconnected private endpoints and unlinked private DNS zones
+
+Savings here are observed, not modelled. Open **Group by type and clean up in bulk** to work through them by resource type.
+
+### Commitments
+
+AWS and Azure. CostOptix looks for spend that is steady enough to commit to and is still billed at on-demand rates. It works in commitment pools rather than per service, because one savings plan covers every eligible service in its scope.
+
+- Where the provider gives its own purchase recommendation (Azure savings plans), that figure is used.
+- Otherwise CostOptix uses a conservative floor: a low percentile of recent daily spend, priced at a published minimum discount.
+
+<Note>
+  CostOptix recommends commitments but never buys them. Purchases stay in your cloud console.
+</Note>
+
+### Kubernetes
+
+From the sealed daily ledger, not live metrics:
+
+- **Pod rightsizing.** Workloads requesting more CPU or memory than they use.
+- **Node sizing.** Whether fewer or different nodes would carry the same load.
+- **Idle capacity.** Node capacity no workload has claimed.
+
+### Hosts
+
+Services that sit idle on a machine, measured from the host agent.
+
+### AI plans
+
+Idle seats and people who would be better off on a higher tier, a lower one, or pay-per-token. Based on coding-agent telemetry only, so chat apps and tools that send no telemetry are not counted. Check with the person before removing a seat. USD plans only.
+
+---
+
+## Working a finding
+
+Each finding has a status:
+
+| Status | Meaning |
+|---|---|
+| **Open** | New or still applies |
+| **Snoozed** | Hidden for now, comes back later |
+| **Done** | You made the change |
+| **Dismissed** | Not relevant |
+
+Open a finding to see when it was first detected, when it was last confirmed, and the evidence behind it.
+
+---
+
+## Verified savings
+
+Marking a finding **Done** does not count the saving straight away. CostOptix waits, then compares billed cost before and after the change, using the same sealed data the monthly bills are built on. A projected number never counts as saved.
+
+| Badge | Meaning |
+|---|---|
+| **Verifying** | Waiting for enough billed days after the change |
+| **Verified** | The saving showed up on the bill |
+| **Unconfirmed** | The data could not confirm a saving either way |
+| **Cost rose** | Cost went up after the change |
+
+How it is checked:
+
+- **Kubernetes rightsizing, orphaned resources and commitments** compare 14 billed days before the change with 14 days after. Cloud findings also wait out the provider's billing lag so restated figures are not measured.
+- **AI plans** are checked two weeks after you mark them done, against your plan settings.
+- Savings under $5 a month are not verified, to keep noise out.
+- A finding stops being re-checked 90 days after it was marked done.
+
+The summary at the top of each tab shows open projected savings and verified savings. When nothing is verified yet, it shows implemented savings and says they are projected.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Kubernetes" icon="dharmachakra" href="/providers/kubernetes">
+    Waste & fixes, ranked for you.
+  </Card>
+  <Card title="Hosts" icon="server" href="/providers/hosts">
+    Right size and what-if pricing.
+  </Card>
+  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
+    Where the anomaly findings come from.
+  </Card>
+  <Card title="AI coding tools" icon="robot" href="/providers/llm">
+    Plans, seats and usage value.
+  </Card>
+</CardGroup>

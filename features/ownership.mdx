@@ -1,0 +1,93 @@
+---
+title: Ownership
+description: Tell CostOptix which team owns which spend across Kubernetes, hosts and cloud, and close each month into a sealed bill per team.
+---
+
+<Info>
+  Ownership is available on **Professional** and above. Everyone can view it. Only organisation admins can create or change teams.
+</Info>
+
+## Make every dollar someone's
+
+Create teams, then tell CostOptix what each one owns. Spend is split by team across the app, in budgets, and on a sealed monthly bill. Anything no team owns shows as **Unclaimed** until someone takes it, so gaps are visible instead of quietly spread around.
+
+Open **Ownership** from the navigation. It has three tabs:
+
+| Tab | What it shows |
+|---|---|
+| **Teams** | Each team, what it owns, and its spend for the month so far |
+| **Unclaimed** | Spend no team owns yet, grouped by where it comes from, ready to assign |
+| **Monthly bills** | The sealed bill for each closed month |
+
+The header shows how much of your spend is owned, how much is unclaimed, and the latest sealed bill.
+
+---
+
+## What a team can own
+
+| Source | What you can claim |
+|---|---|
+| **Kubernetes** | Whole namespaces, or individual workloads. A workload claim wins over its namespace. |
+| **Hosts** | Whole machines, or individual services, containers and apps on them. A service claim wins over the whole machine. |
+| **Cloud** | Whole accounts, services or resource groups within an account, or tag values |
+
+Every item has one owner. If you try to claim something another team already owns, CostOptix tells you which team holds it, so totals never double count.
+
+### How cloud claims work
+
+Cloud spend can be claimed three ways. When claims overlap, the most specific wins:
+
+1. **Tag value**, such as `team=payments`. Tagged spend across accounts.
+2. **Service or resource group**, such as one service in an AWS account or one resource group in an Azure subscription.
+3. **Whole account.** The team gets everything in the account that no tag, service or resource group claim takes.
+
+Two rules keep the numbers exact:
+
+- **One team tag key per cloud.** Pick the key once per provider (for example `team` on AWS and `owner` on Azure). Every team on that cloud uses the same key, so one dollar can never match two tag values.
+- **One split per account.** An account is split either by service or by resource group, not both. Resource groups are Azure only.
+
+<Tip>
+  Tag values come from your synced tags. If none show up, run a tag sync on the [Tag Explorer](/features/tag-explorer) page.
+</Tip>
+
+---
+
+## Unclaimed spend
+
+The **Unclaimed** tab lists everything no team owns this month: Kubernetes namespaces, host units and cloud accounts, with the top resources in each account. Click any group to assign it to an existing team or a new one.
+
+Idle capacity that no team can share (because no team has direct cost on that cluster or machine) is also shown here as unallocated.
+
+---
+
+## How each team's cost is worked out
+
+- **Direct cost** is what the team's own claims cost.
+- **Idle cost** on clusters and machines (capacity paid for but not used) is split across claiming teams in proportion to their direct cost.
+- **Unclaimed** cost and unallocated idle go to an **Unclaimed** line, so the bill covers every dollar.
+
+Cloud accounts that also contain linked clusters or machines are scaled down so that spend is counted once, inside Kubernetes or Hosts.
+
+---
+
+## Monthly bills
+
+Each month closes into a bill. Once sealed, it never changes: later changes to ownership affect future months only.
+
+- **Kubernetes** lines are scaled to the real invoice when the cluster has a [billing link](/providers/kubernetes#invoice-reconciliation), so reservations, savings plans, spot and negotiated discounts are included. The bill shows how much those discounts saved, and the reconciliation factor for each cluster. Clusters without a working link use estimated rates and are labelled.
+- **Hosts** lines come from each machine's [cost basis](/providers/hosts#tell-costoptix-what-it-costs), with the share of hours the agents covered.
+- **Cloud** lines come from your cloud billing data.
+
+Bills seal a few days after month end, once cloud billing data has settled. If a cluster's billing link needs attention, it falls back to estimated rates so the bill still seals within about ten days. Until then, the **Teams** tab shows the live month to date.
+
+Use **Export bill** to download the sealed bill.
+
+---
+
+## Where team spend shows up
+
+- [Overview](/features/overview) shows spend by team across cloud, Kubernetes and hosts.
+- [Budgets](/features/budgets) can target a team.
+- The [AI assistant](/features/ai-insights) can answer questions about a team's spend.
+
+AI coding tool usage is tagged with your own team names when you set them up (see [AI coding tools](/providers/llm)), but it is not part of team bills yet.

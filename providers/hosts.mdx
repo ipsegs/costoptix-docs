@@ -1,0 +1,204 @@
+---
+title: Linux Hosts
+description: Install the host agent on a VM or bare-metal machine to see what every service, container and app on it costs, who owns it, and whether the machine is the right size.
+---
+
+## Overview
+
+The host agent runs on a Linux machine and reads the kernel's own CPU and memory accounting for every unit on the box. CostOptix prices that usage against what the machine costs you, so you can see what each application actually costs to run.
+
+It works on any Linux machine: a cloud VM, a dedicated server you rent, or hardware you own.
+
+<CardGroup cols={2}>
+  <Card title="Cost per application" icon="layer-group">
+    systemd services, Docker containers, pm2 and supervisord apps, and Kubernetes pods, each priced separately.
+  </Card>
+  <Card title="Team bills" icon="users">
+    Claim units for teams. Each month closes into a sealed bill.
+  </Card>
+  <Card title="Dependency map" icon="diagram-project">
+    Which units call which, and what stops working if one goes down.
+  </Card>
+  <Card title="Right size" icon="gauge">
+    Whether the machine fits its workload, and what it would cost on a different one.
+  </Card>
+</CardGroup>
+
+---
+
+## Requirements
+
+| Requirement | Detail |
+|---|---|
+| Operating system | Linux with **systemd** and **cgroup v2**. This covers Ubuntu 22.04+, Debian 11+, and RHEL, Rocky or Alma 9+. |
+| Architecture | x86_64 or arm64 |
+| Access | Root (sudo) on the machine |
+| Tools | `curl`, `tar`, `sha256sum`, `install`, `systemctl` (present on standard installs) |
+| Network | Outbound HTTPS to `costoptix.com` |
+
+The installer checks all of this first and stops with a clear message if something is missing. On an older kernel that still uses cgroup v1, boot with `systemd.unified_cgroup_hierarchy=1` and run it again.
+
+---
+
+## Connect a machine
+
+Open **Hosts** in CostOptix and follow the guided steps.
+
+<Steps>
+  <Step title="Name the machine and tell us what it costs">
+    Give the machine a name you will recognise. Then pick how it is billed. Without a cost, the agent can measure usage but nothing can be priced. See [Tell CostOptix what it costs](#tell-costoptix-what-it-costs).
+  </Step>
+  <Step title="Create an agent key">
+    Click **Create agent key**. The key can only report host metrics, so it is safe to leave on the machine. It is valid for one year. Copy it now, it is shown only once.
+  </Step>
+  <Step title="Run the installer">
+    SSH into the machine and run the generated command. It installs the agent as a systemd service that starts on boot and restarts on failure. The page watches for the first report and shows the machine as soon as it arrives.
+  </Step>
+</Steps>
+
+The install command looks like this, with your key and machine name filled in:
+
+```bash
+curl -fsSL https://costoptix.com/install/host.sh | sudo bash -s -- <agent-key> <host-name>
+```
+
+The installer downloads the agent from its GitHub release, checks the SHA-256 checksum and refuses to install a binary that does not match. It then writes the settings to `/etc/cost-optix/host-agent.env` (readable only by root), creates the `cost-optix-host-agent` service, starts it and confirms it booted.
+
+<Accordion title="Prefer to install it yourself?">
+  Put these values in `/etc/cost-optix/host-agent.env` with mode `600`, install the binary at `/usr/local/bin/cost-optix-host-agent`, then run `sudo systemctl enable --now cost-optix-host-agent`.
+
+  ```bash
+  COST_OPTIX_HOST_ID=<host-name>
+  COST_OPTIX_API_KEY=<agent-key>
+  COST_OPTIX_ENDPOINT=https://costoptix.com
+  COST_OPTIX_COLLECTION_INTERVAL=5m
+  ```
+
+  The guided setup shows the exact file for your machine under the manual option.
+</Accordion>
+
+### Check the agent
+
+```bash
+systemctl status cost-optix-host-agent
+journalctl -u cost-optix-host-agent -f
+```
+
+A refused key or a blocked outbound connection shows up in the log.
+
+---
+
+## Tell CostOptix what it costs
+
+Open the machine in **Hosts** and click **Cost basis**. Changes apply from today forward.
+
+| Billing model | Use it when | What you enter |
+|---|---|---|
+| **I own or lease it** | You pay a fixed amount every month | Fully loaded monthly cost. Include power, cooling, rack, network gear and hardware amortisation. |
+| **I rent it hourly** | You stop paying when you delete it | Hourly rate, and an optional monthly cap (many providers bill hourly up to a ceiling) |
+
+You can also set the currency, and **Billed through**: the connected cloud account that pays for this machine, if any. When you pick one, the [Overview](/features/overview) counts this machine inside that cloud bill instead of adding it again. Pick **Not a connected cloud account** for on-prem machines or other providers.
+
+### Machines that are Kubernetes nodes
+
+If the machine is also a node in a cluster that runs the CostOptix Kubernetes agent, choose how to split its cost:
+
+| Option | What happens |
+|---|---|
+| Only Kubernetes runs here | The whole machine is billed through the cluster. The host page still shows live usage but no cost. |
+| Kubernetes and other services | The Kubernetes share goes to the cluster, the rest stays on the host. |
+| No Kubernetes agent | Everything is billed on the host. |
+
+---
+
+## The Hosts page
+
+Pick a machine at the top of the page. Each tab answers one question.
+
+| Tab | What it shows |
+|---|---|
+| **Overview** | What the machine costs right now: today so far, a full day at the current rate, the split between applications and idle, and the 30-day trend. |
+| **Fleet** | Every machine side by side (shown when you have more than one). |
+| **Attribution** | Every unit on the machine, what it costs and which team owns it. |
+| **Dependencies** | Which units talk to which, and what stops working if one goes down. |
+| **Billing** | What each team was charged for a closed month. |
+| **Anomalies** | Days the machine spent more than expected, and which units drove it. |
+| **Machine** | Capacity, rates, agent health and whether the machine is the right size. |
+
+### Where the money goes
+
+The agent groups everything it finds into three buckets:
+
+- **Your workloads.** What you deployed on purpose: containers, pods and apps.
+- **Machine overhead.** What the machine needs to run itself, such as system services.
+- **Idle.** Capacity you pay for that nothing is using.
+
+CostOptix guesses which bucket each unit belongs in. You can move any unit, or a whole group, between **yours** and **machine** on the **Attribution** tab.
+
+### Right size and what-if
+
+The **Machine** tab looks at sustained daily peaks for processor and memory, over days the agent fully covered, and tells you whether the machine is too big, about right, or close to its limit. It needs at least a week of evidence before it suggests anything.
+
+You can also price the last 30 sealed days of usage on a different machine. Enter the cores, memory and, optionally, the price, and CostOptix shows whether the workload would fit and what it would cost.
+
+<Note>
+  On a machine with a flat monthly cost, a smaller size saves nothing until you actually move to a cheaper machine. The page says so instead of showing a saving that would not appear on any bill.
+</Note>
+
+### Dependency map
+
+The **Dependencies** tab draws which units on the machine called which, over the last 7 days, including calls to other machines and the internet. Select a unit to see what calls it and what it calls, so you know what would break without it. Busy maps can be grouped, filtered by team and opened full screen.
+
+The agent records which units were connected, never what the connections carry. To turn mapping off, set `COST_OPTIX_CONNECTIONS=off` in the agent's env file and restart it.
+
+---
+
+## Team billing
+
+On the **Attribution** tab, assign a whole machine to a team, or claim individual units. Unclaimed units stay **Unclaimed** and are never quietly spread across the teams that did claim.
+
+Each day seals once it is complete. At month end the month closes into a bill:
+
+- **Direct cost** is what a team's own units used.
+- **Idle** is split across claiming teams in proportion to their direct cost.
+- If agents missed some hours, the bill says how much of the month was covered. A gap is missing measurement, not saved money.
+
+Reassigning a unit later changes future months only, never a closed one. For a team's full bill across hosts, Kubernetes and cloud, see [Ownership](/features/ownership).
+
+---
+
+## Agent health and upgrades
+
+The **Machine** tab has an agent health panel. It checks that the agent is reporting, whether a newer version is out, when the agent key expires, how much of today was covered, and whether a cost basis is set. When an upgrade is available it shows the command.
+
+To upgrade, run this on the machine. It keeps the existing key and machine name:
+
+```bash
+curl -fsSL https://costoptix.com/install/host.sh | sudo bash -s -- --upgrade
+```
+
+<Warning>
+  Do not delete the host in CostOptix to upgrade. Deleting it discards its history.
+</Warning>
+
+---
+
+## Removing a host
+
+On the machine:
+
+```bash
+sudo systemctl disable --now cost-optix-host-agent
+sudo rm -f /etc/systemd/system/cost-optix-host-agent.service /usr/local/bin/cost-optix-host-agent /etc/cost-optix/host-agent.env
+sudo systemctl daemon-reload
+```
+
+Then delete the host from the **Hosts** page.
+
+---
+
+## Security
+
+The agent runs as root so it can read cgroup accounting for every unit. It reads usage counters, unit names, and which units connect to which. It never sends command lines or connection contents, and it makes no outbound connections other than reporting to CostOptix. The systemd unit runs with `NoNewPrivileges`, a read-only system and home directory, and a private `/tmp`.
+
+See [Security](/security) for the full platform model.

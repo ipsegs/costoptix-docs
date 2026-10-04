@@ -1,67 +1,114 @@
 ---
 title: Anomaly Detection
-description: Statistical cost spike detection that catches unexpected spend before it reaches your invoice.
+description: Each service is measured against its own history, and only the anomalies that matter send an alert.
 ---
 
-## How It Works
+## How detection works
 
-Cost Optix establishes a baseline of expected spend independently for every service, then raises an anomaly when a day departs from that service's own history. Detection runs at the service level, not on the account total.
+CostOptix builds a baseline for every service separately, then flags a day that departs from that service's own history. It works per service, not on the account total, so a 300% jump in one storage service is caught even when the whole account only rose 12%.
 
-The baseline is built from the **median** and **median absolute deviation** rather than the mean and standard deviation. A single unusually expensive day pulls a mean and its standard deviation far enough that the next real anomaly reads as normal. The median barely moves, so past spikes do not blind the detector to future ones.
+Detection runs on cloud accounts, Kubernetes clusters (per namespace and workload) and hosts.
 
-Method selection is adaptive per service, based on how much history that service has. Services with two weeks or more are evaluated against a rolling 7-day window; shorter histories are evaluated against their full window. Services with under a week of data are not scored at all rather than scored with false confidence.
+### Baselines that ignore past spikes
 
-This means Cost Optix can identify that, for example, your Azure Blob Storage costs spiked 300% while your overall Azure spend only increased 12% — pinpointing the root cause rather than just flagging a top-level number.
+Baselines use the **median** and the **median absolute deviation**, not the mean and standard deviation. One expensive day pulls a mean up far enough that the next real anomaly looks normal. The median barely moves, so past spikes do not hide future ones.
 
-Each detected anomaly includes:
-- The service name and cloud provider
-- The anomaly date
-- Actual spend vs expected spend
-- Deviation percentage
-- Severity rating
-- Detection method used
+### The method depends on history
 
----
-
-### Near-zero baselines
-
-Services averaging under $1/day are treated as noise rather than as a baseline. Free-tier overflow and billing rounding artifacts can leave a service sitting at fractions of a cent, and anchoring the maths there turns a genuine $0 to $64 first appearance into a 3,815,359% deviation.
-
-A service crossing that floor for the first time is reported as an emergence, with the actual dollar amount and no deviation percentage. A service with a perfectly flat non-zero baseline, where the deviation measure is exactly zero, falls back to a 20% change threshold so a stable service with one large spike is never silently dropped.
-
----
-
-## Anomaly Workflow
-
-Anomalies can be managed directly in the dashboard:
-
-| Status | Description |
+| History for the service | Method |
 |---|---|
-| `new` | Freshly detected, unreviewed |
-| `acknowledged` | Team member has seen it |
-| `investigating` | Actively being looked into |
-| `resolved` | Root cause identified and addressed |
-| `false_positive` | Flagged as expected behaviour |
+| 21 days or more | Rolling 7-day window, robust z-score |
+| 10 to 20 days | Robust z-score over the full window |
+| 5 to 9 days | Simple percentage change against the average |
+| Under 5 days | Not scored, rather than scored with false confidence |
+
+### Edge cases
+
+- **Services averaging under $1 a day are skipped.** Free-tier overflow and rounding would otherwise produce absurd percentages.
+- **A service going from $0 to real spend is an emergence.** It is reported with the dollar amount and no percentage, which is what you actually need to know.
+- **A perfectly flat service** falls back to a 20% change rule, so one big jump on a stable line is never missed.
 
 ---
 
-## Alerts & Notifications
+## Important anomalies
 
-Anomaly alerts can be delivered to Slack, Microsoft Teams, Discord, or any custom webhook endpoint. Each alert includes the service name, severity, actual vs expected cost, and a direct link to the anomaly in your dashboard.
+Not every statistical blip is worth an alert. An anomaly is **important**, and can send an alert, when it is one of these:
 
-See [Webhooks](/features/webhooks) for setup instructions.
+- **A material spike.** Spend rose by at least $20 or 2% of the account's median daily spend, whichever is larger.
+- **A stopped service.** A sizeable service fell by that much and is now at 10% or less of its usual cost.
+
+Two more rules cut noise:
+
+- **A recovery is not a spike.** A rise back into the service's normal range over the last 28 days is ignored.
+- **One alert per run.** A lasting change alerts once, not every day. It alerts again only if the impact grows by 50% or more, and the run ends after two normal days.
+
+Severity comes from impact, as a share of the account's median daily spend:
+
+| Severity | Impact |
+|---|---|
+| Critical | 10% or more |
+| High | 5% to 10% |
+| Medium | Below 5% |
+
+The **Anomalies** page shows **Important** anomalies by default. Switch to **All** to see everything the detector found.
 
 ---
 
-## Tier Limits
+## What each anomaly shows
 
-| Tier | Anomaly alerts / month |
+- Service and provider
+- Date
+- Actual spend against expected spend
+- Deviation
+- Severity
+- Whether spend rose or fell
+
+Click an anomaly to open its resource breakdown: every resource that changed on that day, ranked by dollar impact, with filters and export.
+
+### Root cause analysis
+
+From the breakdown, run **root cause analysis**. It works in two steps:
+
+1. **Numbers first.** CostOptix computes which resources changed on that date and how (new, scaled up, scaled down, removed), ranked by confidence and dollar impact. This step uses no AI quota.
+2. **Then the explanation.** Those exact results go to the AI assistant, which explains what happened and what to do in plain language. This uses one AI question.
+
+You can then open the chat with the anomaly already loaded and ask follow-up questions. See [AI Insights](/features/ai-insights).
+
+<Note>
+  On AWS and Azure, resource-level detail is only available for the last 14 days because of provider API limits. Older anomalies are analysed at service level and say so. GCP has no such limit.
+</Note>
+
+---
+
+## Workflow
+
+| Status | Meaning |
+|---|---|
+| New | Just detected |
+| Acknowledged | Someone has seen it |
+| Investigating | Being looked into |
+| Resolved | Dealt with |
+
+Resolving an anomaly also clears it from the **Anomalies** tab of [Recommendations](/features/recommendations).
+
+---
+
+## Alerts
+
+Important anomalies are sent to any webhook subscribed to **Cost Anomaly Detected**: Slack, Microsoft Teams, Discord or your own endpoint. Each alert names the service, the impact, its share of daily spend, the severity, and the top resources behind it. See [Webhooks](/features/webhooks).
+
+---
+
+## Plan limits
+
+| Plan | Stored anomaly alerts / month |
 |---|---|
 | Starter | 3 |
+| Growth | 25 |
 | Professional | 100 |
 | Business | Unlimited |
 | Enterprise | Unlimited |
 
 <Note>
-  The limit applies to anomalies **stored and tracked** per month. Detection still runs across all services — anomalies beyond the limit are surfaced in the dashboard but not retained for historical review.
+  The limit applies to anomalies stored for history. Detection still runs on every service, and anomalies beyond the limit are still shown on the dashboard.
 </Note>

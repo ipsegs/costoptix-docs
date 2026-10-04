@@ -23,7 +23,7 @@ Those numbers reconcile to the invoice, to the cent. We call it invoice-reconcil
 
 That is the difference.
 
-**CostOptix is a multi-cloud cost platform (Azure, AWS, GCP, Heroku) with Kubernetes chargeback as its flagship capability, at a flat price.** We have not found another self-serve product that combines invoice-reconciled Kubernetes chargeback, multi-cloud visibility and flat pricing. We are not the broadest platform on this page, and several vendors below have more breadth. We name them.
+**CostOptix is a multi-cloud cost platform (Azure, AWS, GCP) that also covers Kubernetes clusters, Linux machines and AI coding tools, with invoice-reconciled Kubernetes chargeback as its flagship capability, at a flat price.** We have not found another self-serve product that combines invoice-reconciled Kubernetes chargeback, multi-cloud visibility and flat pricing. We are not the broadest platform on this page, and several vendors below have more breadth. We name them.
 
 ### Where we fit, in fifteen seconds
 
@@ -34,13 +34,16 @@ That is the difference.
 | Invoice-reconciled chargeback | Yes | Rare. Enterprise platforms, on annual contracts. |
 | Immutable sealed billing history | Yes | Rare |
 | Flat self-serve pricing | Yes | Usually a share of spend or savings |
+| Team chargeback for cloud accounts | Yes | Finout, Vantage |
+| Commitment recommendations | Yes | Native consoles, one cloud at a time |
+| AI coding tool spend | Yes | Each vendor's own console |
 | Unit economics | No | CloudZero |
-| Commitment management | No | Vantage, nOps, Zesty |
-| SaaS and AI vendor spend | No | Vantage, Finout |
+| Automated commitment purchasing | No | Vantage, nOps, Zesty |
+| SaaS and AI vendor bills | No | Vantage, Finout |
 
 Buy it if you want your cloud accounts in one place with anomaly detection, budgets and forecasting, and will not sign a percentage-of-spend contract. If you also run Kubernetes, the chargeback engine bills clusters back to teams with numbers that survive an argument.
 
-Do not buy it if you need per-customer unit economics, automated commitment purchasing, chargeback for non-Kubernetes cloud spend, or a tool that recommends savings across AWS, Azure and GCP. We do not do those things. Others do them well.
+Do not buy it if you need per-customer unit economics, automated commitment purchasing, SaaS and AI vendor invoices next to cloud, or VM rightsizing across AWS, Azure and GCP. We do not do those things. Others do them well.
 
 ---
 
@@ -70,13 +73,17 @@ Reservations, savings plans, spot and negotiated discounts are absorbed into tha
 
 Completed days are sealed into a daily cost ledger, and the reconciled monthly bill is immutable by contract: the seal refuses to overwrite an existing month, so corrections happen as a new artifact, never as a rewrite. A chargeback figure you sent a team in March still reads the same in September. Tools that recompute from current data quietly change last quarter's numbers. If you have ever argued with a team lead about their bill, this matters more than any feature on this page.
 
+### Chargeback beyond Kubernetes
+
+The same model covers the rest of the estate. On Linux machines the host agent prices every service, container and app from cgroup accounting, and teams claim units or whole machines. In the cloud, teams claim spend by tag value, by service or resource group, or by whole account, with the most specific claim winning and one tag key per cloud so a dollar can never match two teams. Every source closes into a sealed monthly bill, and anything nobody owns sits on an explicit Unclaimed line.
+
 ### Cloud cost visibility that needs no cluster
 
 Everything in this section works with zero Kubernetes clusters connected. To be clear about the market first: dashboards, anomaly alerts, budgets and tag reporting are table stakes. Vantage, CloudZero, Cloudability, Finout and nOps all have them. What differs is the mechanics underneath, so that is what we describe.
 
-Anomaly detection is adaptive per service. It selects a statistical method based on how much history each service has, uses median-based baselines so one past spike cannot inflate what "normal" looks like, and catches emergence, meaning a service going from $0 to real spend, which pure deviation math misses. Root cause is two-phase: a deterministic pass computes which resources changed on the anomaly date, ranked by confidence and dollar impact, before any AI is involved, so the numbers exist independently of the narration. The full resource list behind any anomaly is filterable, sortable and exportable. Alerts push to Slack, Teams or Discord.
+Anomaly detection is adaptive per service. It selects a statistical method based on how much history each service has, uses median-based baselines so one past spike cannot inflate what "normal" looks like, and catches emergence, meaning a service going from $0 to real spend, which pure deviation math misses. Root cause is two-phase: a deterministic pass computes which resources changed on the anomaly date, ranked by confidence and dollar impact, before any AI is involved, so the numbers exist independently of the narration. The full resource list behind any anomaly is filterable, sortable and exportable. Only material changes alert: a spike must clear $20 or 2% of the account's median daily spend, a recovery back into the normal range is not a spike, and a lasting change alerts once rather than every day. Alerts push to Slack, Teams or Discord with the top resources named.
 
-Budgets do more than threshold alerts. Each carries warning and critical thresholds with webhook events, a predicted worst-case end of period derived from up to 11 months of history, and a projected breach date. When a budget comes under pressure, it names the resources responsible: each contributor shows recent daily spend against its own baseline, flagged as a spike, a new resource or steady growth, so "we are going over" arrives with "and here is why" attached. Budgets scope to one account, to every account, or to a tag combination across accounts, and the suggested amount at creation is anchored on that account's volatility-adjusted VaR ceiling rather than a round number.
+Budgets do more than threshold alerts. Each carries warning and critical thresholds with webhook events, a predicted worst-case end of period derived from up to 11 months of history, and a projected breach date. When a budget comes under pressure, it names the resources responsible: each contributor shows recent daily spend against its own baseline, flagged as a spike, a new resource or steady growth, so "we are going over" arrives with "and here is why" attached. Budgets scope to one cloud account, cluster or host, to the whole organisation, to a tag combination, to a team, or to AI coding tool plans. Daily limits catch a single bad day without waiting for month end, and CostOptix proposes a budget or limit for any source that has none. The suggested amount at creation is anchored on that account's volatility-adjusted VaR ceiling rather than a round number.
 
 The daily view treats today as the partial day it is: averages and baselines come from complete days only, every service carries a median baseline, and any service drills down to per-resource daily costs for the period. A month-over-month resource comparison lists top increases, top decreases, new resources and deleted resources by name, with each resource's share of the month's total change.
 
@@ -84,13 +91,13 @@ Tag Explorer breaks any account's spend down by tag key, reports tag coverage as
 
 ### Flat pricing
 
-Free Starter. $150/month Professional. Business and Enterprise quoted. No percentage of cloud spend at any tier, ever.
+Free Starter. $49/month Growth. $150/month Professional. Business and Enterprise quoted. No percentage of cloud spend at any tier, ever.
 
 Percentage pricing means the tool bills you more precisely as your cloud bill grows, which is the moment you most want to cut it.
 
 **The honest counterpoint:** percentage pricing is not a racket. Those vendors process line-item billing data at volumes that genuinely cost more as your bill grows, and the fee usually bundles a named FinOps advisor who reviews your spend monthly. We do not sell that at any tier. If you want a human in the loop, that is a real reason to pay them instead.
 
-Kubernetes cluster limits by tier: Starter connects 1 cluster, Professional 3, Business 10, Enterprise unlimited. If you run five clusters, Professional is not your plan.
+Kubernetes is counted in nodes, not clusters: Starter includes 3, Growth 8, Professional 25, Business 150, Enterprise unlimited. Self-serve plans can add nodes, hosts, cloud accounts and AI tool users as monthly add-ons instead of moving up a plan.
 
 ### A tool that admits what it does not know
 
@@ -109,23 +116,21 @@ Every vendor bolted an LLM onto a dashboard last year. Most are architecturally 
 
 | Gap | Detail | Who to use instead |
 |---|---|---|
-| **Cloud-side optimisation** | Recommendations today are Kubernetes pod rightsizing and anomaly follow-up. If you run no clusters, we will not find you savings on your VM fleet. | Vantage, nOps, Zesty |
-| **Chargeback outside Kubernetes** | Cloud resource spend gets Tag Explorer, not per-team billing. Your VM fleet is not charged back. | Finout, Cloudability |
+| **Cloud VM rightsizing** | Cloud-side savings today are Azure orphaned resources and AWS and Azure commitment recommendations. Rightsizing covers Kubernetes pods and nodes and Linux hosts, not your cloud VM fleet directly. | Vantage, nOps, Zesty |
 | **Unit economics** | No cost per customer, per feature or per tenant. | CloudZero |
-| **Commitment management** | No RI or Savings Plan recommendations or purchasing. Reconciliation absorbs their effect on your bill; it does not advise you on buying them. | Vantage, nOps, Zesty |
-| **Verified savings** | Recommendation savings are projected. Nothing measures whether the saving materialised after you mark one implemented. | See below |
-| **Cross-provider tag rollups** | Tag Explorer is one account and one tag key per query. No exploratory view of `team=payments` summed across AWS, Azure and GCP. A tag-scoped multi-account budget can track one tag combination across every account, but that is a limit tracker, not a rollup view. | Finout, Vantage |
-| **100% allocation of untagged cloud spend** | Kubernetes chargeback allocates every dollar by design. Cloud-side reports the tags you have and will not synthesise allocation rules. | Finout virtual tagging |
-| **Hourly granularity** | Kubernetes accrues live from metrics but seals daily. Cloud cost is daily. No hour-level spike forensics. | Most |
-| **SaaS and AI vendor spend** | Cloud and Kubernetes only. No Datadog, Snowflake, MongoDB, OpenAI or Anthropic ingestion. | Vantage, Finout |
+| **Automated commitment purchasing** | We recommend reservations and savings plans for AWS and Azure. We never buy them. | Vantage, nOps, Zesty |
+| **Cross-provider tag exploration** | Tag Explorer is one account and one tag key per query. Ownership rolls a team's tag values up across clouds, but there is no free-form view of any tag summed across every provider. | Finout, Vantage |
+| **Virtual tagging** | Cloud spend is owned by tag, service, resource group or account. Anything that matches none of those stays Unclaimed. We do not synthesise allocation rules. | Finout virtual tagging |
+| **Hourly granularity** | Kubernetes and hosts accrue live but seal daily. Cloud cost is daily. No hour-level spike forensics. | Most |
+| **SaaS and AI vendor bills** | AI coding tools are tracked from their own telemetry. Invoices from SaaS and AI vendors (Datadog, Snowflake, MongoDB, OpenAI, Anthropic) are not ingested. | Vantage, Finout |
 | **FOCUS export** | Not available. If finance standardises on FOCUS, this is a real gap. | Cloudability, Vantage |
 | **Named FinOps advisor** | Not sold at any tier. | The percentage vendors |
 
-### On projected versus verified savings
+### How savings are verified
 
-Every recommendation carries a projected monthly saving. When you mark one implemented, nothing currently measures whether that saving landed. The number stays projected.
+Every recommendation carries a projected monthly saving, and a projection is not a saving. When you mark a Kubernetes rightsizing, orphaned resource or commitment finding done, CostOptix compares 14 billed days before the change with 14 days after, from the same sealed data the bills are built on, and marks it verified, unconfirmed or "cost rose". AI plan findings are checked two weeks later against your plan settings. Until a finding is verified, the summary says the saving is projected.
 
-We could show you a "verified savings" figure. We would have to make it up. If a vendor shows you one, ask precisely what measures it and over what window.
+If a vendor shows you a verified savings figure, ask what measures it and over what window. This is our answer.
 
 ---
 
@@ -133,7 +138,7 @@ We could show you a "verified savings" figure. We would have to make it up. If a
 
 | Tool | How you are charged |
 |---|---|
-| **CostOptix** | Flat fee. Free tier, then $150/month, then quoted. Never a share of cloud spend. |
+| **CostOptix** | Flat fee. Free tier, then $49/month and $150/month, then quoted. Optional per-unit add-ons. Never a share of cloud spend. |
 | CloudZero | Quoted against annualised cloud spend. No public pricing. |
 | IBM Cloudability | Percentage of managed cloud spend. |
 | Finout | Quoted, scales with cloud spend. Annual contracts typical. |
@@ -153,9 +158,9 @@ We could show you a "verified savings" figure. We would have to make it up. If a
 
 ## Versus native provider tools
 
-If you use one cloud, have no plans to add another, and are happy checking the console manually, the native tool is free and we are probably not worth $150.
+If you use one cloud, have no plans to add another, and are happy checking the console manually, the native tool is free and we are probably not worth paying for.
 
-We start earning it when you have accounts across providers and want one number, want anomaly alerts pushed to Slack rather than checked manually, want more than 30 to 90 days of queryable history, or want cluster cost sitting next to cloud cost.
+We start earning it when you have accounts across providers and want one number, want anomaly alerts pushed to Slack rather than checked manually, want more than 30 to 90 days of queryable history, or want cluster, machine and AI tool cost sitting next to cloud cost.
 
 We do not replace native tools for provider-specific operations: tag policy enforcement, budget actions, native RI purchase flows.
 
@@ -177,6 +182,8 @@ We are for the band beneath: real multi-cloud spend, often with Kubernetes in th
 - **Anomaly detection needs a baseline.** Services with under 5 days of history will not fire, and detection strength scales with history: full rolling detection needs 21 days, standard statistical detection needs 10, and below that a simpler percentage check runs. Services averaging under $1/day are skipped entirely to keep micro-spend noise out of your alerts.
 - **Billing lag is the provider's.** Azure up to 5 days, AWS and GCP 1 to 3. Today's cost is never final today.
 - **Kubernetes cost accrues live** from agent metrics with no billing lag, but it is an allocation estimate until month close reconciles it to the invoice.
+- **Host cost is only as good as the cost basis you enter.** The agent measures usage exactly, but a machine's price comes from the monthly cost or hourly rate you give it.
+- **AI coding tool figures cover tools that send telemetry.** Chat apps and tools without telemetry are not seen, so seat suggestions are a starting point, not a verdict.
 - **Invoice reconciliation needs a billing link per cluster.** A cluster without one bills at estimated rates, which is correct for dedicated or bare-metal hardware and a known limitation for cloud clusters until the link is configured. The bill's reconciliation status tells you which case you are in.
 - **Node sizing alternatives approximate allocatable capacity** at 92% CPU and 90% memory of raw specs, because per-SKU kube-reserved overhead is not in any pricing catalog. Fit against your *current* instance type uses real allocatable figures from the agent.
 - **Azure alternatives are demand-shaped.** Azure rates resolve on demand per SKU, which makes them exact and allow-list free, but the catalog fills with instance types that have actually been observed. AWS rates come from a bulk catalog, so AWS alternatives are broader.
@@ -189,7 +196,7 @@ We are for the band beneath: real multi-cloud spend, often with Kubernetes in th
 
 Cost data exports as streaming CSV with a preflight row count. No export fee, no contractual exit period on self-serve plans. Downgrades take effect at the end of the cycle. Accounts exceeding the new tier's limits become read-only rather than deleted, and historical data is preserved for 30 days after cancellation, so export before then if you are leaving for good.
 
-Limits: one provider per export request, so a multi-cloud org pulls one file per provider. The quick monthly export caps at 5,000 rows. Starter is capped at 100 API calls a day.
+Limits: one provider per export request, so a multi-cloud org pulls one file per provider. The quick monthly export caps at 5,000 rows. Starter is capped at 100 API calls a day, Growth at 500.
 
 ---
 
@@ -205,7 +212,7 @@ Limits: one provider per export request, so a multi-cloud org pulls one file per
   <Card title="Quick Start" icon="rocket" href="/quickstart">
     Connect an account and judge it yourself.
   </Card>
-  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
-    Quota, model and data limitations.
+  <Card title="Recommendations" icon="piggy-bank" href="/features/recommendations">
+    What we find, and how savings are verified.
   </Card>
 </CardGroup>

@@ -1,132 +1,122 @@
 ---
 title: Quick Start
-description: Connect your first cloud account and start seeing your costs in under 5 minutes.
+description: Create an account, connect your first source and set up your first alert.
 ---
 
-## Step 1 — Create your account
+## Step 1: Create your account
 
-Go to [costoptix.com/signup](https://costoptix.com/signup) and sign up with your work email.
+Go to [costoptix.com/signup](https://costoptix.com/signup) and sign up. Verify your email with the link we send, and you land in your organisation.
 
 <Note>
-  Cost Optix does not allow disposable email addresses. Use a company or personal permanent email address.
+  Disposable email addresses are not accepted. Use a permanent work or personal address.
 </Note>
-
-After signing up, verify your email address using the link sent to your inbox. You will then be taken to your organisation dashboard.
 
 ---
 
-## Step 2 — Connect a cloud provider
+## Step 2: Connect a source
 
-Most providers connect from **Admin → Accounts → Add Account** using read-only credentials. **Kubernetes is different** — it does not use Add Account. Instead you install a lightweight in-cluster agent from the **Kubernetes** section of the dashboard (see the Kubernetes tab below).
-
-Select your provider and follow the setup:
+Pick whatever you want to track first. You can add the rest later.
 
 <Tabs>
   <Tab title="Azure">
-    You will need an **Azure Service Principal** with read access to your subscription's cost data.
+    Open **Organization Admin → Accounts → Add Account** (from your profile menu) and choose Microsoft Azure. You need a service principal with **Reader** and **Cost Management Reader** on the subscription:
 
-    **Required information:**
     - Tenant ID
-    - Client ID (Application ID)
-    - Client Secret
+    - Client ID
+    - Client secret
     - Subscription ID
 
-    See the [Azure setup guide](/providers/azure) for step-by-step instructions.
+    Step-by-step commands are in the [Azure guide](/providers/azure).
   </Tab>
   <Tab title="AWS">
-    You will need an **AWS Access Key** with Cost Explorer read permissions.
+    Open **Organization Admin → Accounts → Add Account** (from your profile menu) and choose Amazon Web Services. You need an IAM user or role with read-only Cost Explorer access:
 
-    **Required information:**
-    - Access Key ID
-    - Secret Access Key
-    - Default Region
+    - Access key ID and secret access key, **or** a role ARN
 
-    See the [AWS setup guide](/providers/aws) for the minimum IAM policy required.
+    The minimum IAM policy is in the [AWS guide](/providers/aws).
   </Tab>
   <Tab title="GCP">
-    You will need a **GCP Service Account JSON** with BigQuery and billing read permissions, plus a BigQuery billing export enabled.
+    Open **Organization Admin → Accounts → Add Account** (from your profile menu) and choose Google Cloud. You need a **Detailed usage cost** BigQuery billing export and a service account that can read it:
 
-    **Required information:**
-    - Service Account JSON file
     - Project ID
-    - Billing Export Project ID and Dataset ID
+    - Service account JSON key
 
-    See the [GCP setup guide](/providers/gcp) for instructions.
-  </Tab>
-  <Tab title="Heroku">
-    You will need a **Heroku API Key** from your Heroku account settings.
-
-    See the [Heroku setup guide](/providers/heroku) for instructions.
+    See the [GCP guide](/providers/gcp).
   </Tab>
   <Tab title="Kubernetes">
-    Kubernetes does not use a kubeconfig or stored credentials, and it is **not** added from **Admin → Accounts**. Instead, a lightweight agent runs inside your cluster and reports metrics to Cost Optix in real time.
+    Open **Kubernetes** and follow the three guided steps: name the cluster, create an agent key, and run the installer command. The key and command are filled in for you.
 
-    Set it up from the **Kubernetes** section of the dashboard. The guided onboarding walks you through three steps: name your cluster, create a scoped agent key, and run the generated installer command — the key and command are filled in for you.
+    You need `kubectl` access to the cluster. `metrics-server` is recommended for usage and rightsizing data.
 
-    **Before you start, confirm your cluster has:**
-    - `kubectl` access, pointed at the target cluster
-    - `metrics-server` installed (required for CPU and memory usage data)
-    - Permission to create a namespace, ServiceAccount, ClusterRole, and Deployment
+    See the [Kubernetes guide](/providers/kubernetes).
+  </Tab>
+  <Tab title="Linux machine">
+    Open **Hosts** and follow the guided steps: name the machine, tell us what it costs, create an agent key, and run the installer over SSH.
 
-    The cluster appears automatically once the agent reports its first metrics. See the [Kubernetes setup guide](/providers/kubernetes) for the full walkthrough, including the GitOps manifest option and per-team chargeback.
+    The machine needs systemd and cgroup v2, which covers Ubuntu 22.04+, Debian 11+ and RHEL, Rocky or Alma 9+.
+
+    See the [Hosts guide](/providers/hosts).
+  </Tab>
+  <Tab title="AI coding tools">
+    Open **LLM Usage** and click **Connect a tool**. Create a telemetry key, then paste the generated settings into Claude Code or Gemini CLI.
+
+    See the [AI coding tools guide](/providers/llm).
   </Tab>
 </Tabs>
 
 ---
 
-## Step 3 — Wait for the first data sync
+## Step 3: Wait for the first data
 
-Once a provider is connected, Cost Optix will begin collecting your cost data.
-
-| Provider | Typical first sync | Billing lag |
+| Source | First data | Why it can lag |
 |---|---|---|
-| Azure | 2–5 minutes | Up to 5 days |
-| AWS | 1–3 minutes | Up to 3 days |
-| GCP | 1–3 minutes | 1–3 days |
-| Heroku | Under 1 minute | 1 day |
-| Kubernetes | Real-time | None |
+| Azure | A few minutes after connecting | Azure posts costs up to 5 days late |
+| AWS | A few minutes after connecting | AWS posts costs 1 to 3 days late |
+| GCP | A few minutes after connecting | The billing export updates 1 to 3 days late |
+| Kubernetes | After the agent's first report | No billing lag, cost accrues live |
+| Linux machine | After one collection interval (5 minutes by default) | No billing lag, cost accrues live |
+| AI coding tools | About a minute after the first prompt | No billing lag |
 
 <Info>
-  Billing lag is a provider constraint — today's costs may not appear in your dashboard for a few days. This is not a Cost Optix limitation.
+  Cloud billing lag comes from the provider. Today's cloud cost is never final today.
 </Info>
 
 ---
 
-## Step 4 — Explore your dashboard
+## Step 4: Look around
 
-Once data has synced, your dashboard will show:
-
-- **Total spend** across all connected accounts for the selected period
-- **Per-provider breakdown** with cost trends
-- **Service-level costs** — see exactly which services are driving your bill
-- **Anomaly indicators** — services flagged for unusual spending patterns
+- **Overview** shows every source in one total, how it compares with last month, and who owns what. Organisations with two or more sources land here after sign-in.
+- **Dashboard**, **Daily Spend** and **Cost Explorer** go deep on one cloud account.
+- **Kubernetes**, **Hosts** and **LLM Usage** each have their own page with costs, waste and anomalies.
 
 ---
 
-## Step 5 — Set up a budget alert (recommended)
+## Step 5: Set up alerts
 
-Navigate to **Budgets** and create your first budget:
+Alerts are sent by webhook, so connect one first:
 
-1. Select the account to track, or choose multi-account
-2. Set a monthly budget amount
-3. Choose alert thresholds (default: 80% warning, 95% critical)
-4. Optionally connect a [webhook](/features/webhooks) to receive alerts in Slack or Teams
+1. Go to **Settings → Webhooks** and add Slack, Microsoft Teams, Discord or your own endpoint. See [Webhooks](/features/webhooks).
+2. Go to **Budgets** and create a monthly budget, or add a daily spend limit. See [Budgets](/features/budgets).
+
+<Tip>
+  You do not have to work out the amounts. CostOptix suggests a budget or daily limit for each source that has none, and you can accept it in one click from the suggestions button in the header.
+</Tip>
 
 ---
 
 ## What's next?
 
 <CardGroup cols={2}>
-  <Card title="Connect more providers" icon="cloud" href="/providers/overview">
-    Add all your cloud accounts for a complete picture.
+  <Card title="Connect more sources" icon="plug" href="/providers/overview">
+    The full picture needs every source.
   </Card>
-  <Card title="Set up webhooks" icon="bell" href="/features/webhooks">
-    Get budget and anomaly alerts in Slack, Teams, or Discord.
+  <Card title="Assign ownership" icon="users" href="/features/ownership">
+    Tell CostOptix which team owns what.
   </Card>
-  <Card title="Anomaly detection" icon="chart-line" href="/features/anomaly-detection">
-    Learn how Cost Optix detects cost spikes statistically.
+  <Card title="Find savings" icon="piggy-bank" href="/features/recommendations">
+    Rightsizing, idle capacity, orphaned resources and commitments.
   </Card>
-  <Card title="API access" icon="code" href="/api-reference/authentication">
-    Integrate Cost Optix into your own tooling.
+  <Card title="Ask the assistant" icon="sparkles" href="/features/ai-insights">
+    Ask questions about your spend in plain language.
   </Card>
 </CardGroup>

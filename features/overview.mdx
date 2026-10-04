@@ -1,0 +1,75 @@
+---
+title: Overview
+description: All of your spend in one place, across cloud, Kubernetes, hosts and AI coding tools, with every dollar counted once.
+---
+
+## What it shows
+
+**Overview** is the first tab in the app. It adds up every connected source into one total and shows where the money goes, how it compares with last month, and who owns it. Organisations with two or more sources land here after sign-in.
+
+Overview is available on every plan. Features inside it that need a higher plan, such as team ownership, keep their own requirements.
+
+---
+
+## The total
+
+The headline is your total spend for the selected period, compared with the same days last month.
+
+If you spend in more than one currency, the total is in your main currency and the other currencies are listed beside it, not converted.
+
+Below it, one card per source shows its amount, its share of the total and its change against last month:
+
+| Source | Includes |
+|---|---|
+| **Cloud** | Your connected Azure, AWS and GCP bills |
+| **Kubernetes** | Clusters that are not part of a connected cloud bill |
+| **Hosts** | Machines that are not part of a connected cloud bill |
+| **LLM Usage** | What your AI coding tool plans charge |
+
+---
+
+## Counted once
+
+A Kubernetes node or a VM in a connected AWS account appears on the AWS bill and is also measured by the CostOptix agent. Overview counts it once, inside the cloud bill.
+
+- **Linked clusters and machines** sit inside the cloud total. Their cards say how much of the cloud bill they account for, and they are not added again.
+- **Days the cloud bill has not arrived for yet** are covered by the agent's estimate, and replaced by the bill once it lands.
+- **Everything else** (bare metal, on-prem, other providers) is added on top.
+
+To tell CostOptix where a cluster or machine is billed, set a [billing link](/providers/kubernetes#invoice-reconciliation) on the cluster or **Billed through** on the [host](/providers/hosts#tell-costoptix-what-it-costs). A cluster without a link is always counted on its own, with a reminder to link it if its nodes are in a connected account.
+
+---
+
+## Sections
+
+| Section | What it answers |
+|---|---|
+| **Highlights** | Short notes on what stands out in this period |
+| **Daily spend** | Spend per day across every source |
+| **Last 12 months** | Each source by month or by quarter, with the change between periods |
+| **What changed** | The biggest increases and decreases, new spend, and anything that stopped, against the same days last month |
+| **Top spenders** | The biggest services, clusters, machines and AI tools in the period |
+| **Cloud accounts** | Each account this period against last month |
+| **Where your cloud spend goes** | Cloud spend by provider, with linked clusters and machines shown inside it |
+| **By team** | Each team's cloud, Kubernetes and host spend, plus what no team owns yet, including idle capacity |
+
+LLM usage is not split by team on this page yet.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Connect your sources" icon="plug" href="/providers/overview">
+    How sources add up without double counting.
+  </Card>
+  <Card title="Ownership" icon="users" href="/features/ownership">
+    Tell CostOptix which team owns what.
+  </Card>
+  <Card title="Cost Dashboard" icon="chart-bar" href="/features/cost-dashboard">
+    Go deep on one cloud account.
+  </Card>
+  <Card title="Budgets" icon="wallet" href="/features/budgets">
+    Monthly budgets and daily limits per source.
+  </Card>
+</CardGroup>

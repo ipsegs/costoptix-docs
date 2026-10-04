@@ -1,42 +1,49 @@
+---
+title: Users and Roles
+description: Invite people to your organisation, choose what they can do, and remove access.
+---
 
----
-title: Team Management
-description: Invite users, assign roles, and manage access for your organisation.
----
+<Note>
+  This page is about people who can sign in to CostOptix. To assign spend to engineering teams, see [Ownership](/features/ownership).
+</Note>
 
 ## Roles
 
-| Role | Access |
+| Role | What they can do |
 |---|---|
-| `admin` | Full access — manage accounts, users, billing, webhooks, SSO, and all cost data |
-| `member` | Read access to cost data, dashboards, budgets, and anomalies. Cannot modify organisation settings or manage users |
+| `admin` | Everything: sources, users, billing, webhooks, SSO, budgets, teams and all cost data |
+| `member` | View cost data, dashboards, anomalies, recommendations and ownership. Cannot change organisation settings, budgets or users. |
 
-The first user who creates an organisation is assigned `admin` automatically.
+The person who creates the organisation is an admin.
 
-## User Limits
+---
 
-| Plan | Max users |
+## User limits
+
+| Plan | Users |
 |---|---|
 | Starter | 1 |
-| Professional | 3 |
+| Growth | 3 |
+| Professional | 10 |
 | Business | 50 |
 | Enterprise | Unlimited |
 
-## Inviting Users
+---
 
-Go to **Admin → Users → Invite User**. Enter the invitee's email address and select their role. Cost Optix sends an invitation email with a time-limited activation link.
+## Inviting people
 
-If SSO is enabled on your plan, users with your registered email domain are created automatically on first login (JIT provisioning) — no manual invitation needed.
+Open **Organization Admin** from the profile menu, go to **Users** and click **Invite User**. Enter their email and pick a role. They get an email with a link that expires after a while. Pending invitations are on the **Invitations** tab.
 
-## Changing a User's Role
+With [SSO](/account/sso) turned on, people from your email domain are created automatically the first time they sign in, so you do not need to invite them.
 
-Go to **Admin → Users**, find the user, and click **Edit**. Role changes take effect on the user's next request.
+---
 
-## Deactivating and Removing Users
+## Changing a role
 
-**Deactivating** a user immediately invalidates their session and blocks future logins without deleting their history. **Deleting** a user removes them permanently.
+In **Organization Admin → Users**, open the person and click **Edit User**. A role change applies from their next request.
 
-## Bulk Operations
+---
 
-The admin panel supports bulk invite, activate, deactivate, and delete across multiple users at once.
+## Removing access
 
+In **Organization Admin → Users**, open the person, click **Edit User** and untick **Account is active**. They can no longer sign in, and their history is kept. You cannot deactivate yourself.

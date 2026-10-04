@@ -1,89 +1,70 @@
 ---
-title: Cloud Providers Overview
-description: Cost Optix supports multiple cloud platforms and services. Connect as many accounts as your plan allows.
+title: Connect Your Sources
+description: The sources CostOptix supports, how each one connects, and how they add up without double counting.
 ---
 
-## Supported Providers
+## Supported sources
 
-Cost Optix is built provider-agnostic. The following providers are currently available:
+| Source | How it connects | Billing lag | Guide |
+|---|---|---|---|
+| Microsoft Azure | Service principal or managed identity | Up to 5 days | [Azure](/providers/azure) |
+| Amazon Web Services | Access keys or IAM role | 1 to 3 days | [AWS](/providers/aws) |
+| Google Cloud | Service account reading the BigQuery billing export | 1 to 3 days | [GCP](/providers/gcp) |
+| Kubernetes | Agent inside the cluster | None, accrues live | [Kubernetes](/providers/kubernetes) |
+| Linux machines | Host agent running under systemd | None, accrues live | [Hosts](/providers/hosts) |
+| AI coding tools | OpenTelemetry sent by the tool | None | [AI coding tools](/providers/llm) |
 
-| Provider | Type | Auth Method | Billing Lag | Status |
-|---|---|---|---|---|
-| [Microsoft Azure](/providers/azure) | Cloud | Service Principal / Managed Identity | Up to 5 days | ✅ Available |
-| [Amazon Web Services](/providers/aws) | Cloud | Access Keys / IAM Role | 1–3 days | ✅ Available |
-| [Google Cloud Platform](/providers/gcp) | Cloud | Service Account JSON | 1–3 days | ✅ Available |
-| [Kubernetes](/providers/kubernetes) | Container | In-cluster agent | Real-time | ✅ Available |
-
-Additional providers are continuously being integrated. If you need a provider that is not yet listed, contact [support@costoptix.com](mailto:support@costoptix.com).
-
----
-
-## How Provider Accounts Work
-
-Each **account** in Cost Optix maps to a single cloud subscription, project, or cluster:
-
-- An **Azure** account corresponds to a single Azure subscription
-- An **AWS** account corresponds to a single AWS account (12-digit account ID)
-- A **GCP** account corresponds to a single GCP project with a linked BigQuery billing export
-- A **Kubernetes** cluster reports via the in-cluster agent rather than stored credentials
-
-You can connect multiple accounts of the same or different provider types. Cost Optix keeps their data isolated per account and lets you view costs per account or aggregated across all connected accounts.
+New sources are added regularly. If you need one that is not listed, contact [support@costoptix.com](mailto:support@costoptix.com).
 
 ---
 
-## How Many Accounts Can I Connect?
+## Two ways to connect
 
-The number of accounts you can connect depends on your plan:
+**Cloud accounts use read-only credentials.** An organisation admin opens **Organization Admin → Accounts → Add Account** (from the profile menu), picks the provider and pastes the credentials. CostOptix checks them and starts the first sync. Each account is one Azure subscription, one AWS account or one GCP project.
 
-| Plan | Cloud Accounts | Kubernetes Clusters |
-|---|---|---|
-| Starter | 2 | 1 |
-| Professional | 5 | 3 |
-| Business | 50 | 10 |
-| Enterprise | Unlimited | Unlimited |
-
-See [Subscription Tiers](/getting-started/subscription-tiers) for a full plan comparison.
-
----
-
-## Connecting a Credential-Based Provider
-
-Azure, AWS, and GCP connect by storing read-only credentials. This is done by an organization admin:
-
-1. Open the **Organization Admin** page and select the **Accounts** tab
-2. Click **Add Account**
-3. Select your cloud provider
-4. Follow the provider-specific setup guide (linked in the table above)
-5. Save — Cost Optix verifies the credentials and queues a data sync
-
-After a successful connection, your first cost data appears within the provider's typical billing lag window.
+**Everything else uses a small agent or telemetry.** Kubernetes clusters, Linux machines and AI coding tools push data to CostOptix with a key that can only send that one kind of data. Nothing needs to reach into your network. Each has guided setup on its own page in the app: **Kubernetes**, **Hosts** and **LLM Usage**.
 
 <Info>
-  If you are not an organization admin, the **Accounts** page shows your connected accounts in read-only mode. Ask an admin to add or change cloud accounts.
+  Members who are not admins see connected accounts in read-only mode. Ask an admin to add or change a source.
 </Info>
 
 ---
 
-## Connecting Kubernetes
+## How sources add up
 
-Kubernetes does not use stored credentials. Instead, a lightweight agent runs inside your cluster and reports metrics to Cost Optix. Open the **Kubernetes** section in the dashboard and follow the guided onboarding to name your cluster, create an agent key, and run the installer.
+Some spend shows up in two places. A Kubernetes node running in AWS is on your AWS bill and is also measured by the cluster agent. CostOptix counts it once:
 
-See the [Kubernetes guide](/providers/kubernetes) for the full walkthrough, including per-team chargeback.
+| Source | Counted |
+|---|---|
+| Cloud bills | Always added to the total |
+| Clusters and machines on a **connected** cloud account | Shown as a breakdown of that cloud bill, not added again |
+| Clusters and machines anywhere else (bare metal, on-prem, another provider) | Added to the total |
+| AI coding tool plans | Added to the total |
+
+To make this work, tell CostOptix where a cluster or machine is billed:
+
+- **Kubernetes:** set a billing link on the cluster page. See [Invoice reconciliation](/providers/kubernetes#invoice-reconciliation).
+- **Hosts:** set **Billed through** in the machine's cost settings. See [Hosts](/providers/hosts#tell-costoptix-what-it-costs).
+
+A cluster without a billing link is always counted on its own, with a reminder to link it if its nodes are in a connected account.
 
 ---
 
-## Data Security
+## Limits
 
-Cost Optix only ever requests **read-only access** to your cloud accounts and clusters. It never creates, modifies, or deletes resources or makes purchases on your behalf.
-
-All credentials are encrypted at rest using AES-256-GCM and encrypted in transit using TLS 1.3. Each organisation's data and credentials are stored in an isolated database — no data is shared across organisations.
-
-See the [Security](/security) page for full details.
+How many cloud accounts, Kubernetes nodes, hosts and AI tool users you can connect depends on your plan. You can go beyond it with add-ons. See [Subscription Tiers](/getting-started/subscription-tiers).
 
 ---
 
-## Removing a Provider Account
+## Security
 
-To disconnect a credential-based account, open the **Organization Admin** page, select the **Accounts** tab, find the account, and click **Delete**. This removes all stored credentials and cost data associated with that account from Cost Optix. Your cloud provider account is unaffected.
+Every connection is read-only. CostOptix never creates, changes or deletes anything in your accounts, clusters or machines, and never buys anything for you. Credentials are encrypted at rest with AES-256-GCM. See [Security](/security).
 
-To remove a Kubernetes cluster, uninstall the agent from the cluster and delete the cluster from the Kubernetes section. See the [Kubernetes guide](/providers/kubernetes#removing-a-cluster) for details.
+---
+
+## Removing a source
+
+- **Cloud account:** open **Organization Admin → Accounts**, find the account and delete it. Its stored credentials and cost data are removed. Your cloud account is not touched.
+- **Kubernetes cluster:** uninstall the agent, then delete the cluster in CostOptix. See [Removing a cluster](/providers/kubernetes#removing-a-cluster).
+- **Linux machine:** stop and remove the agent service, then delete the host in CostOptix. See [Removing a host](/providers/hosts#removing-a-host).
+- **AI coding tools:** remove the telemetry settings from the tool and revoke the telemetry key in **Settings → API Keys**.

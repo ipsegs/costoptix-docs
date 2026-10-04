@@ -1,112 +1,127 @@
 ---
 title: API Authentication
-description: Cost Optix supports API key authentication for programmatic access and CLI integration.
+description: Use API keys to call the CostOptix API from scripts, CI and other tools, and to connect agents.
 ---
 
 ## Overview
 
-The Cost Optix API uses **API keys** for authentication. API keys are scoped to your organization and carry a permission level that controls what operations they can perform.
+The CostOptix API uses **API keys**. A key belongs to your organisation and carries permissions that control what it can do. Every plan includes API access, with a daily call limit:
 
-API access is available on all tiers, with daily call limits depending on your plan:
-
-| Tier | Daily API call limit |
+| Plan | API calls / day |
 |---|---|
 | Starter | 100 |
+| Growth | 500 |
 | Professional | 1,000 |
 | Business | 10,000 |
 | Enterprise | Unlimited |
 
----
-
-## Generating an API Key
-
-1. Log into your Cost Optix dashboard
-2. Navigate to **Settings → API Keys**
-3. Click **Create API Key**
-4. Give it a descriptive name (e.g. `CI Pipeline`, `Grafana Integration`)
-5. Select a permission level
-6. Optionally set an expiry date
-7. Copy the key immediately — it will not be shown again
+Limits reset at 00:00 UTC.
 
 ---
 
-## Permission Levels
+## Creating a key
 
-| Permission | Description |
+1. Go to **Settings → API Keys** and click **Create API Key**.
+2. Give it a name you will recognise, such as `CI pipeline` or `Grafana`.
+3. Pick its permissions.
+4. Optionally set an expiry: 7 days, 30 days, 90 days or 1 year.
+5. Copy the key straight away. It is shown only once.
+
+---
+
+## Permissions
+
+| Permission | What it allows |
 |---|---|
-| `read` | View cost data, analytics, anomalies, and budgets |
-| `write` | Modify data and trigger operations |
-| `admin` | Full access including API key management |
+| `read` | View cost data, reports, anomalies and budgets |
+| `write` | Change accounts and settings |
+| `admin` | Full administrative access. Only admins can create these. |
+| `k8s:ingest` | Only lets the Kubernetes agent push cluster metrics |
+| `host:ingest` | Only lets the host agent push machine metrics |
+| `llm:ingest` | Only lets AI coding tools push usage telemetry |
+
+The three `ingest` permissions are deliberately narrow. A key with one of them can push that one kind of data and nothing else: it cannot read costs or change settings, even if other permissions are added. That makes them safe to leave on a cluster, a machine or a developer laptop. The guided setup on the Kubernetes, Hosts and LLM Usage pages creates the right key for you.
 
 ---
 
-## Using Your API Key
+## Using a key
 
-Include your API key in every request using the `X-API-Key` header:
+Send the key in the `X-API-Key` header:
 
 ```bash
-curl -H "X-API-Key: cc_your_api_key_here" \
-  https://costoptix.com/api/v1/health
+curl -H "X-API-Key: <your-key>" \
+  https://costoptix.com/api/v1/auth/info
 ```
 
-<Warning>
-  Never expose your API key in client-side code or public repositories. Treat it like a password.
-</Warning>
-
----
-
-## Base URL
+Base URL:
 
 ```
 https://costoptix.com/api/v1
 ```
 
----
+### Examples
 
-## Example Requests
+**List connected accounts:**
 
-**Check authentication:**
 ```bash
-curl -H "X-API-Key: cc_your_key" \
-  https://costoptix.com/api/v1/auth/info
+curl -H "X-API-Key: <your-key>" \
+  https://costoptix.com/api/v1/accounts
 ```
 
-**Get cost summary:**
+**Get the org-wide overview for a month:**
+
 ```bash
-curl -H "X-API-Key: cc_your_key" \
-  "https://costoptix.com/api/v1/costs?start_date=2025-01-01&end_date=2025-01-31"
+curl -H "X-API-Key: <your-key>" \
+  "https://costoptix.com/api/v1/overview?month=2026-09"
 ```
 
----
+Leave out `month` for the current month.
 
-## Key Rotation
-
-API keys can be revoked at any time from **Settings → API Keys**. When rotating keys:
-
-1. Create the new key
-2. Update all systems using the old key
-3. Revoke the old key
-
-Revocation is immediate — the old key will stop working as soon as it is revoked.
+<Warning>
+  Treat API keys like passwords. Never put them in client-side code or a public repository.
+</Warning>
 
 ---
 
-## Rate Limiting
+## Rotating and revoking keys
 
-Requests that exceed your daily limit return a `429 Too Many Requests` response. The response includes a `Retry-After` header indicating when your quota resets (midnight UTC).
+Revoke a key at any time from **Settings → API Keys**. Revocation is immediate. To rotate without downtime:
+
+1. Create the new key.
+2. Update everything that uses the old one.
+3. Revoke the old key.
+
+Agent keys show their expiry date in the agent health panel on the Kubernetes and Hosts pages, so you can replace them before they lapse.
+
+---
+
+## Rate limits
+
+When the daily limit is reached, the API returns `429 Too Many Requests` with details of the limit and when it resets:
 
 ```json
 {
   "success": false,
-  "error": "Daily API call limit reached. Upgrade your plan for higher limits."
+  "error": "daily API limit exceeded (1000/1000)",
+  "data": {
+    "error_type": "rate_limit_exceeded",
+    "rate_limit": {
+      "limit": 1000,
+      "used": 1000,
+      "remaining": 0,
+      "reset_time": "2026-10-05T00:00:00Z",
+      "resets_in_seconds": 3600
+    },
+    "upgrade_available": true
+  }
 }
 ```
 
 ---
 
-## Error Responses
+## Errors
 
-All API errors follow a consistent format:
+Errors use the same shape:
 
 ```json
 {
@@ -115,11 +130,11 @@ All API errors follow a consistent format:
 }
 ```
 
-| HTTP Status | Meaning |
+| Status | Meaning |
 |---|---|
 | `200` | Success |
-| `400` | Bad request — check your parameters |
-| `401` | Unauthorized — invalid or missing API key |
-| `403` | Forbidden — your key lacks the required permission |
-| `429` | Rate limit exceeded |
-| `500` | Internal server error |
+| `400` | Bad request. Check your parameters. |
+| `401` | Missing or invalid API key |
+| `403` | The key lacks the permission, or your plan does not include the feature |
+| `429` | Daily limit reached |
+| `500` | Server error |

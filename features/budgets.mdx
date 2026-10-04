@@ -1,76 +1,109 @@
 ---
-title: Budgets
-description: Set spend limits per account, track utilisation in real time, and receive alerts at configurable thresholds.
+title: Budgets and Daily Limits
+description: Monthly, quarterly or yearly budgets for any source, team, tag or AI plan, daily spend limits, and one-click suggestions.
 ---
 
 ## Overview
 
-Budgets let you define a spend ceiling for a cloud account (or across all accounts) and receive alerts when spend crosses warning or critical thresholds. Cost Optix tracks actual spend throughout the month and projects end-of-period spend using historical patterns.
+Open **Budgets** in the navigation. It has two parts:
 
-## Creating a Budget
+- **Budgets** track spend over a month, quarter or year, warn you before you go over, and say which resources are pushing you there.
+- **Daily limits** alert you when a single settled day goes over an amount you set.
 
-Go to **Budgets → New Budget**:
-
-| Field | Description |
-|---|---|
-| Name | A descriptive label |
-| Amount | The spend limit in USD |
-| Period | `monthly` |
-| Account | A specific connected account, or `multi-account` for all accounts |
-| Warning threshold | Percentage triggering a warning alert (default 80%) |
-| Critical threshold | Percentage triggering a critical alert (default 95%) |
-
-## Alert Thresholds
-
-| State | Default trigger | Webhook event |
-|---|---|---|
-| Warning | 80% of budget | `budget.warning` |
-| Critical | 95% of budget | `budget.critical` |
-| Exceeded | 100% of budget | `budget.exceeded` |
-
-Thresholds are configurable per budget. See [Webhooks](/features/webhooks) to receive alerts in Slack, Teams, or Discord.
-
-## Budget Risk (Value at Risk)
-
-Alongside current spend, each budget card shows a **Predicted** value — a statistically derived estimate of worst-case end-of-period spend. This is calculated from up to 11 months of historical data for that account. When historical data is limited, it falls back to linear extrapolation.
-
-## Tag-Scoped Budgets
+Only organisation admins can create or change budgets and limits.
 
 <Info>
-  Tag-scoped budgets are available on **Professional and above**.
+  Budget and limit alerts are sent by webhook. Connect Slack, Teams, Discord or your own endpoint in **Settings → Webhooks** first. See [Webhooks](/features/webhooks).
 </Info>
 
-A tag-scoped budget tracks spend only for resources matching a specific tag key/value combination, rather than an entire account. Useful for tracking spend by team, environment, or project.
+---
 
-### Adding tag filters
+## Creating a budget
 
-When creating a budget, add one or more tag filter rules:
+Pick a scope, then fill in the details.
+
+| Scope | What it tracks |
+|---|---|
+| **Account** | One cloud account, one Kubernetes cluster, one host, or **All Accounts** for the whole organisation |
+| **Tag** | Cloud spend matching one or more tag values, in one account or across all of them |
+| **Team** | A team's spend across Kubernetes, hosts and the cloud spend it owns (see [Ownership](/features/ownership)) |
+| **AI / LLM** | What your AI coding tool plans charge, in USD |
 
 | Field | Description |
 |---|---|
-| Key | The tag key (e.g. `team`, `env`, `project`) |
-| Operator | `=` for exact match, `in` for multiple values |
-| Value | The tag value, or comma-separated list for `in` |
+| Name | A label you will recognise |
+| Amount | The limit for the period |
+| Period | Monthly, quarterly or yearly |
+| Warning threshold | Percentage that triggers a warning (default 80%) |
+| Critical threshold | Percentage that triggers a critical alert (default 95%) |
 
-**Examples:**
+When you pick a specific account, CostOptix suggests an amount based on how that account's spend usually moves, not a round number.
+
+<Note>
+  **All Accounts** covers cloud accounts and hosts. Clusters already inside a connected cloud bill are not added again. Kubernetes clusters on their own are tracked with a per-cluster budget.
+</Note>
+
+### Tag budgets
+
+Add one or more tag rules. A rule is a key, an operator and a value:
+
 ```
 team = payments
 env in [production, staging]
-project = checkout-v2
 ```
 
-Multiple filters on a single budget are AND-ed — spend must match all filters to be counted.
+`=` matches one value. `in` matches any value in a comma-separated list. Multiple rules are combined with AND. Tag budgets are cloud only, because clusters and hosts carry no cloud tags.
 
-### How tag-scoped spend is calculated
+---
 
-Cost Optix resolves tag-scoped spend from the same data source as the Tag Explorer:
+## Alerts
 
-- **Azure** — Consumption Tags API + Usage Details API
-- **AWS** — tag cost aggregates (synced from Cost Explorer)
-- **GCP** — BigQuery UNNEST query over the billing export dataset
+| State | Default trigger | Webhook event |
+|---|---|---|
+| Warning | 80% of the budget | `budget.warning` |
+| Critical | 95% of the budget | `budget.critical` |
+| Exceeded | 100% of the budget | `budget.exceeded` |
 
-For `multi-account` budgets with tag filters, Cost Optix sums the matching tag-scoped spend across every active account.
+Each alert includes current spend, predicted spend, days remaining and, when one is projected, the date the budget is expected to be breached.
 
-## Editing and Deleting
+---
 
-Open a budget and click **Edit** to update any field. Changes take effect immediately. Deleting a budget is permanent.
+## Forecasts and pressure
+
+Each budget shows:
+
+- **Predicted spend.** A worst-case estimate for the end of the period, built from up to 11 months of history. With little history it falls back to a straight-line projection.
+- **Projected breach date.** When spend is on course to pass the budget.
+- **What is pushing it.** When a budget comes under pressure, it lists the resources responsible. Each one shows recent daily spend against its own baseline and is flagged as a spike, a new resource or steady growth.
+
+The same pressure strip appears on the Kubernetes, Hosts and LLM Usage pages, so you see a budget at risk where you are working.
+
+---
+
+## Daily limits
+
+A daily limit alerts you when one settled day goes over the amount you set. Use it to catch a runaway day without waiting for the monthly budget.
+
+1. In **Budgets**, find **Daily limits** and click **Add limit**.
+2. Pick a source: **All accounts**, one cloud account, one cluster or one host.
+3. Enter the daily amount.
+
+Cloud providers post costs 24 to 72 hours late, so limits are checked on the last few settled days, and each day alerts at most once per limit. Alerts go to webhooks subscribed to **Daily Spend Limit Exceeded** (`spend.daily_exceeded`) and include the top services that day.
+
+---
+
+## Suggestions
+
+You do not have to work out every amount yourself. Each night CostOptix looks for sources that have no budget or no daily limit and suggests one. Suggestions appear behind a button in the header.
+
+- **Create budget** or **Set limit** accepts it in one click.
+- **Adjust** opens the form prefilled, so you can change the amount first.
+- **Not now** hides it for a week.
+
+If no webhook is subscribed to budget alerts, the suggestion reminds you to connect one, since alerts only go out by webhook.
+
+---
+
+## Editing and deleting
+
+Open a budget and click **Edit** to change any field. Changes apply immediately. Deleting a budget or limit is permanent.

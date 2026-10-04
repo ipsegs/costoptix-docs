@@ -1,48 +1,50 @@
 ---
 title: Introduction
-description: Cost Optix is a multi-cloud cost management and FinOps platform that gives you unified visibility, anomaly detection, and AI-powered insights across all your cloud providers.
+description: CostOptix shows what your cloud accounts, Kubernetes clusters, machines and AI coding tools cost, who owns that spend, and what to do about it.
 ---
 
-## What is Cost Optix?
+## What is CostOptix?
 
-Cost Optix helps engineering teams, finance teams, and executives understand and control cloud spending across every provider in one place — without the complexity of enterprise tools or the limitations of single-provider dashboards.
+CostOptix puts all of your infrastructure spend in one place and counts every dollar once. It connects to your cloud bills, runs small agents on your clusters and machines, and reads usage from AI coding tools. Then it tells you three things:
+
+- **What it costs.** One total across every source, with daily detail down to the resource, namespace, service or session.
+- **Who owns it.** Teams claim the spend that is theirs, and each month closes into a sealed bill that does not change later.
+- **What to do next.** Anomalies, budgets, daily limits and savings recommendations, with savings checked against the bill after you act.
 
 <CardGroup cols={2}>
   <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Connect your first cloud account and see your costs in under 5 minutes.
+    Connect your first source and see costs in a few minutes.
   </Card>
-  <Card title="Cloud Providers" icon="cloud" href="/providers/overview">
-    Azure, AWS, GCP, Heroku, Kubernetes, and more.
+  <Card title="Connect your sources" icon="plug" href="/providers/overview">
+    Azure, AWS, GCP, Kubernetes, Linux machines and AI coding tools.
   </Card>
-  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
-    Robust MAD-based detection that measures every service against its own baseline, not your account total.
+  <Card title="Overview" icon="chart-pie" href="/features/overview">
+    Every source in one total, with nothing counted twice.
   </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/authentication">
-    Integrate Cost Optix into your own workflows and tools.
+  <Card title="Ownership" icon="users" href="/features/ownership">
+    Make every dollar someone's, with a sealed monthly bill per team.
   </Card>
 </CardGroup>
 
-## Supported Cloud Providers
+## What you can connect
 
-| Provider | Type | Status |
+| Source | How it connects | What you get |
 |---|---|---|
-| Microsoft Azure | Cloud | ✅ Available |
-| Amazon Web Services | Cloud | ✅ Available |
-| Google Cloud Platform | Cloud | ✅ Available |
-| Heroku | Platform | ✅ Available |
-| Kubernetes | Container | ✅ Available |
-| DigitalOcean | Cloud | 🔜 Coming soon |
-| Vercel | Platform | 🔜 Coming soon |
-| Railway | Platform | 🔜 Coming soon |
-| Cloudflare | CDN | 🔜 Coming soon |
-| Linode | Cloud | 🔜 Coming soon |
+| [Microsoft Azure](/providers/azure) | Read-only service principal | Billed cost per service and resource |
+| [Amazon Web Services](/providers/aws) | Read-only IAM user or role | Billed cost per service and resource |
+| [Google Cloud](/providers/gcp) | BigQuery billing export | Billed cost per service, resource and label |
+| [Kubernetes](/providers/kubernetes) | In-cluster agent | Cost per namespace and workload, with invoice reconciliation |
+| [Linux machines](/providers/hosts) | Host agent (systemd) | Cost per service, container and process manager app |
+| [AI coding tools](/providers/llm) | OpenTelemetry from the tool | Plan cost, usage value, sessions and seat fit |
 
-## Who is Cost Optix for?
+More sources are on the way. If you need one that is not listed, contact [support@costoptix.com](mailto:support@costoptix.com).
 
-- **Engineering teams** who need resource-level cost attribution to understand which services or workloads are driving spend
-- **Finance teams** who need budget tracking, forecasting, and audit-ready cost reports
-- **Executives** who need high-level cloud portfolio health and spend trends
+## Who it is for
+
+- **Engineering teams** who want to know which service, workload or session is driving spend, and what to fix first.
+- **Finance teams** who need budgets, forecasts and per-team bills that match the invoice.
+- **Leaders** who want one number for the whole estate and a clear trend.
 
 <Info>
-  Cost Optix is available on four subscription tiers: **Starter**, **Professional**, **Business**, and **Enterprise**. Some features — including SSO and Tag Explorer — are only available on paid tiers. See [Subscription Tiers](/getting-started/subscription-tiers) for a full comparison.
+  CostOptix has five plans: **Starter** (free), **Growth**, **Professional**, **Business** and **Enterprise**. A few features, such as Tag Explorer, Ownership and SSO, start on a paid plan. See [Subscription Tiers](/getting-started/subscription-tiers).
 </Info>

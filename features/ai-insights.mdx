@@ -1,137 +1,80 @@
 ---
-title: AI Insights
-description: A context-aware AI assistant built into every page — curated questions, free-form chat, anomaly root cause analysis, and quota management across all tiers.
+title: AI Assistant
+description: Ask questions about your spend in plain language. The assistant looks up your real data before it answers, and shows you what it is checking.
 ---
 
 ## Overview
 
-Cost Optix includes an AI assistant accessible from every page via a floating chat widget. It can answer questions about your cloud spending, explain cost anomalies, identify optimisation opportunities, and analyse portfolio health — all grounded in your actual billing data for the selected account and date range.
+The AI assistant is a chat widget on every page. Ask it anything about your spend across cloud, Kubernetes, hosts and AI coding tools, and it answers from your own data with specific dollar amounts and named services.
 
-No data leaves the platform to train external models. The AI only reasons over the cost data already loaded in your session.
-
----
-
-## Opening the Widget
-
-Click the **AI chat bubble** in the bottom-left corner of any page to open the assistant. The widget shows a welcome message and, if an account is selected and cost data is loaded, a set of suggested questions tailored to what data is currently available.
-
-The widget can be **expanded** to a wider layout using the expand button in the header — useful for reading longer analyses or working through a multi-step conversation.
+The assistant explains data that already exists. It does not invent findings: anomalies and recommendations come from CostOptix's own rules, and the assistant narrates them.
 
 ---
 
-## Curated Questions
+## How it answers
 
-When cost data is loaded for the selected account, the assistant presents a set of pre-built analysis questions organised by category. These are not generic prompts — they are assembled server-side based on which data types are present in your session (cost records, portfolio analytics, budget risk data, anomaly data, daily spend data).
+When you ask a question, the assistant looks up what it needs, the way you would click through the app. You see each lookup as it happens, so you know what the answer is based on.
 
-**Categories and example questions:**
+It can look up:
 
-| Category | Examples |
+| Area | For example |
 |---|---|
-| Overview | Portfolio health check |
-| Costs | Cost summary, Month-over-month comparison |
-| Trends | Growth drivers, Daily spend pattern |
-| Anomalies | Cost spikes and anomalies, Daily spike analysis |
-| Optimisation | Top optimisation opportunities |
-| Risk | Diversification and concentration risk, Budget risk forecast |
+| Accounts and costs | Spend by service, resource or day for any account, or totals across the whole organisation |
+| Anomalies | Recent anomalies and the resources behind them |
+| Budgets | Budget status and forecasts |
+| Portfolio | Growth, concentration and risk across services |
+| Teams | A team's spend across Kubernetes, hosts and cloud |
+| Kubernetes | Cluster and namespace costs and efficiency |
+| AI coding tools | Usage, plan cost and spend health |
 
-Questions that require data not yet loaded appear in a separate **unavailable** section showing which data types are missing. Clicking them tells you exactly what to load.
+You do not need to select an account first. Ask about the whole organisation, or name the account, cluster or team you mean.
 
-### How Questions Are Answered
+**Examples:**
 
-Each curated question uses a structured prompt that requires the AI to use only exact figures from your data — never estimates or generic advice. Responses always include:
+- "What drove the increase in our AWS bill last week?"
+- "Which namespace costs the most in prod-eu, and is it over-provisioned?"
+- "How much did the payments team spend this month across everything?"
+- "Are we on track to stay within budget this month?"
+- "Which Claude Code users are getting the most value from their seats?"
 
-- Specific dollar amounts, not vague descriptions like "significant increase"
-- Named services, not "some services"
-- Actionable steps tied to actual resources in your account
-- Exact percentages for all changes
+### Suggested questions
 
----
-
-## Free-Form Chat
-
-Type any question into the input box to ask something not covered by the curated list. The assistant has access to the same data context as the curated questions — the services, costs, portfolio analytics, anomalies, and daily spend currently loaded on the page.
-
-The time range used for free-form questions is inferred from the question text and the current page context. Queries mentioning "this week" or "last 7 days" use a 7-day range; questions about trends or CAGR automatically use a longer 180-day range.
-
-**Example questions you can ask:**
-
-- "Which service grew the fastest last quarter?"
-- "Why did my Azure costs spike on the 14th?"
-- "How does my weekday spend compare to weekends?"
-- "What's driving my storage costs?"
-- "Am I on track to stay within budget this month?"
+When the widget opens, it offers a set of ready-made questions for the page you are on, such as a cost summary, month-over-month comparison, growth drivers, anomaly review or budget risk. Click one to run it.
 
 ---
 
-## Root Cause Analysis
+## Root cause analysis
 
-The AI assistant integrates directly with the anomaly detection system. On the Anomaly Detection page, each anomaly card has a **Root Cause Analysis** button that runs a two-phase investigation:
+From an anomaly's resource breakdown, run root cause analysis. CostOptix first works out which resources changed and by how much, with no AI involved and no quota used. Then the assistant explains the result in plain language, using one question.
 
-**Phase 1 — Statistical analysis (no AI query consumed):** Cost Optix computes which specific resources changed on the anomaly date, ranks them by confidence and dollar impact, and identifies the change type (new resource, scaled up, scaled down, removed).
-
-**Phase 2 — AI explanation:** The structured Phase 1 results are sent to the AI with a strict prompt requiring it to explain — in plain language — what happened, why, and what to do about it. This consumes one AI query.
-
-After the AI explanation loads, clicking **Ask follow-up questions** in the anomaly panel opens the chat widget with the full root cause context pre-loaded. You can then ask follow-up questions about the specific anomaly without consuming additional quota for the context load.
-
-**Data limitations for root cause analysis:**
-- Anomalies older than 14 days use service-level data only — individual resource names are not available on AWS and Azure due to provider API constraints
-- Newly activated services with less than 7 days of history do not have a reliable baseline for comparison
+Click **Discuss in AI chat** to continue in the chat with the anomaly already loaded. See [Anomaly Detection](/features/anomaly-detection#root-cause-analysis).
 
 ---
 
-## Context Awareness
+## Chat history
 
-The assistant is always aware of:
-
-- **Selected account** — provider, account ID, and display name
-- **Current page** — answers are scoped to the page context (daily spend questions on the Daily Spend page, portfolio questions on the Cost Explorer, etc.)
-- **Loaded data** — services, monthly cost breakdowns, anomalies, portfolio analytics, budget risk, and daily spend data currently in the session
-- **Date range** — the active date range selected in the interface
-
-The assistant will tell you if it cannot answer a question because the required data has not been loaded.
+Your conversations are saved so you can reopen or delete them from the history panel in the widget. Only you can see your own conversations. A conversation is deleted automatically 90 days after its last message.
 
 ---
 
-## Quota and Tier Limits
+## Quota
 
-AI queries are metered monthly. Each question asked (curated or free-form) consumes one query. Loading the curated questions list and loading root cause Phase 1 data do **not** consume quota.
+Each question uses one from your monthly quota, whether you typed it or picked a suggested one. Loading suggestions and the first step of root cause analysis are free. Answers to identical questions on unchanged data may be served from cache at no cost.
 
-| Tier | AI insights / month |
+| Plan | Questions / month |
 |---|---|
 | Starter | 5 |
+| Growth | 20 |
 | Professional | 50 |
 | Business | 100 |
 | Enterprise | Unlimited |
 
-When your monthly quota is exhausted, a banner appears in the widget with an upgrade link. Quota resets on the first day of each calendar month.
-
-### Quota Resolution
-
-The effective monthly quota is the higher of your base subscription tier's included queries and any AI add-on you have purchased. Upgrading your base plan (e.g. Starter to Professional) automatically increases AI quota without requiring a separate purchase.
+When you run out, the widget shows a notice with an upgrade link. Quota resets on the first day of each calendar month. If you have bought an AI add-on, you get whichever is higher: the add-on or your plan's quota.
 
 ---
 
-## AI Model
+## Models and data
 
-Cost Optix uses Gemini 2.5 Flash as the primary model. Business and Enterprise tiers have access to advanced AI models. Enterprise plans can bring their own AI provider keys (OpenAI, Anthropic, Google, etc.) configured at the organisation level.
-
-Response caching is used where safe — identical questions on the same data context may be served from cache at no quota cost.
-
----
-
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="Anomaly Detection" icon="bell" href="/features/anomaly-detection">
-    Root cause analysis is triggered from the anomaly detail panel.
-  </Card>
-  <Card title="Cost Explorer" icon="chart-line" href="/features/cost-explorer">
-    Portfolio health and growth driver questions use Cost Explorer data.
-  </Card>
-  <Card title="Daily Spend" icon="calendar" href="/features/daily-spend">
-    Daily pattern, spike, and projection questions are available on the Daily Spend page.
-  </Card>
-  <Card title="Subscription Tiers" icon="credit-card" href="/getting-started/subscription-tiers">
-    AI query limits by plan.
-  </Card>
-</CardGroup>
+- Business and Enterprise can use more capable models.
+- Enterprise can bring its own AI provider keys, configured for the organisation.
+- Your data is used only to answer your questions. It is not used to train models.

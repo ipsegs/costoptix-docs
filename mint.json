@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Cost Optix",
+  "name": "CostOptix",
   "logo": {
     "dark": "/favicon.png",
     "light": "/favicon.png"
@@ -48,29 +48,42 @@
       ]
     },
     {
-      "group": "Cloud Providers",
+      "group": "Connect Your Sources",
       "pages": [
         "providers/overview",
         "providers/azure",
         "providers/aws",
         "providers/gcp",
-        "providers/kubernetes"
+        "providers/kubernetes",
+        "providers/hosts",
+        "providers/llm"
       ]
     },
     {
-      "group": "Features",
+      "group": "See Your Spend",
       "pages": [
+        "features/overview",
         "features/cost-dashboard",
         "features/daily-spend",
         "features/cost-explorer",
         "features/service-explorer",
+        "features/tag-explorer"
+      ]
+    },
+    {
+      "group": "Act On It",
+      "pages": [
         "features/anomaly-detection",
         "features/budgets",
-        "features/tag-explorer",
+        "features/recommendations",
+        "features/ownership"
+      ]
+    },
+    {
+      "group": "Tools and Alerts",
+      "pages": [
         "features/ai-insights",
         "features/webhooks",
-        "features/multi-account",
-        "features/quarterly-report",
         "features/provider-news"
       ]
     },
@@ -104,6 +117,24 @@
     "raiseIssue": true
   },
   "search": {
-    "prompt": "Search Cost Optix docs..."
-  }
+    "prompt": "Search CostOptix docs..."
+  },
+  "redirects": [
+    {
+      "source": "/features/multi-account",
+      "destination": "/features/overview"
+    },
+    {
+      "source": "/features/quarterly-report",
+      "destination": "/features/overview"
+    },
+    {
+      "source": "/account/security",
+      "destination": "/security"
+    },
+    {
+      "source": "/providers/heroku",
+      "destination": "/providers/overview"
+    }
+  ]
 }

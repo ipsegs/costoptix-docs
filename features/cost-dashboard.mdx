@@ -1,11 +1,11 @@
 ---
 title: Cost Dashboard
-description: Your central command centre for cloud spend — service-level costs, executive summary, trend charts, and actionable insights across all connected providers.
+description: Your central command centre for cloud spend: service-level costs, executive summary, trend charts, and actionable insights across all connected providers.
 ---
 
 ## Overview
 
-The Cost Dashboard is the main view in Cost Optix. It aggregates billing data from all your connected cloud accounts and surfaces it as structured, actionable information — without requiring you to dig through provider portals or export CSVs.
+The Cost Dashboard is the main view for a single cloud account. It surfaces that account's billing data as structured, actionable information, without requiring you to dig through provider portals or export CSVs.
 
 The dashboard is account-scoped: use the account switcher in the top navigation to switch between connected accounts. All panels, charts, and metrics update to reflect the selected account and date range.
 
@@ -23,10 +23,10 @@ Available presets include:
 - Last 3 months / Last 6 months
 - Custom range
 
-The header shows both the formatted date range and the human-readable duration (e.g. `6 months`, `2 months + 1 partial`). Partial months — where the range starts or ends mid-month — are flagged so you know the figures aren't full-month totals.
+The header shows both the formatted date range and the human-readable duration (e.g. `6 months`, `2 months + 1 partial`). Partial months (where the range starts or ends mid-month) are flagged so you know the figures aren't full-month totals.
 
 <Info>
-  Cloud providers have billing lag: today's spend may not appear for 24–72 hours depending on the provider. This is a provider constraint, not a Cost Optix limitation.
+  Cloud providers have billing lag: today's spend may not appear for 24–72 hours depending on the provider. This is a provider constraint, not a CostOptix limitation.
 </Info>
 
 ---
@@ -47,15 +47,15 @@ The Executive Summary is a KPI panel at the top of the dashboard. It shows the h
 
 ### Amortised Cost
 
-Cost Optix uses amortised cost by default. Upfront reservation and commitment payments are spread evenly across the commitment period rather than recorded as a spike on the purchase date. This keeps month-over-month comparisons meaningful and prevents false anomalies on reservation purchase days.
+CostOptix uses amortised cost by default. Upfront reservation and commitment payments are spread evenly across the commitment period rather than recorded as a spike on the purchase date. This keeps month-over-month comparisons meaningful and prevents false anomalies on reservation purchase days.
 
 ### Forecast Methods
 
 The dashboard selects the most accurate forecast method available:
 
-- **Risk-Adjusted (VaR 95%)** — used when sufficient historical data exists. Shows both a worst-case cost ceiling and a linear projection so you can see the range of likely outcomes.
-- **Burn-Rate Projection** — used when historical data is limited. Calculates daily spend so far and extrapolates to month end.
-- **API Forecast** — used for providers that supply native forecast data.
+- **Risk-Adjusted (VaR 95%)**: used when sufficient historical data exists. Shows both a worst-case cost ceiling and a linear projection so you can see the range of likely outcomes.
+- **Burn-Rate Projection**: used when historical data is limited. Calculates daily spend so far and extrapolates to month end.
+- **API Forecast**: used for providers that supply native forecast data.
 
 ---
 
@@ -81,7 +81,7 @@ Services are automatically categorised based on their month-over-month cost chan
 | **Critical** | Anomaly detected, or cost spike above the configured critical threshold |
 | **Watch** | Significant cost change above the configured watch threshold, or anomaly with declining cost |
 | **Savings** | Cost reduction beyond the configured savings threshold |
-| **Healthy** | Normal cost behaviour — stable or minor expected changes |
+| **Healthy** | Normal cost behaviour: stable or minor expected changes |
 
 Thresholds are configurable via the **⚙️ Configure** button in the Executive Summary.
 
@@ -101,11 +101,11 @@ Click **View resources** on any service to open the resource-level breakdown. Th
 
 The dashboard generates up to five prioritised insights based on current spending patterns. Insights are triggered by conditions such as:
 
-- **High burn rate** — projected month-end is significantly above expected
-- **Rapid service growth** — a service is up more than 40% month-over-month
-- **Potential savings** — services showing declining usage or significant cost reductions
-- **Multiple anomalies** — three or more services with detected anomalies
-- **Spend concentration** — a single service represents more than 30% of total spend
+- **High burn rate**: projected month-end is significantly above expected
+- **Rapid service growth**: a service is up more than 40% month-over-month
+- **Potential savings**: services showing declining usage or significant cost reductions
+- **Multiple anomalies**: three or more services with detected anomalies
+- **Spend concentration**: a single service represents more than 30% of total spend
 
 Each insight includes a cost impact estimate and a direct action button linking to the relevant section of the platform.
 
@@ -163,7 +163,7 @@ Cost data is cached on first load. The refresh button bypasses the cache and fet
   <Card title="Budgets" icon="wallet" href="/features/budgets">
     Set monthly budgets and receive alerts when thresholds are crossed.
   </Card>
-  <Card title="Multi-Account Dashboard" icon="building" href="/features/multi-account">
-    Unified portfolio view across all connected accounts and providers.
+  <Card title="Overview" icon="chart-pie" href="/features/overview">
+    Every source and account in one total, with nothing counted twice.
   </Card>
 </CardGroup>

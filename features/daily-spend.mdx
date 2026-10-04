@@ -1,6 +1,6 @@
 ---
 title: Daily Spend
-description: Day-by-day cost breakdown with service-level sparklines, DoD change, trend analysis, and CSV export — available on all plans.
+description: Day-by-day cost breakdown with service-level sparklines, DoD change, trend analysis, and CSV export, available on all plans.
 ---
 
 ## Overview
@@ -30,7 +30,7 @@ The KPI strip at the top of the page shows the most important headline numbers f
 | KPI | What it shows |
 |---|---|
 | **Period Total** | Sum of all daily spend across the selected range, including today's partial data |
-| **Avg / Day** | Total spend ÷ number of *complete* days only — today is excluded |
+| **Avg / Day** | Total spend ÷ number of *complete* days only. Today is excluded. |
 | **Peak Day** | The single most expensive complete day and its date |
 | **Lowest Day** | The cheapest day with non-zero spend and its date |
 | **DoD Change** | Day-over-day percentage change between the two most recent complete days |
@@ -40,7 +40,7 @@ The KPI strip at the top of the page shows the most important headline numbers f
 
 ### Avg / Day vs Burn Rate
 
-**Avg / Day** on this page averages only fully settled, complete days. This makes it a precise historical baseline. It differs from the **burn rate** on the Cost Dashboard, which uses the current month's total divided by days elapsed — a forward-looking metric for forecasting.
+**Avg / Day** on this page averages only fully settled, complete days. This makes it a precise historical baseline. It differs from the **burn rate** on the Cost Dashboard, which uses the current month's total divided by days elapsed, a forward-looking metric for forecasting.
 
 ---
 
@@ -84,7 +84,7 @@ Use the **Filter services** input to search by service name. The tab count updat
 
 ## Sparklines
 
-Clicking any row in the service table expands a sparkline — a bar-per-day breakdown for that specific service.
+Clicking any row in the service table expands a sparkline: a bar-per-day breakdown for that specific service.
 
 ### Bar Colours
 
@@ -92,24 +92,24 @@ Sparkline bars are coloured using the same statistical detection used by the ano
 
 | Colour | Meaning |
 |---|---|
-| 🔴 **Red** | Anomalous spike — statistically significant deviation above the service baseline, or confirmed by the anomaly detection engine |
-| 🟠 **Amber** | Peak day — highest cost in the period but within normal statistical range |
-| 🔵 **Blue** | Normal — cost within expected range |
-| 🟢 **Green** | Notably cheap — statistically significant deviation below the service baseline |
+| 🔴 **Red** | Anomalous spike: statistically significant deviation above the service baseline, or confirmed by the anomaly detection engine |
+| 🟠 **Amber** | Peak day: highest cost in the period but within normal statistical range |
+| 🔵 **Blue** | Normal: cost within expected range |
+| 🟢 **Green** | Notably cheap: statistically significant deviation below the service baseline |
 
 ### Baseline
 
-The baseline is the **median** daily cost for that service, not the mean. The median is used because it is unaffected by spikes — it represents what a typical day looks like for that service. Days coloured red are genuinely unusual relative to that service's own history, not just expensive in absolute terms.
+The baseline is the **median** daily cost for that service, not the mean. The median is used because it is unaffected by spikes. It represents what a typical day looks like for that service. Days coloured red are genuinely unusual relative to that service's own history, not just expensive in absolute terms.
 
 ### Sparkline Stats
 
 Below the bars, each expanded row shows:
-- **Total** — period total for this service
-- **Average** — average daily cost
-- **Baseline** — median daily cost (the anomaly threshold reference)
-- **Peak** — highest single day
-- **Active days** — how many of the complete days had non-zero spend
-- **Latest DoD** — day-over-day change for the last two complete days
+- **Total**: period total for this service
+- **Average**: average daily cost
+- **Baseline**: median daily cost (the anomaly threshold reference)
+- **Peak**: highest single day
+- **Active days**: how many of the complete days had non-zero spend
+- **Latest DoD**: day-over-day change for the last two complete days
 
 ### Resource Drill-Down
 
@@ -123,18 +123,18 @@ Switch to the **Insights** tab next to the service table for computed analysis o
 
 ### Terminology Reference
 
-The Insights tab includes a built-in glossary explaining DoD, Avg / Day, Baseline, Active Days, Partial Day, and sparkline bar colours — useful for sharing the page with team members who are new to the platform.
+The Insights tab includes a built-in glossary explaining DoD, Avg / Day, Baseline, Active Days, Partial Day, and sparkline bar colours, useful for sharing the page with team members who are new to the platform.
 
 ### Trend Analysis
 
-Cost Optix measures trend by splitting the selected period into two equal halves and comparing the average daily spend in each. A period showing 15% higher average spend in its second half is classified as **increasing** by 15%. This approach is more robust than a simple first-to-last comparison because it is not distorted by a single anomalous day at either end of the range.
+CostOptix measures trend by splitting the selected period into two equal halves and comparing the average daily spend in each. A period showing 15% higher average spend in its second half is classified as **increasing** by 15%. This approach is more robust than a simple first-to-last comparison because it is not distorted by a single anomalous day at either end of the range.
 
 ### Volatility Analysis
 
 The Insights tab surfaces volatility metrics including:
-- Peak-to-average ratio — how many times larger the peak day was compared to the daily average
-- Spend range — dollar difference between the peak and cheapest active day
-- Weekday vs weekend ratio — whether workday infrastructure is significantly more expensive than weekend
+- Peak-to-average ratio: how many times larger the peak day was compared to the daily average
+- Spend range: dollar difference between the peak and cheapest active day
+- Weekday vs weekend ratio: whether workday infrastructure is significantly more expensive than weekend
 
 ### Pareto / 80-20 Insight
 
@@ -146,8 +146,8 @@ The Insights tab identifies the Pareto set: how many services account for 80% of
 
 Two CSV exports are available from the **Service Breakdown** tab header:
 
-- **Daily Totals** — one row per day with total combined spend across all services
-- **By Service** — one row per service per day, giving the full per-service daily matrix
+- **Daily Totals**: one row per day with total combined spend across all services
+- **By Service**: one row per service per day, giving the full per-service daily matrix
 
 Both exports include the account identifier and date range in the filename.
 
@@ -166,7 +166,7 @@ Daily Spend is available on all plans including Starter.
     Monthly executive summary, service health, and actionable insights.
   </Card>
   <Card title="Anomaly Detection" icon="chart-line" href="/features/anomaly-detection">
-    Statistical spike detection — same algorithm used to colour sparkline bars.
+    Statistical spike detection, the same algorithm used to colour sparkline bars.
   </Card>
   <Card title="Budgets" icon="wallet" href="/features/budgets">
     Set monthly spend limits and receive threshold alerts.

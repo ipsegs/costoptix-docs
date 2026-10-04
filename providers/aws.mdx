@@ -1,23 +1,23 @@
 ---
 title: Amazon Web Services
-description: Connect your AWS account to Cost Optix using an IAM user with access keys, or an IAM Role for cross-account and EC2/ECS deployments.
+description: Connect your AWS account to CostOptix using an IAM user with access keys, or an IAM Role for cross-account and EC2/ECS deployments.
 ---
 
 <Info>
-  Cost Optix reads cost data from **AWS Cost Explorer**. Cost Explorer must be enabled in your AWS account and resource-level data must be turned on for per-resource breakdowns.
+  CostOptix reads cost data from **AWS Cost Explorer**. Cost Explorer must be enabled in your AWS account and resource-level data must be turned on for per-resource breakdowns.
 </Info>
 
 ## Prerequisites
 
 - AWS CLI installed and configured (for key-based setup)
 - IAM permissions to create users, policies, and roles in the target account
-- Cost Explorer enabled in the target account (free tier includes basic access; resource-level queries have a per-query charge — see [AWS pricing](https://aws.amazon.com/aws-cost-management/pricing/))
+- Cost Explorer enabled in the target account (free tier includes basic access; resource-level queries have a per-query charge. See [AWS pricing](https://aws.amazon.com/aws-cost-management/pricing/))
 
 ---
 
 ## Required IAM Policy
 
-Save the following policy as `cost-optix-policy.json`. This is the minimum set of permissions Cost Optix requires.
+Save the following policy as `cost-optix-policy.json`. This is the minimum set of permissions CostOptix requires.
 
 ```json
 {
@@ -76,15 +76,15 @@ Save the following policy as `cost-optix-policy.json`. This is the minimum set o
 
 ## Setup: Access Keys (IAM User)
 
-Use this method for straightforward deployments where Cost Optix does not run on AWS infrastructure.
+Use this method for straightforward deployments where CostOptix does not run on AWS infrastructure.
 
-### Step 1 — Create a dedicated IAM user
+### Step 1: Create a dedicated IAM user
 
 ```bash
 aws iam create-user --user-name cost-optix-reader
 ```
 
-### Step 2 — Create and attach the policy
+### Step 2: Create and attach the policy
 
 ```bash
 # Create the policy (save the returned ARN)
@@ -92,13 +92,13 @@ aws iam create-policy \
   --policy-name CostOptixReaderPolicy \
   --policy-document file://cost-optix-policy.json
 
-# Attach to the user — replace <ACCOUNT_ID> with your 12-digit AWS account ID
+# Attach to the user. Replace <ACCOUNT_ID> with your 12-digit AWS account ID
 aws iam attach-user-policy \
   --user-name cost-optix-reader \
   --policy-arn "arn:aws:iam::<ACCOUNT_ID>:policy/CostOptixReaderPolicy"
 ```
 
-### Step 3 — Create an access key
+### Step 3: Create an access key
 
 ```bash
 aws iam create-access-key --user-name cost-optix-reader
@@ -106,7 +106,7 @@ aws iam create-access-key --user-name cost-optix-reader
 
 **The `SecretAccessKey` is shown only once. Copy it immediately.**
 
-### Step 4 — Enable resource-level data in Cost Explorer
+### Step 4: Enable resource-level data in Cost Explorer
 
 IAM permissions alone are not enough for resource-level breakdowns. In the AWS Console:
 
@@ -114,9 +114,9 @@ IAM permissions alone are not enough for resource-level breakdowns. In the AWS C
 2. Enable **"Resource-level data"**
 3. Click Save
 
-Data appears within 24 hours and is only available from the enable date forward. Without this setting, Cost Optix can display service-level totals but cannot drill into individual resources.
+Data appears within 24 hours and is only available from the enable date forward. Without this setting, CostOptix can display service-level totals but cannot drill into individual resources.
 
-### Step 5 — Activate Cost Allocation Tags (for Tag Explorer)
+### Step 5: Activate Cost Allocation Tags (for Tag Explorer)
 
 For the Tag Explorer to work, each tag key must be individually activated:
 
@@ -129,9 +129,9 @@ This is separate from IAM permissions. Activation takes effect immediately.
 
 ## Setup: IAM Role (Recommended for Cross-Account or EC2/ECS)
 
-Use an IAM Role when Cost Optix runs on AWS infrastructure, or when monitoring a different account from where Cost Optix is deployed.
+Use an IAM Role when CostOptix runs on AWS infrastructure, or when monitoring a different account from where CostOptix is deployed.
 
-### Step 1 — Create the trust policy
+### Step 1: Create the trust policy
 
 ```bash
 cat > trust-policy.json << 'EOF'
@@ -147,9 +147,9 @@ cat > trust-policy.json << 'EOF'
 EOF
 ```
 
-Replace `<TRUSTING_ACCOUNT_ID>` with the AWS account ID that runs Cost Optix.
+Replace `<TRUSTING_ACCOUNT_ID>` with the AWS account ID that runs CostOptix.
 
-### Step 2 — Create the role and attach the policy
+### Step 2: Create the role and attach the policy
 
 ```bash
 # Create the role
@@ -162,16 +162,16 @@ aws iam create-policy \
   --policy-name CostOptixReaderPolicy \
   --policy-document file://cost-optix-policy.json
 
-# Attach the policy — replace <ACCOUNT_ID>
+# Attach the policy. Replace <ACCOUNT_ID>
 aws iam attach-role-policy \
   --role-name CostOptixReader \
   --policy-arn "arn:aws:iam::<ACCOUNT_ID>:policy/CostOptixReaderPolicy"
 
-# Get the Role ARN to paste into Cost Optix
+# Get the Role ARN to paste into CostOptix
 aws iam get-role --role-name CostOptixReader --query 'Role.Arn' --output text
 ```
 
-### Step 3 — Enable resource-level data and Cost Allocation Tags
+### Step 3: Enable resource-level data and Cost Allocation Tags
 
 Same as Steps 4–5 for the access key method above.
 
@@ -189,7 +189,7 @@ AWS Cost Explorer data is typically available within **24–48 hours**.
 
 ---
 
-## Enter Credentials in Cost Optix
+## Enter Credentials in CostOptix
 
 Navigate to **Organization Admin → Accounts → Add Account**, select **Amazon Web Services**, and enter:
 
@@ -210,10 +210,10 @@ Navigate to **Organization Admin → Accounts → Add Account**, select **Amazon
 Confirm the IAM policy includes `ce:GetCostAndUsage` and `ce:GetCostAndUsageWithResources`, and that the policy is attached to the correct user or role.
 
 **Resource-level data is missing**
-Check that "Resource-level data" is enabled in Cost Explorer settings. This is a console-only toggle — there is no CLI equivalent. Data is only available from the date you enabled it.
+Check that "Resource-level data" is enabled in Cost Explorer settings. This is a console-only toggle with no CLI equivalent. Data is only available from the date you enabled it.
 
 **Tag Explorer returns no tags**
-Tag keys must be individually activated in **Billing & Cost Management → Cost Allocation Tags**. Having tags on your EC2 or S3 resources is not enough — they must also be activated as cost allocation tags.
+Tag keys must be individually activated in **Billing & Cost Management → Cost Allocation Tags**. Having tags on your EC2 or S3 resources is not enough. They must also be activated as cost allocation tags.
 
 **"InvalidAccessKeyId" or signature errors**
 Verify the Access Key ID and Secret Access Key are entered correctly and the IAM user has not been disabled or the key deactivated.
