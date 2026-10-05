@@ -1,0 +1,38 @@
+---
+title: Audit Log
+description: See who viewed or changed sensitive data, such as revenue, and when.
+---
+
+<Info>
+  Only organisation admins can view the audit log.
+</Info>
+
+The audit log records access to sensitive data in your organisation. Today that is revenue metrics in [Unit Economics](/features/unit-economics#revenue). Open it from **Settings → Audit log**.
+
+Each entry shows when it happened, who did it, what they did, which metric, and the IP address it came from. Hover the IP address to see the browser or tool.
+
+Revenue figures are never written to the log, only what was touched. A changed value shows which months changed, not the amounts.
+
+---
+
+## What is recorded
+
+| Entry | When |
+|---|---|
+| Created, changed or deleted a revenue metric | A revenue metric is added, renamed, given AI access or removed |
+| Viewed revenue values | An admin opens a month's revenue values |
+| Changed revenue values | Values change by hand, CSV or API |
+| Cleared a revenue value | A value is removed |
+| Locked a month | A month with revenue is locked |
+| Viewed Unit Economics with revenue | An admin opens a page showing revenue. Recorded once per person per metric per day. |
+| AI assistant read revenue | The assistant was given revenue to answer a question |
+| Connected or disconnected a payment platform | A metric is connected to Stripe, or disconnected |
+| Imported revenue | An import changed values. The daily import shows as **Daily import**. |
+
+Writes made with an API key show as **API key**, with the key recorded.
+
+---
+
+## Filter
+
+Filter by **type** of activity or by **person**. The newest entries come first. Choose **Load older** to go further back.

@@ -59,6 +59,7 @@ Webhooks are how CostOptix tells you something happened. Every alert in the prod
 | `spend.daily_exceeded` | Daily Spend Limit Exceeded | A settled day's spend passes a daily limit |
 | `anomaly.detected` | Cost Anomaly Detected | An [important anomaly](/features/anomaly-detection#important-anomalies) is found |
 | `llm.runaway_session` | Runaway AI Session | A coding-agent session spends far above your normal hourly rate |
+| `unit_cost.changed` | Unit Cost Changed | A metric's cost per unit jumped or went above its target (Professional and above). Revenue metrics never send it. |
 | `credential.expiring` | Credential Expiring Soon | Cloud account credentials expire within 30 days |
 | `credential.expired` | Credential Expired | Credentials expired and cost sync has stopped |
 | `credential.rotated` | Credential Rotated | Cloud account credentials were rotated |
@@ -99,6 +100,25 @@ Slack, Teams and Discord get a formatted message. Custom endpoints get raw JSON,
     }
     ```
     `breached_on` is the projected breach date, or empty when none is projected. `excluded_currencies` lists plan currencies left out of an AI / LLM budget.
+  </Accordion>
+  <Accordion title="Unit cost (unit_cost.changed)">
+    ```json
+    "data": {
+      "metric_id": "5f0c2a9e-1b7d-4c1e-9a43-2d6b8e0f7a11",
+      "metric_name": "Orders",
+      "unit": "order",
+      "scope": "org",
+      "reason": "spike",
+      "period": "2026-10-04",
+      "unit_cost": 0.42,
+      "expected": 0.31,
+      "rise_percent": 35,
+      "cost": 2100.00,
+      "metric_value": 5000,
+      "currency": "USD"
+    }
+    ```
+    `reason` is `spike` when a daily cost per unit jumps above its recent history, with `expected` and `rise_percent`. It is `above_target` when a month passes the metric's target, with `target` and `final` (whether the month's costs have settled) instead. Team metrics add `team_id` and `team_name`.
   </Accordion>
   <Accordion title="Anomaly (anomaly.detected)">
     ```json

@@ -1,0 +1,139 @@
+---
+title: Unit Economics
+description: Divide spend by customers, orders or requests to see what each unit costs, and on Business, set it against revenue imported from Stripe.
+---
+
+<Info>
+  Unit economics is available on **Professional** and above. Everyone can view it. Only organisation admins can add metrics, values or targets. Revenue metrics need **Business** or **Enterprise**.
+</Info>
+
+## Cost per unit, not just totals
+
+Total spend going up is not always bad news. If it grows slower than your business, each customer, order or request is getting cheaper. Unit economics shows which way it is going.
+
+Add a **business metric**, give it values, and CostOptix divides spend by it every month:
+
+| Scope | Spend it divides |
+|---|---|
+| **Organisation** | The total from [Overview](/features/overview), with every dollar counted once |
+| **Team** | That team's sealed monthly bill from [Ownership](/features/ownership), or an estimate until the bill seals |
+
+Open **Unit Economics** from the navigation. Each metric shows its latest cost per unit, the change from the month before, and a row per month for the last 12 months.
+
+---
+
+## Add a metric
+
+1. Click **New metric**, or pick one of the examples.
+2. Give it a name and a unit, such as `Active customers` and `customer`.
+3. Choose how a month adds up:
+   - **Total** for things that happen, such as orders or requests.
+   - **Average** for things you count at a point in time, such as active customers. Adding up daily customer counts would multiply your customers by 30.
+4. Choose whether you record it **daily** or **monthly**, and whether it divides the whole organisation or one team.
+
+How a month adds up, how often you record it and its scope cannot change later, because they change every past figure. The name, unit and target can.
+
+<Tip>
+  Scale large numbers. "API requests (thousands)" with the unit `1k requests` reads better than a cost per request of $0.0003.
+</Tip>
+
+---
+
+## Give it values
+
+| Method | How |
+|---|---|
+| **By hand** | **Enter values** on the metric, one per day or month |
+| **CSV** | One `period,value` pair per line, with `YYYY-MM-DD` or `YYYY-MM` periods. A header line is skipped. |
+| **API** | Create a key with only the `metrics:ingest` permission, then post values from your own systems |
+
+```bash
+curl -X POST https://costoptix.com/api/v1/metrics/<metric-id>/values \
+  -H "X-API-Key: <metrics-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"values":[{"period":"2026-10","value":1250}]}'
+```
+
+Sending the same period again replaces its value. Every change is recorded, with who made it and the value before.
+
+---
+
+## Lock closed months
+
+Cloud billing for a month can still change for a few days after it ends. Once it settles, the month shows **Ready to lock**. Locking it freezes the cost, the metric value and the unit cost, so later changes never move it.
+
+If a value changes after locking, the month shows **Changed since lock**. Locking it again adds a new version. Earlier versions are kept, never rewritten.
+
+---
+
+## Targets and alerts
+
+Give a metric a target cost per unit, and months above it are flagged.
+
+The **Unit Cost Changed** webhook (`unit_cost.changed`) alerts you when:
+
+- A daily metric's cost per unit jumps well above its own recent history.
+- A month's cost per unit goes above its target.
+
+See [Webhooks](/features/webhooks#events) for the payload. Overview also calls it out when spend and unit cost move in opposite directions, such as spend rising while cost per customer falls.
+
+---
+
+## Revenue
+
+<Info>
+  Revenue metrics need **Business** or **Enterprise**. If you move to a lower plan, revenue metrics are kept but become read-only, and imports pause.
+</Info>
+
+Add a metric and choose **Revenue**, with the currency it is recorded in. Instead of a cost per unit, it shows infrastructure cost as a **share of revenue**, and the **margin** left after it. A target is entered as a percentage, such as 15%.
+
+Use the same currency as your costs. Revenue is never converted between currencies.
+
+### Revenue stays private
+
+| Control | What it means |
+|---|---|
+| **Encrypted at rest** | Revenue values, their history and locked months are stored encrypted |
+| **Admins only** | Only organisation admins can see revenue, or anything worked out from it. Other members see that the metric exists and nothing else. |
+| **Never in webhooks** | Revenue metrics never send the Unit Cost Changed webhook |
+| **AI assistant, by choice** | The assistant can read revenue only if an admin turns that on for the metric, and only when an admin asks |
+| **Audited** | Every view and change is recorded in the [audit log](/account/audit-log) |
+
+### Import revenue from Stripe
+
+Instead of entering revenue, connect it to Stripe and it updates every day.
+
+1. In the Stripe Dashboard, open [API keys](https://dashboard.stripe.com/apikeys) and create a **restricted key**.
+2. Leave every permission at None except **Read** on balance transactions. If Stripe reports a missing permission when you connect, add Read for the one it names.
+3. On the revenue metric, choose **Import from a payment platform**, pick Stripe and paste the key.
+
+CostOptix checks the key with Stripe before saving it, then imports the last 12 months. After that it imports each day at 05:45 UTC. You can also choose **Import now**.
+
+| What is imported | Detail |
+|---|---|
+| **Net sales** | Charges, minus refunds, disputes and failed payments, plus disputes you win and refunds that fail |
+| **Before fees** | Stripe's processing fees are not subtracted |
+| **By UTC day** | Each transaction counts on the day Stripe created it |
+| **One currency** | Only transactions in the metric's currency. Totals in other currencies are listed on the metric, so nothing goes missing quietly. |
+
+Payouts, transfers, Stripe fees and Connect platform earnings are left out. If you run a Stripe Connect platform with destination charges, gross charges include money passed on to connected accounts.
+
+Only restricted keys (`rk_live_` or `rk_test_`) are accepted. Secret keys are refused, so a leaked key can read balance data but never move money. The key is stored encrypted.
+
+While a metric is connected, its values cannot be entered by hand, by CSV or by API. **Disconnect** deletes the stored key. Values already imported are kept and become editable again.
+
+<Note>
+  Stripe is the first payment platform. Until yours is supported, send revenue by API.
+</Note>
+
+---
+
+## Who can do what
+
+| Action | Who |
+|---|---|
+| View unit costs for count metrics | Everyone in the organisation |
+| View revenue, its share and margin | Organisation admins |
+| Add, edit, lock or delete metrics and values | Organisation admins |
+| Connect or disconnect a payment platform | Organisation admins, on Business and above |
+| Send values by API | A key with the `metrics:ingest` permission |

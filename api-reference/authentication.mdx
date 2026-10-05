@@ -39,8 +39,9 @@ Limits reset at 00:00 UTC.
 | `k8s:ingest` | Only lets the Kubernetes agent push cluster metrics |
 | `host:ingest` | Only lets the host agent push machine metrics |
 | `llm:ingest` | Only lets AI coding tools push usage telemetry |
+| `metrics:ingest` | Only lets your systems send [Unit Economics](/features/unit-economics#give-it-values) metric values |
 
-The three `ingest` permissions are deliberately narrow. A key with one of them can push that one kind of data and nothing else: it cannot read costs or change settings, even if other permissions are added. That makes them safe to leave on a cluster, a machine or a developer laptop. The guided setup on the Kubernetes, Hosts and LLM Usage pages creates the right key for you.
+The four `ingest` permissions are deliberately narrow. A key that holds only ingest permissions can push that data and nothing else: it cannot read costs or change settings. Adding `read`, `write` or `admin` to the same key removes that limit, so keep ingest keys separate. That makes them safe to leave on a cluster, a machine or a developer laptop. The guided setup on the Kubernetes, Hosts and LLM Usage pages creates the right key for you.
 
 ---
 

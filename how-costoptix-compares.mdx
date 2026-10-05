@@ -37,13 +37,13 @@ That is the difference.
 | Team chargeback for cloud accounts | Yes | Finout, Vantage |
 | Commitment recommendations | Yes | Native consoles, one cloud at a time |
 | AI coding tool spend | Yes | Each vendor's own console |
-| Unit economics | No | CloudZero |
+| Unit economics, with revenue from Stripe | Yes | CloudZero |
 | Automated commitment purchasing | No | Vantage, nOps, Zesty |
 | SaaS and AI vendor bills | No | Vantage, Finout |
 
 Buy it if you want your cloud accounts in one place with anomaly detection, budgets and forecasting, and will not sign a percentage-of-spend contract. If you also run Kubernetes, the chargeback engine bills clusters back to teams with numbers that survive an argument.
 
-Do not buy it if you need per-customer unit economics, automated commitment purchasing, SaaS and AI vendor invoices next to cloud, or VM rightsizing across AWS, Azure and GCP. We do not do those things. Others do them well.
+Do not buy it if you need cost per feature or per individual customer, automated commitment purchasing, SaaS and AI vendor invoices next to cloud, or VM rightsizing across AWS, Azure and GCP. We do not do those things. Others do them well.
 
 ---
 
@@ -117,7 +117,7 @@ Every vendor bolted an LLM onto a dashboard last year. Most are architecturally 
 | Gap | Detail | Who to use instead |
 |---|---|---|
 | **Cloud VM rightsizing** | Cloud-side savings today are Azure orphaned resources and AWS and Azure commitment recommendations. Rightsizing covers Kubernetes pods and nodes and Linux hosts, not your cloud VM fleet directly. | Vantage, nOps, Zesty |
-| **Unit economics** | No cost per customer, per feature or per tenant. | CloudZero |
+| **Per-feature and per-customer allocation** | [Unit costs](/features/unit-economics) are spend divided by a business metric, for the organisation or a team. Spend is not allocated to individual features, tenants or customers. | CloudZero |
 | **Automated commitment purchasing** | We recommend reservations and savings plans for AWS and Azure. We never buy them. | Vantage, nOps, Zesty |
 | **Cross-provider tag exploration** | Tag Explorer is one account and one tag key per query. Ownership rolls a team's tag values up across clouds, but there is no free-form view of any tag summed across every provider. | Finout, Vantage |
 | **Virtual tagging** | Cloud spend is owned by tag, service, resource group or account. Anything that matches none of those stays Unclaimed. We do not synthesise allocation rules. | Finout virtual tagging |
@@ -168,7 +168,7 @@ We do not replace native tools for provider-specific operations: tag policy enfo
 
 ## Versus enterprise FinOps platforms
 
-CloudZero, Cloudability and Finout are more capable than we are. That is the honest statement. They allocate spend more completely, do unit economics, and come with implementation support.
+CloudZero, Cloudability and Finout are more capable than we are. That is the honest statement. They allocate spend more completely, down to individual customers and features, and come with implementation support.
 
 They also assume an annual contract, a quoting cycle, a longer onboarding, and a bill that grows with your cloud bill. If you have a FinOps team and seven figures of annual cloud spend, that trade is often correct, and you should talk to them.
 
