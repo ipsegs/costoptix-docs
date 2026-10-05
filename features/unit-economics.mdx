@@ -17,6 +17,7 @@ Add a **business metric**, give it values, and CostOptix divides spend by it eve
 |---|---|
 | **Organisation** | The total from [Overview](/features/overview), with every dollar counted once |
 | **Team** | That team's sealed monthly bill from [Ownership](/features/ownership), or an estimate until the bill seals |
+| **Specific spend** | Only what you pick: namespaces, workloads, host services, cloud accounts or services, tag values, or AI coding tool repositories |
 
 Open **Unit Economics** from the navigation. Each metric shows its latest cost per unit, the change from the month before, and a row per month for the last 12 months.
 
@@ -29,13 +30,41 @@ Open **Unit Economics** from the navigation. Each metric shows its latest cost p
 3. Choose how a month adds up:
    - **Total** for things that happen, such as orders or requests.
    - **Average** for things you count at a point in time, such as active customers. Adding up daily customer counts would multiply your customers by 30.
-4. Choose whether you record it **daily** or **monthly**, and whether it divides the whole organisation or one team.
+4. Choose whether you record it **daily** or **monthly**, and whether it divides the whole organisation, one team, or specific spend.
 
-How a month adds up, how often you record it and its scope cannot change later, because they change every past figure. The name, unit and target can.
+How a month adds up, how often you record it and its scope cannot change later, because they change every past figure. The name, unit, target and the spend a specific spend metric picks can.
 
 <Tip>
   Scale large numbers. "API requests (thousands)" with the unit `1k requests` reads better than a cost per request of $0.0003.
 </Tip>
+
+---
+
+## Specific spend
+
+Some numbers belong to one part of the system, not a whole team. Cost per order of the checkout service, or AI coding tool cost per merged pull request in one repository. Choose **Specific spend** and pick what it divides, with the same pickers as Ownership:
+
+| Source | What you can pick |
+|---|---|
+| **Kubernetes** | Whole namespaces, or single workloads |
+| **Hosts** | Whole hosts, or single services on them |
+| **Cloud** | Whole accounts, services or resource groups within an account, or tag values |
+| **AI repositories** | Git repositories that AI coding tools report usage from |
+
+Mix sources freely. A product can be its namespace, its database service and the repository its team works in.
+
+How it is counted:
+
+- **Teams can own the same spend.** A metric does not own anything, so a namespace can sit in a team and in any number of metrics.
+- **Counted once.** Cloud accounts leave out the cluster and host spend inside them, as on [Overview](/features/overview), so picking an account and a namespace in it never counts the same dollar twice.
+- **Direct cost.** Kubernetes and hosts count what the picked workloads used, without a share of idle capacity.
+- **Repositories** get each day's actual AI coding tool spend, seats included, in proportion to their share of that day's usage.
+
+Cloud picks by service, resource group or tag share Ownership's choices: one tag key per cloud, and one split (service or resource group) per account. If nothing uses a tag key or split yet, the first metric to pick it sets it.
+
+<Note>
+  Cloud spend by tag or service is collected from when that tag key or split is first used, by a metric or by Ownership. Months before that show as **Partial** and cannot be locked. Whole accounts, Kubernetes, hosts and repositories have their full history.
+</Note>
 
 ---
 

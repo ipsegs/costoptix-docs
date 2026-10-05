@@ -118,7 +118,7 @@ Slack, Teams and Discord get a formatted message. Custom endpoints get raw JSON,
       "currency": "USD"
     }
     ```
-    `reason` is `spike` when a daily cost per unit jumps above its recent history, with `expected` and `rise_percent`. It is `above_target` when a month passes the metric's target, with `target` and `final` (whether the month's costs have settled) instead. Team metrics add `team_id` and `team_name`.
+    `reason` is `spike` when a daily cost per unit jumps above its recent history, with `expected` and `rise_percent`. It is `above_target` when a month passes the metric's target, with `target` and `final` (whether the month's costs have settled) instead. `scope` is `org`, `team` or `selection`. Team metrics add `team_id` and `team_name`.
   </Accordion>
   <Accordion title="Anomaly (anomaly.detected)">
     ```json
