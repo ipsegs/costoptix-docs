@@ -40,16 +40,6 @@ Save the following policy as `cost-optix-policy.json`. This is the minimum set o
       "Resource": "*"
     },
     {
-      "Sid": "CloudWatchMetricsAccess",
-      "Effect": "Allow",
-      "Action": [
-        "cloudwatch:GetMetricStatistics",
-        "cloudwatch:GetMetricData",
-        "cloudwatch:ListMetrics"
-      ],
-      "Resource": "*"
-    },
-    {
       "Sid": "S3AccessForReports",
       "Effect": "Allow",
       "Action": [
@@ -201,6 +191,8 @@ Navigate to **Organization Admin → Accounts → Add Account**, select **Amazon
 **For IAM Role:**
 - Role ARN (e.g. `arn:aws:iam::123456789012:role/CostOptixReader`)
 - External ID: `cost-optix`
+
+**Management (payer) accounts:** CostOptix shows the spend of the account you connect. On the Enterprise plan, connecting the management account of an AWS Organization shows the spend of every member account.
 
 ---
 
