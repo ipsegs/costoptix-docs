@@ -75,6 +75,7 @@ Cloud picks by service, resource group or tag share Ownership's choices: one tag
 | **By hand** | **Enter values** on the metric, one per day or month |
 | **CSV** | One `period,value` pair per line, with `YYYY-MM-DD` or `YYYY-MM` periods. A header line is skipped. |
 | **API** | Create a key with only the `metrics:ingest` permission, then post values from your own systems |
+| **BigQuery** | A query in your warehouse runs every day. See [Import from BigQuery](#import-from-bigquery) |
 
 ```bash
 curl -X POST https://costoptix.com/api/v1/metrics/<metric-id>/values \
@@ -84,6 +85,48 @@ curl -X POST https://costoptix.com/api/v1/metrics/<metric-id>/values \
 ```
 
 Sending the same period again replaces its value. Every change is recorded, with who made it and the value before.
+
+### Labels
+
+Give a metric a label key, such as `team`, and each value carries a label: orders per team instead of one total. The metric's unit cost uses the total across labels. Send one value per period and label:
+
+```bash
+-d '{"values":[{"period":"2026-10","label":"payments","value":900},{"period":"2026-10","label":"search","value":350}]}'
+```
+
+CSV lines become `period,label,value`. Once a metric has labels, every value needs one. Labels can only be turned on or off while the metric has no values. Revenue metrics can't have labels.
+
+A shared cost on **Ownership** can be split by a labelled metric. Each label maps to a team, and each month is split by that month's values. Labels without a team stay unallocated. A month waits for the metric's values before its fully loaded cost seals, and reseals once they arrive.
+
+### Import from BigQuery
+
+A count metric can take its values from a BigQuery query instead.
+
+1. In Google Cloud, create a service account. Give it **BigQuery Job User** on the project that runs the query and **BigQuery Data Viewer** on the data it reads.
+2. Create a JSON key for it.
+3. On the metric, choose **Import from BigQuery**, paste the key and write the query.
+
+The query returns one row per day: a `day` column (DATE) and a `value` column (a number), plus a `label` column (STRING) if the metric has labels. Filter it with `@start` and `@end` so each run reads only the days it needs:
+
+```sql
+SELECT DATE(created_at) AS day, COUNT(*) AS value
+FROM `my-project.shop.orders`
+WHERE DATE(created_at) >= @start AND DATE(created_at) < @end
+GROUP BY day
+```
+
+CostOptix checks the query with a free dry run before saving, then imports the last 12 months. After that it imports each day at 05:45 UTC. Days add up into months the way the metric counts them: counters sum, gauges average.
+
+| Limit | |
+|---|---|
+| **One SELECT** | Other statements are refused |
+| **10 GB per run** | Billed to your project. A larger run fails without a charge |
+| **200,000 rows per run** | Group the query by day |
+| **Service account keys only** | Created in Google Cloud. The key is encrypted at rest |
+
+For a labelled metric, each run replaces the labels of the months it reads: a label the query no longer returns is removed for those months, and the removal is recorded in history. A run that returns no rows at all removes nothing, so an emptied or moved table never wipes past values.
+
+While connected, values can't be edited by hand. Disconnect to edit them again.
 
 ---
 
@@ -165,4 +208,5 @@ While a metric is connected, its values cannot be entered by hand, by CSV or by 
 | View revenue, its share and margin | Organisation admins |
 | Add, edit, lock or delete metrics and values | Organisation admins |
 | Connect or disconnect a payment platform | Organisation admins, on Business and above |
+| Connect or disconnect BigQuery | Organisation admins |
 | Send values by API | A key with the `metrics:ingest` permission |
