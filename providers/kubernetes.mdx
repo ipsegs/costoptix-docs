@@ -159,7 +159,7 @@ The **Waste & fixes** tab ranks findings for you. Reliability risks come first, 
 
 ### What to set requests to
 
-Expand a namespace to see **Recommended requests**: what each workload's CPU and memory requests should be, per replica, with a `kubectl set resources` command to apply them. Values come from the p95 of usage over the lookback window plus 25% headroom, the same rule as the rightsizing finding. Workloads that ask for too little are raised first, because they risk throttling or being killed for running out of memory. When a new memory request would sit above the current limit, the command raises the limit too.
+Expand a namespace to see **Recommended requests**: what each workload's CPU and memory requests should be, per replica, with a `kubectl set resources` command to apply them. Values come from the p95 of each workload’s busiest daily peak over the lookback window plus 25% headroom, the same rule as the rightsizing finding. The history belongs to the workload, so a rollout does not reset it, and a workload with less than 3 days of history is not sized yet. Workloads that ask for too little are raised first, because they risk throttling or being killed for running out of memory. When a new memory request would sit above the current limit, the command raises the limit too.
 
 No command is given when one could do harm:
 
