@@ -174,11 +174,11 @@ Agents before 2.3.0 do not report how many containers a pod has, so their comman
 When a cluster has more nodes than it needs, the **Nodes** table on the **Cluster** tab names the nodes to remove, in order. A node is marked **Remove** only when both of these hold:
 
 - No pod on it blocks a drain. Blockers are a PodDisruptionBudget that allows no disruption, a pod marked `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`, a pod with no controller to recreate it, and a pod using `emptyDir` storage, which a drain deletes.
-- Its workload pods fit on the other nodes of the same pool, with each node kept under the same growth buffer node sizing uses. A pod with a persistent volume only moves to a node in its own zone, since disks such as Azure Disk, EBS and GCE PD stay in their zone. A pod that must not share a node with its own replicas never lands on a node already running one.
+- Its workload pods fit on the other nodes of the same pool, with each node kept under the same growth buffer node sizing uses. A pod with a persistent volume only moves to a node in its own zone, since disks such as Azure Disk, EBS and GCE PD stay in their zone. A pod that must not share a node with its own replicas never lands on a node already running one. A pod only moves to a node its node selector, required node affinity and tolerations allow, so a node tainted for one team or pinned by label is never used for the wrong pods.
 
 Nodes are taken emptiest first, and each step counts the pods the step before moved, so follow the order. DaemonSet pods are left out because a drain skips them. The idle capacity finding names the same nodes. Control plane nodes are never suggested.
 
-Agents before 2.3.0 send no per-node capacity or blocker data. On a single-pool cluster CostOptix still names nodes, splitting the pool's capacity evenly, and asks you to upgrade before draining. On a cluster with several pools it waits for the upgrade. Agent 2.3.0 does not report volumes or anti-affinity, so the Nodes table says those were not checked until you upgrade to 2.3.1.
+Agents before 2.3.0 send no per-node capacity or blocker data. On a single-pool cluster CostOptix still names nodes, splitting the pool's capacity evenly, and asks you to upgrade before draining. On a cluster with several pools it waits for the upgrade. Agent 2.3.0 does not report volumes or anti-affinity, and agents before 2.4.0 do not report node selectors, node affinity or taints. Until you upgrade to 2.4.0, the Nodes table says which of these were not checked.
 
 Pod rightsizing, node sizing and idle capacity also appear on the **Kubernetes** tab of [Recommendations](/features/recommendations), where savings are verified after you act.
 
