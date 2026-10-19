@@ -115,10 +115,13 @@ rules:
   - apiGroups: ["apps"]
     resources: ["replicasets"]
     verbs: ["get"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["list"]
 ```
 
 <Warning>
-  The `apps/replicasets` rule is needed for workload attribution. Without it, pods are attributed by ReplicaSet name instead of their Deployment.
+  The `apps/replicasets` rule is needed for workload attribution. Without it, pods are attributed by ReplicaSet name instead of their Deployment. The `policy/poddisruptionbudgets` rule lets CostOptix tell you which nodes a PodDisruptionBudget would stop you draining. Without it, everything else still works and the Nodes table says PodDisruptionBudgets were not checked.
 </Warning>
 
 ### Check the install
@@ -151,6 +154,17 @@ The **Waste & fixes** tab ranks findings for you. Reliability risks come first, 
 - **Over-provisioned** means a workload asks for more CPU or memory than it uses. A safe saving.
 - **Under-provisioned** means it uses more than it asked for. A reliability risk, not a saving.
 - **Idle** is node capacity no workload has claimed. Fewer or smaller nodes is the usual fix.
+
+### Which node to remove
+
+When a cluster has more nodes than it needs, the **Nodes** table on the **Cluster** tab names the nodes to remove, in order. A node is marked **Remove** only when both of these hold:
+
+- No pod on it blocks a drain. Blockers are a PodDisruptionBudget that allows no disruption, a pod marked `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`, a pod with no controller to recreate it, and a pod using `emptyDir` storage, which a drain deletes.
+- Its workload pods fit on the other nodes of the same pool, with each node kept under the same growth buffer node sizing uses.
+
+Nodes are taken emptiest first, and each step counts the pods the step before moved, so follow the order. DaemonSet pods are left out because a drain skips them. The idle capacity finding names the same nodes. Control plane nodes are never suggested.
+
+Agents before 2.3.0 send no per-node capacity or blocker data. On a single-pool cluster CostOptix still names nodes, splitting the pool's capacity evenly, and asks you to upgrade before draining. On a cluster with several pools it waits for the upgrade.
 
 Pod rightsizing, node sizing and idle capacity also appear on the **Kubernetes** tab of [Recommendations](/features/recommendations), where savings are verified after you act.
 
