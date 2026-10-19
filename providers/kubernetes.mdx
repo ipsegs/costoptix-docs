@@ -131,6 +131,8 @@ kubectl get pods -n cost-optix
 kubectl logs -n cost-optix -l app.kubernetes.io/name=cost-optix-agent -f
 ```
 
+A healthy agent logs its settings at startup and one line after the first successful push, then stays quiet. Problems are logged once when they start and once when they clear, so anything after that first push is worth reading.
+
 The agent serves `/healthz` (process is up) and `/readyz` (at least one collection succeeded and recent pushes work) on port `8090`. A failing readiness probe without restarts usually means a wrong key.
 
 ---
