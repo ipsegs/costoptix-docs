@@ -155,6 +155,18 @@ The **Waste & fixes** tab ranks findings for you. Reliability risks come first, 
 - **Under-provisioned** means it uses more than it asked for. A reliability risk, not a saving.
 - **Idle** is node capacity no workload has claimed. Fewer or smaller nodes is the usual fix.
 
+### What to set requests to
+
+Expand a namespace to see **Recommended requests**: what each workload's CPU and memory requests should be, per replica, with a `kubectl set resources` command to apply them. Values come from the p95 of usage over the lookback window plus 25% headroom, the same rule as the rightsizing finding. Workloads that ask for too little are raised first, because they risk throttling or being killed for running out of memory. When a new memory request would sit above the current limit, the command raises the limit too.
+
+No command is given when one could do harm:
+
+- A pod with several containers. The agent reports the pod's total, and `kubectl set resources` would apply it to every container, so the total has to be split by hand.
+- Jobs, bare pods and static pods, which have no template that `kubectl set resources` can change.
+- Workloads with less than 3 days of usage.
+
+Agents before 2.3.0 do not report how many containers a pod has, so their commands include `-c CONTAINER` for you to fill in. In `kube-system` and other namespaces your provider manages on AKS, EKS and GKE, changes are usually reset, and the page says so.
+
 ### Which node to remove
 
 When a cluster has more nodes than it needs, the **Nodes** table on the **Cluster** tab names the nodes to remove, in order. A node is marked **Remove** only when both of these hold:
