@@ -178,6 +178,8 @@ When a cluster has more nodes than it needs, the **Nodes** table on the **Cluste
 
 Nodes are taken emptiest first, and each step counts the pods the step before moved, so follow the order. DaemonSet pods are left out because a drain skips them. The idle capacity finding names the same nodes. Control plane nodes are never suggested.
 
+The Nodes section opens as a map, one tile per node grouped by pool, with the bar under each tile showing how much of the node pods claim. Click a node to see its cost per day, what pods claim of its CPU and memory, its drain status and blockers, and the pods running on it with today's cost of each. Switch to **Table** for the list view.
+
 Agents before 2.3.0 send no per-node capacity or blocker data. On a single-pool cluster CostOptix still names nodes, splitting the pool's capacity evenly, and asks you to upgrade before draining. On a cluster with several pools it waits for the upgrade. Agent 2.3.0 does not report volumes or anti-affinity, and agents before 2.4.0 do not report node selectors, node affinity or taints. Until you upgrade to 2.4.0, the Nodes table says which of these were not checked.
 
 Pod rightsizing, node sizing and idle capacity also appear on the **Kubernetes** tab of [Recommendations](/features/recommendations), where savings are verified after you act.

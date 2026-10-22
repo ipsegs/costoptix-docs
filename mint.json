@@ -77,7 +77,8 @@
         "features/budgets",
         "features/recommendations",
         "features/ownership",
-        "features/unit-economics"
+        "features/unit-economics",
+        "features/design-review"
       ]
     },
     {

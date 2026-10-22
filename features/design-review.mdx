@@ -1,0 +1,265 @@
+---
+title: Design Review
+description: Price Terraform plans and what-if changes against what your resources really cost today, in the app or on every pull request.
+---
+
+<Info>
+  Design Review is available on **Growth** and above.
+</Info>
+
+## Price a change before you make it
+
+Most estimates price a change at list price. Your bill doesn't work that way: reservations, savings plans, negotiated rates and real usage all move the number. Design Review starts from what each resource that already runs really costs you, then prices the change on top.
+
+Open **Design Review** from the navigation. It has three tabs:
+
+| Tab | What it does |
+|---|---|
+| **Plans** | Prices a Terraform plan: what runs now, what runs after apply, and the change per month |
+| **Systems** | Groups spend into a system and prices what-if scenarios on it |
+| **Decisions** | Records a change you're going ahead with and checks it against real spend once it rolls out |
+
+---
+
+## Plans
+
+Create a plan file and upload it, or paste the JSON:
+
+```bash
+terraform plan -out=plan.out
+terraform show -json plan.out > plan.json
+```
+
+Each change gets a row with the resource, its size before and after, and the change per month. A resource that already runs uses its billed spend. A new one uses list price for its region.
+
+### What gets priced
+
+| Cloud | Resources |
+|---|---|
+| **AWS** | EC2 instances, Auto Scaling groups (from their launch template), EKS node groups |
+| **Azure** | Linux and Windows virtual machines, scale sets, AKS node pools |
+| **Google Cloud** | Compute Engine instances, managed instance groups (from their instance template), GKE node pools and the default pool |
+
+Other resources in the plan, such as storage, databases and load balancers, are listed as not priced. They are never guessed. Spot capacity, custom machine types and shared-core machines are not priced either, because their prices don't follow the standard per-vCPU rates.
+
+<Note>
+  The billed "before" covers everything billed to that resource ID. For some VMs that includes licences or bandwidth, so it can be higher than compute alone.
+</Note>
+
+The plan itself is never stored. Only the estimate is kept when you save a review.
+
+---
+
+## Price plans in CI
+
+Post each pull request's plan from your pipeline and get the estimate back as a comment on the pull request. Each pull request keeps one review in CostOptix, updated on every run, so reviewers can open the full breakdown from the comment.
+
+Your pipeline posts the comment itself. CostOptix never holds credentials to your Git provider.
+
+### 1. Create a CI key
+
+In **Settings > API keys**, create a key with only the **Design Review CI** permission (`design:review`). That key can post plans for pricing and nothing else. It can't read your cost data. Store it as a secret in your CI system named `COSTOPTIX_KEY`.
+
+### 2. Add the plan filter to your repository
+
+Save this as `costoptix-slim.jq` next to your Terraform code. It keeps only what pricing reads (resource changes, provider regions and the variables those regions use), so the rest of your plan never leaves the pipeline.
+
+```jq costoptix-slim.jq
+(.configuration.provider_config // {}) as $pc
+| [$pc[] | (.expressions // {}) | (.region, .zone) | select(.) | .references[]? | select(startswith("var.")) | ltrimstr("var.")] as $refs
+| {format_version,
+   resource_changes: [.resource_changes[]? | {address, mode, type, change: {actions: .change.actions, before: .change.before, after: .change.after}}],
+   configuration: {provider_config: ($pc | map_values({name, expressions: ((.expressions // {}) | with_entries(select(.key == "region" or .key == "zone")))}))},
+   variables: ((.variables // {}) | with_entries(select(.key as $k | $refs | index($k))))}
+```
+
+### 3. Add the step
+
+Each example runs `terraform plan` with the cloud credentials your pipeline already uses, posts the filtered plan, and creates or updates one comment on the pull request.
+
+<Tabs>
+  <Tab title="GitHub Actions">
+
+```yaml .github/workflows/design-review.yml
+name: Design review
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  cost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - run: terraform init -input=false
+      - run: terraform plan -input=false -out=plan.out
+      - name: Price the plan
+        env:
+          COSTOPTIX_KEY: ${{ secrets.COSTOPTIX_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          terraform show -json plan.out | jq -f costoptix-slim.jq > plan.json
+          REPO=$(jq -rn --arg v "$GITHUB_REPOSITORY" '$v|@uri')
+          curl -sS --fail-with-body -X POST \
+            "https://costoptix.com/api/v1/design-reviews/ci?repo=$REPO&pr=$PR&commit=$SHA" \
+            -H "X-API-Key: $COSTOPTIX_KEY" -H "Content-Type: application/json" \
+            --data-binary @plan.json > review.json
+          jq -r .data.comment review.json > comment.md
+
+          ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- costoptix-design-review -->")) | .id' | head -n1)
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$ID" -F body=@comment.md
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F body=@comment.md
+          fi
+```
+
+Pull requests from forks get no secrets and a read-only token, so the step only works for branches in the same repository.
+
+  </Tab>
+  <Tab title="GitLab CI">
+
+```yaml .gitlab-ci.yml
+costoptix-design-review:
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - terraform init -input=false
+    - terraform plan -input=false -out=plan.out
+    - terraform show -json plan.out | jq -f costoptix-slim.jq > plan.json
+    - |
+      REPO=$(jq -rn --arg v "$CI_PROJECT_PATH" '$v|@uri')
+      curl -sS --fail-with-body -X POST \
+        "https://costoptix.com/api/v1/design-reviews/ci?repo=$REPO&pr=$CI_MERGE_REQUEST_IID&commit=$CI_COMMIT_SHA" \
+        -H "X-API-Key: $COSTOPTIX_KEY" -H "Content-Type: application/json" \
+        --data-binary @plan.json > review.json
+      jq '{body: .data.comment}' review.json > note.json
+
+      NOTES="$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes"
+      ID=$(curl -sS -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$NOTES?per_page=100" \
+        | jq -r '[.[] | select(.body | startswith("<!-- costoptix-design-review -->")) | .id][0] // empty')
+      if [ -n "$ID" ]; then
+        curl -sS --fail-with-body -X PUT -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -H "Content-Type: application/json" \
+          --data-binary @note.json "$NOTES/$ID" > /dev/null
+      else
+        curl -sS --fail-with-body -X POST -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -H "Content-Type: application/json" \
+          --data-binary @note.json "$NOTES" > /dev/null
+      fi
+```
+
+GitLab's job token can't write merge request comments, so add a project access token with the `api` scope and at least the Reporter role as a masked variable named `GITLAB_TOKEN`.
+
+  </Tab>
+  <Tab title="Azure Pipelines">
+
+```yaml azure-pipelines.yml
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - script: |
+      terraform init -input=false
+      terraform plan -input=false -out=plan.out
+      terraform show -json plan.out | jq -f costoptix-slim.jq > plan.json
+    displayName: Terraform plan
+
+  - script: |
+      set -e
+      REPO=$(jq -rn --arg v "$BUILD_REPOSITORY_NAME" '$v|@uri')
+      PR=$SYSTEM_PULLREQUEST_PULLREQUESTID
+      curl -sS --fail-with-body -X POST \
+        "https://costoptix.com/api/v1/design-reviews/ci?repo=$REPO&pr=$PR&commit=$SYSTEM_PULLREQUEST_SOURCECOMMITID" \
+        -H "X-API-Key: $COSTOPTIX_KEY" -H "Content-Type: application/json" \
+        --data-binary @plan.json > review.json
+
+      API="${SYSTEM_COLLECTIONURI}${SYSTEM_TEAMPROJECTID}/_apis/git/repositories/$BUILD_REPOSITORY_ID/pullRequests/$PR"
+      AUTH="Authorization: Bearer $SYSTEM_ACCESSTOKEN"
+      TID=$(curl -sS -H "$AUTH" "$API/threads?api-version=7.1" \
+        | jq -r '[.value[] | select((.comments[0].content // "") | startswith("<!-- costoptix-design-review -->")) | .id][0] // empty')
+      if [ -n "$TID" ]; then
+        jq '{content: .data.comment}' review.json > body.json
+        curl -sS --fail-with-body -X PATCH -H "$AUTH" -H "Content-Type: application/json" \
+          --data-binary @body.json "$API/threads/$TID/comments/1?api-version=7.1" > /dev/null
+      else
+        jq '{comments: [{parentCommentId: 0, content: .data.comment, commentType: 1}], status: 1}' review.json > body.json
+        curl -sS --fail-with-body -X POST -H "$AUTH" -H "Content-Type: application/json" \
+          --data-binary @body.json "$API/threads?api-version=7.1" > /dev/null
+      fi
+    displayName: Price the plan
+    env:
+      COSTOPTIX_KEY: $(COSTOPTIX_KEY)
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+```
+
+For Azure Repos, run this pipeline from a **Build validation** branch policy on your main branch, so it runs on each pull request. Give the project's build service identity the **Contribute to pull requests** permission on the repository, so it can post the comment.
+
+  </Tab>
+</Tabs>
+
+### Fail on large increases
+
+Add `fail_above` (an amount per month) or `fail_above_percent` to the request to flag a large increase. Both are off unless you set them. The comment shows a warning, and `over_threshold` is `true` in the response, so the pipeline can fail the step after posting:
+
+```bash
+curl ... "https://costoptix.com/api/v1/design-reviews/ci?repo=$REPO&pr=$PR&fail_above=500&fail_above_percent=20" ...
+# after posting the comment
+jq -e '.data.over_threshold == false' review.json > /dev/null
+```
+
+### The response
+
+| Field | What it holds |
+|---|---|
+| `comment` | The estimate as Markdown, ready to post |
+| `url` | The review in CostOptix |
+| `totals` | Now, after and change per month, one entry per currency |
+| `priced`, `changes` | How many changes were priced, out of all changes |
+| `unpriced_types` | Resource types in the plan that aren't priced |
+| `over_threshold`, `breach` | Whether a threshold was passed, and why |
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `repo` | Yes | Repository name, shown on the review |
+| `pr` | Yes | Pull request number. One review per repo and PR, updated on each run |
+| `commit` | No | Commit the plan was made from |
+| `name` | No | Review name. Defaults to `repo #pr` |
+| `fail_above` | No | Monthly increase that sets `over_threshold` |
+| `fail_above_percent` | No | Percent increase over today's spend that sets `over_threshold` |
+
+---
+
+## Systems
+
+A system is a named group of spend: tagged resources, cloud accounts or services, Kubernetes clusters and namespaces, and host units. Its baseline is what that spend really cost each month.
+
+Open a system to see its resources, spend by service and the biggest movers. Resources open as a map grouped by service, and clicking one shows its spend by month, the change from the month before and its ID. Switch to **Table** for the list view. Then add scenarios:
+
+- Resize or move a VM to another region (sizes come from a Terraform state you attach)
+- Change a node pool's size or node count
+- Change a workload's replicas or requests
+- Remove a resource
+
+Each scenario shows the system per month before and after.
+
+---
+
+## Decisions
+
+On a saved review or scenario, click **We're doing this** to record a decision with the expected change and a reason. Mark it rolled out when it ships.
+
+Once the first full month after rollout settles, CostOptix compares it with the last full month before. The outcome is on target, over or under. A decision stops being checked after 90 days.
