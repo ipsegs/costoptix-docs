@@ -172,11 +172,25 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-  - script: |
-      terraform init -input=false
-      terraform plan -input=false -out=plan.out
-      terraform show -json plan.out | jq -f costoptix-slim.jq > plan.json
+  - task: AzureCLI@2
     displayName: Terraform plan
+    inputs:
+      azureSubscription: '<your service connection>'
+      scriptType: bash
+      scriptLocation: inlineScript
+      addSpnToEnvironment: true
+      inlineScript: |
+        set -e
+        export ARM_CLIENT_ID=$servicePrincipalId ARM_TENANT_ID=$tenantId
+        export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        if [ -n "$idToken" ]; then
+          export ARM_USE_OIDC=true ARM_OIDC_TOKEN=$idToken
+        else
+          export ARM_CLIENT_SECRET=$servicePrincipalKey
+        fi
+        terraform init -input=false
+        terraform plan -input=false -out=plan.out
+        terraform show -json plan.out | jq -f costoptix-slim.jq > plan.json
 
   - script: |
       set -e
@@ -205,6 +219,8 @@ steps:
       COSTOPTIX_KEY: $(COSTOPTIX_KEY)
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 ```
+
+The plan step signs Terraform in with an Azure Resource Manager service connection, using workload identity federation or a client secret, whichever the connection uses. The connection needs read access to the subscription and to your Terraform state.
 
 For Azure Repos, run this pipeline from a **Build validation** branch policy on your main branch, so it runs on each pull request. Give the project's build service identity the **Contribute to pull requests** permission on the repository, so it can post the comment.
 
