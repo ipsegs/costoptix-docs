@@ -4,18 +4,19 @@ description: Tell CostOptix which team owns which spend across Kubernetes, hosts
 ---
 
 <Info>
-  Ownership is available on **Professional** and above. Everyone can view it. Only organisation admins can create or change teams.
+  Ownership is available on **Growth** and above. Everyone can view it. Only organisation admins can create or change teams.
 </Info>
 
 ## Make every dollar someone's
 
 Create teams, then tell CostOptix what each one owns. Spend is split by team across the app, in budgets, and on a sealed monthly bill. Anything no team owns shows as **Unclaimed** until someone takes it, so gaps are visible instead of quietly spread around.
 
-Open **Ownership** from the navigation. It has three tabs:
+Open **Ownership** from the navigation. It has four tabs:
 
 | Tab | What it shows |
 |---|---|
 | **Teams** | Each team, what it owns, and its spend for the month so far |
+| **Shared costs** | Spend that several teams use, and how it is split between them |
 | **Unclaimed** | Spend no team owns yet, grouped by where it comes from, ready to assign |
 | **Monthly bills** | The sealed bill for each closed month |
 
@@ -30,6 +31,9 @@ The header shows how much of your spend is owned, how much is unclaimed, and the
 | **Kubernetes** | Whole namespaces, or individual workloads. A workload claim wins over its namespace. |
 | **Hosts** | Whole machines, or individual services, containers and apps on them. A service claim wins over the whole machine. |
 | **Cloud** | Whole accounts, services or resource groups within an account, or tag values |
+| **AI coding tools** | Team labels set during [LLM setup](/providers/llm). The team gets its share of LLM spend by usage each day. |
+
+The owner is the team a resource exists for, the team whose work drives its cost. That is not always the team that created it. If infra builds an App Service for the checkout team, checkout owns it.
 
 Every item has one owner. If you try to claim something another team already owns, CostOptix tells you which team holds it, so totals never double count.
 
@@ -52,11 +56,36 @@ Two rules keep the numbers exact:
 
 ---
 
+## Shared costs
+
+Some spend is used by many teams and owned by none: a node pool, a central log workspace, a monitoring tool every team sends data to. Make it a **shared cost** instead of forcing it onto one team.
+
+On the **Shared costs** tab, choose **New shared cost**, pick the spend it covers, then choose how to split it:
+
+| Split | How it works |
+|---|---|
+| **By their own spend** | In proportion to each team's direct cost |
+| **Evenly** | The same share for every team |
+| **By percentage** | A fixed share per team. Shares must add up to 100. |
+| **By a metric** | By a labelled metric's values each month, such as events per team. See [Unit economics](/features/unit-economics). |
+
+Pick teams to limit the split to them. With none picked, it is split between every team.
+
+### Managed by
+
+Splitting a cost answers who pays. It doesn't answer who decides. Set **Managed by** to the team that makes decisions about the shared thing itself, usually platform. That team gets its recommendations and anomalies, and the cost is still split as set.
+
+For example, a self-hosted Sentry namespace can be split by each team's event count and managed by platform.
+
+---
+
 ## Unclaimed spend
 
 The **Unclaimed** tab lists everything no team owns this month: Kubernetes namespaces, host units and cloud accounts, with the top resources in each account. Click any group to assign it to an existing team or a new one.
 
 Idle capacity that no team can share (because no team has direct cost on that cluster or machine) is also shown here as unallocated.
+
+By default unclaimed spend stays on its own line, so its size stays visible. On the **Shared costs** tab you can split it instead, by each team's own spend or evenly.
 
 ---
 
@@ -64,7 +93,8 @@ Idle capacity that no team can share (because no team has direct cost on that cl
 
 - **Direct cost** is what the team's own claims cost.
 - **Idle cost** on clusters and machines (capacity paid for but not used) is split across claiming teams in proportion to their direct cost.
-- **Unclaimed** cost and unallocated idle go to an **Unclaimed** line, so the bill covers every dollar.
+- **Shared** cost is each team's share of the shared costs it is split between.
+- **Unclaimed** cost and unallocated idle go to an **Unclaimed** line, so the bill covers every dollar, unless you choose to split unclaimed spend.
 
 Cloud accounts that also contain linked clusters or machines are scaled down so that spend is counted once, inside Kubernetes or Hosts.
 
@@ -77,10 +107,35 @@ Each month closes into a bill. Once sealed, it never changes: later changes to o
 - **Kubernetes** lines are scaled to the real invoice when the cluster has a [billing link](/providers/kubernetes#invoice-reconciliation), so reservations, savings plans, spot and negotiated discounts are included. The bill shows how much those discounts saved, and the reconciliation factor for each cluster. Clusters without a working link use estimated rates and are labelled.
 - **Hosts** lines come from each machine's [cost basis](/providers/hosts#tell-costoptix-what-it-costs), with the share of hours the agents covered.
 - **Cloud** lines come from your cloud billing data.
+- **AI coding tool** lines come from the sealed LLM bill.
 
 Bills seal a few days after month end, once cloud billing data has settled. If a cluster's billing link needs attention, it falls back to estimated rates so the bill still seals within about ten days. Until then, the **Teams** tab shows the live month to date.
 
 Use **Export bill** to download the sealed bill.
+
+---
+
+## Recommendations and anomalies
+
+Recommendations go to the team that owns what they are about:
+
+- Workload rightsizing goes to the team that claims the workload.
+- Idle hosts go to the host's owner.
+- Orphaned cloud resources go to the team their tag points to, then the team that owns the service or resource group, then the account owner.
+- Anything in a shared cost goes to the team that manages it.
+
+Anomalies go to a team only when one team owns the whole boundary: a Kubernetes namespace it claims outright, or a host it claims in full. If two teams share it, the anomaly stays with the organisation.
+
+Shared capacity stays at the organisation level. Node pool sizing, cluster idle capacity, commitments and AI plan savings are never given to a team that can't act on them alone.
+
+On [Recommendations](/features/recommendations), filter by team to see what each team owns. The **Teams** tab shows each team's open anomalies.
+
+### Team notifications
+
+Set **Team notifications** on a team to one of your [webhooks](/features/webhooks). That team then gets:
+
+- **Its own weekly report**, covering its spend and recommendations.
+- **Alerts for anomalies it owns.** The organisation alert is still sent. If the team's webhook already gets every anomaly alert, it isn't sent a second copy. Team alerts add `team_id`, `team_name` and `organization_name` to the payload.
 
 ---
 
@@ -89,5 +144,3 @@ Use **Export bill** to download the sealed bill.
 - [Overview](/features/overview) shows spend by team across cloud, Kubernetes and hosts.
 - [Budgets](/features/budgets) can target a team.
 - The [AI assistant](/features/ai-insights) can answer questions about a team's spend.
-
-AI coding tool usage is tagged with your own team names when you set them up (see [AI coding tools](/providers/llm)), but it is not part of team bills yet.
