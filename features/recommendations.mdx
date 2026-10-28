@@ -88,19 +88,25 @@ Marking a finding **Done** does not count the saving straight away. CostOptix wa
 
 | Badge | Meaning |
 |---|---|
-| **Verifying** | Waiting for enough billed days after the change |
+| **Verifies 12 Nov** | Waiting for enough billed days after the change. The date is the first day it can be checked |
 | **Verified** | The saving showed up on the bill |
 | **Unconfirmed** | The data could not confirm a saving either way |
 | **Cost rose** | Cost went up after the change |
 
 How it is checked:
 
-- **Kubernetes rightsizing, orphaned resources and commitments** compare 14 billed days before the change with 14 days after. Cloud findings also wait out the provider's billing lag so restated figures are not measured.
+- **Kubernetes rightsizing, orphaned resources and commitments** compare 14 billed days before the change with 14 days after. The day of the change is left out of both. Cloud findings also wait 5 more days for the provider's billing to settle, Kubernetes 1 day, so restated figures are not measured.
 - **AI plans** are checked two weeks after you mark them done, against your plan settings.
-- Savings under $5 a month are not verified, to keep noise out.
-- A finding stops being re-checked 90 days after it was marked done.
+- Savings under $5 a month are not verified, to keep noise out. Orphaned resources are the exception: any saving from one cent counts, since a small forgotten disk is still worth deleting.
+- **Commitments** only verify if committed coverage rose after the change. A cost drop with no new coverage means nothing was bought, so it stays unconfirmed.
+- **Kubernetes rightsizing** needs the workload on both sides. A workload that disappeared was deleted or renamed, not rightsized.
+- **Orphaned resources** with no billed cost after the change count as deleted, which is the expected result.
+- Unconfirmed findings are re-checked daily. A finding stops being re-checked 90 days after it was marked done.
+- Fix something in the cloud without marking it **Done** and the finding drops off the list on the next run, with no saving credited. Mark it done first.
 
-The summary at the top of each tab shows open projected savings and verified savings. When nothing is verified yet, it shows implemented savings and says they are projected.
+The summary at the top of each tab shows open projected savings and verified savings. When nothing is verified yet, it shows implemented savings and says they are projected. The two are never added together.
+
+For how this compares with other tools, see [Estimated savings are not savings until the bill agrees](https://costoptix.com/blog/estimated-savings-are-not-savings).
 
 ---
 
