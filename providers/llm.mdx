@@ -57,6 +57,9 @@ Open **LLM Usage** and click **Connect a tool**.
     export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT="https://costoptix.com/api/v1/llm/otlp/v1/logs"
     export OTEL_EXPORTER_OTLP_HEADERS="X-API-Key=<telemetry-key>"
     export OTEL_LOGS_EXPORT_INTERVAL="60000"
+    export OTEL_METRICS_EXPORTER="otlp"
+    export OTEL_EXPORTER_OTLP_METRICS_PROTOCOL="http/protobuf"
+    export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT="https://costoptix.com/api/v1/llm/otlp/v1/metrics"
     export OTEL_METRICS_INCLUDE_REPOSITORY="1"
     export OTEL_RESOURCE_ATTRIBUTES="team.id=<team>"
     ```
@@ -85,6 +88,18 @@ Open **LLM Usage** and click **Connect a tool**.
 </Tip>
 
 ---
+
+### Past usage from local history
+
+The setup command also imports the last 30 days of Claude Code usage from the transcripts Claude Code keeps on each machine, so the page fills in on day one. Only token counts, model, time and session leave the machine. Prompts, responses and code are never read out.
+
+- Days CostOptix has already closed, and months whose LLM bill is sealed, are skipped. Closed figures never change.
+- Days your organisation already has live telemetry for are skipped too, so an import can only fill gaps. A developer who joins later gets history only for days nobody was sending telemetry.
+- Running the command again imports nothing twice. A request sent by both telemetry and the import is stored once.
+- Background requests such as session titles are not kept in local history, so imported days read slightly low.
+- Gemini CLI history is not imported.
+
+To skip the import, add `--no-history` (macOS and Linux) or `-NoHistory` (Windows).
 
 ## Set up your plans
 
@@ -119,7 +134,7 @@ The cards at the top cover the current calendar month. Everything below covers t
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Actual cost and API-equivalent value, day by day and by model |
+| **Overview** | Actual cost and API-equivalent value, day by day and by model, and what the usage produced |
 | **Plan fit** | Paid seats, active people, unused seats, and a suggestion per person |
 | **Efficiency** | Cache use, cache rebuilds, rate limits, refusals, and where tokens went, including MCP servers |
 | **Sessions** | The most valuable sessions in the range |
@@ -136,6 +151,17 @@ Days seal after 06:15 UTC the following day. Sealed days are final. Today's figu
 </Note>
 
 Per-person figures are visible to admins only.
+
+### What it produced
+
+The Overview tab sets the work your tools report against the API-equivalent value of the usage behind it: value per pull request, per commit and per 1,000 lines changed, plus the share of suggested edits people accepted. You can break it down by repository, and admins can also see it by person.
+
+| Output | Reported by |
+|---|---|
+| Commits, pull requests, edit decisions | Claude Code |
+| Lines added and removed | Claude Code, Gemini CLI |
+
+A session's value counts when the session reported work, or when it started after that person's first report. Sessions that produced nothing still count, so the figures stay honest. Usage from before metrics were switched on is left out. Machines set up before this feature need the setup command run once more to turn metrics on.
 
 ---
 
