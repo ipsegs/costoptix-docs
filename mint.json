@@ -73,6 +73,7 @@
     {
       "group": "Act On It",
       "pages": [
+        "features/cost-review",
         "features/anomaly-detection",
         "features/budgets",
         "features/recommendations",

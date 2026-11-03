@@ -1,0 +1,154 @@
+---
+title: Full cost review
+description: One button on Overview that checks every connected source and returns ranked findings, each with its evidence and how certain it is.
+---
+
+<Info>
+  The full cost review is available on **Growth** and above.
+</Info>
+
+## What it does
+
+Open **Overview** and select **Run full review**. CostOptix runs a fixed set of checks over the data it already holds for your organisation and lists what needs attention. Critical issues come first, then the rest by severity and by amount.
+
+The review reads stored data only. It never calls Azure, AWS or GCP while it runs, so it takes a few seconds and reflects your last sync.
+
+A review is kept for 24 hours. Opening Overview again in that time shows the same review instead of running a new one. Changing the review's [thresholds](#thresholds) clears it, so the next run uses the new values.
+
+---
+
+## How findings are produced
+
+Findings come from rules in code, not from AI. The same data always gives the same findings, in the same order.
+
+Each finding shows:
+
+- **What was found**, with the account and resources involved
+- **The evidence** behind it, such as days billed, amounts and dates
+- **An action** to take
+- **An amount**: a monthly saving, or the money at stake when there is nothing to save, such as spend missing from reports
+- **Severity**: critical, high, medium or low
+- **Certainty**: how sure CostOptix is
+
+### Certainty
+
+| Label | Meaning |
+|---|---|
+| **Confirmed** | Read straight from billing, sync or agent data |
+| **Forecast** | Based on a budget forecast, so it can change before the period ends |
+| **Likely** | Inferred from names or usage patterns. Check before acting |
+| **Conditional** | Only true if the condition in the finding holds, such as owning the right licences |
+
+### Severity
+
+A stopped sync is always **critical**, because every other number for that account is incomplete until it is fixed. Agents that stopped reporting are **low**. Every other finding is ranked by its amount:
+
+| Severity | Monthly amount |
+|---|---|
+| **High** | From 1,000 |
+| **Medium** | From 100 |
+| **Low** | Below 100 |
+
+These are the defaults. See [Thresholds](#thresholds) to change them.
+
+### Potential savings
+
+The total at the top adds up the savings of every finding. Some findings overlap, for example a resource that is both always on and part of an open recommendation, so treat the total as an upper bound. Amounts at stake are never added to it.
+
+---
+
+## Checks
+
+The review runs 12 checks. Amounts below are the defaults and follow your [thresholds](#thresholds).
+
+| Check | Raised when | Certainty | Sources |
+|---|---|---|---|
+| **Data sync and credentials** | An account's credentials failed, or its sync has errored for more than 48 hours. Shows the provider's error and the spend missing since the last billed day | Confirmed | Azure, AWS, GCP |
+| **Budgets forecast to overrun** | A budget is forecast to end at least 10 and at least 5% over. Raised even when the budget still shows as good | Forecast | Every budget |
+| **Provider commitment recommendations** | Your provider recommends a savings plan worth at least 50 a month that is not open in Optimisation. Figures older than 7 days are marked to confirm in the portal first | Confirmed | AWS compute, Azure compute and database |
+| **Overlapping commitments** | New reservations were charged on a service that was already at least 90% covered by commitments in the 14 days before | Likely | Azure |
+| **Non-production running around the clock** | A machine or capacity resource whose name or group marks it as non-production, such as dev, test, qa, uat, staging or sandbox was billed on at least 26 of the last 28 days, with weekends costing at least 90% of weekdays | Likely | Azure, AWS, GCP |
+| **Small resources that could be consolidated** | A resource group has 10 or more Event Hubs namespaces costing up to 100 a month each | Conditional | Azure |
+| **Licence-heavy machines** | VMs paid more for licences than for compute over the last 30 days, at least 50 in total | Conditional | Azure |
+| **Open recommendations** | Monthly recommendations in Optimisation worth at least 50. Smaller ones are grouped into a single finding | Confirmed | Every engine |
+| **Anomaly backlog** | 10 or more anomaly investigations are still open | Confirmed | Every source |
+| **Spend without an owner** | At least 10% of last month's spend was not claimed by any team | Confirmed | Every source |
+| **New or doubled spend** | Something cost at least 100 last month and nothing the month before, or more than doubled by at least 100 | Confirmed | Every source |
+| **Agents that stopped reporting** | A Kubernetes or host agent has not reported for 7 days | Confirmed | Kubernetes, hosts |
+
+Kubernetes, host and AI plan savings reach the review through **Open recommendations**, from the same engines described in [Recommendations](/features/recommendations).
+
+### Assumptions behind the savings
+
+Some savings depend on how you act on them. The finding says so, and the assumptions are:
+
+- **Non-production around the clock**: the saving assumes the resource runs 12 hours a day on weekdays only. Resources at least half covered by commitments are skipped, since stopping them would not cut the bill.
+- **Licence-heavy machines**: the saving is the full licence charge. It only applies if you already own Windows Server or SQL Server licences eligible for Azure Hybrid Benefit.
+- **Event Hubs namespaces**: the saving assumes each namespace holds one event hub and that the traffic fits in fewer shared namespaces. A Standard namespace holds up to 10 event hubs.
+- **Overlapping commitments**: the amount is what the reservations cost, not confirmed waste. Check what they cover before exchanging or cancelling them.
+
+---
+
+## AI summary and AI Chat
+
+If your plan includes AI, two more options appear under the results. Each uses AI queries from your plan.
+
+- **Write AI summary** turns the findings into a short summary and a list of actions. It sees only the findings and has no access to your data beyond them. Any sentence quoting a figure that is not in the findings is removed before you see it. The summary is kept with the review for its 24 hours.
+- **Continue in AI Chat** opens the assistant with the findings already loaded, so you can ask which to fix first or how to act on one.
+
+The findings, severities and amounts never come from AI.
+
+---
+
+## Download and share
+
+Once a review has run, download it from the top of the card:
+
+| Format | Contents |
+|---|---|
+| **Markdown** | The full review, with the AI summary if one was written |
+| **CSV** | One row per finding: severity, certainty, check, title, account, resources, monthly saving, amount at stake, currency, action and detail |
+| **PDF** | A print view of the review. Save it as PDF from your browser's print dialog |
+
+Downloads are built from the findings, so they match what the app shows.
+
+---
+
+## Thresholds
+
+Admins can change the review's money amounts in **Settings > Detection thresholds**, under **Full cost review**. Amounts are in your organisation's currency.
+
+| Setting | Default | What it changes |
+|---|---|---|
+| **Minimum amount** | 50 a month | The smallest saving the review raises on its own. Every other amount the checks use scales with it, and medium severity starts at twice it |
+| **High severity from** | 1,000 a month | Where high severity starts. Must be more than twice the minimum amount |
+
+The defaults were set for US dollars. If your organisation uses another currency, set amounts that fit it. For example, raising the minimum amount from 50 to 500 also raises the budget overrun floor from 10 to 100 and new spend from 100 to 1,000.
+
+---
+
+## Limits
+
+- **Fixed checks only.** The review finds what its 12 checks look for. Something outside them, however costly, will not appear.
+- **Stored data only.** A resource deleted since your last sync can still show up until the next sync.
+- **Not every check covers every provider.** See the Sources column in [Checks](#checks).
+- **Incomplete data.** If an account stopped syncing, the other checks for that account run on the data that arrived. Fix the sync finding first.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Overview" icon="house" href="/features/overview">
+    Where the review lives, with all your spend in one place.
+  </Card>
+  <Card title="Recommendations" icon="lightbulb" href="/features/recommendations">
+    The engines behind open recommendations, and how savings are verified.
+  </Card>
+  <Card title="Ownership" icon="users" href="/features/ownership">
+    Claim unowned spend for teams.
+  </Card>
+  <Card title="AI Insights" icon="sparkles" href="/features/ai-insights">
+    The assistant behind AI Chat.
+  </Card>
+</CardGroup>
