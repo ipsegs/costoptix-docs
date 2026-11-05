@@ -31,25 +31,31 @@ Customer users never see the partner's data or its other customers.
 
 ## Customers page
 
-Open **Customers** from your profile menu, or **All customers** from the organisation switcher in the header.
+Open **Customers** in the main menu, or **All customers** from the organisation switcher in the header.
 
-The page lists each customer with its plan, connected sources, spend this month and when it was created.
+Until your own setup is done, **Your setup** at the top lists what every customer relies on: your team, your service catalogue and your bill format.
 
-**Create a customer.** Enter the organisation name, pick a plan and choose **Create**. The plan list stops at your highest plan. When you reach your customer limit, **Create** is turned off.
+Each customer shows its plan, connected sources, spend this month and how far its setup has got, with the next step named. Filter by **Setting up**, **Needs attention** or **Ready**. **Needs attention** catches customers with no data a week after they were added, and Growth customers whose bill for last month hasn't been imported by the 6th.
 
-**Change a plan.** Pick a new plan in the customer's row. The change is recorded in the customer's audit log.
+**Add a customer.** Choose **Add customer** and answer four short steps: name and plan, currency, the customer's first admin (optional), then check and create. The plan list stops at your highest plan. When you reach your customer limit, **Add customer** is turned off.
+
+**Continue setup.** Takes you inside the customer, straight to the next missing step. Inviting the first admin happens on the Customers page without opening the customer.
+
+**Change a plan or deactivate.** Choose **More** on the customer, then pick a plan or **Deactivate**. Plan changes are recorded in the customer's audit log.
 
 ---
 
 ## Open a customer organisation
 
-Choose **Open** on the Customers page, or pick the customer from the organisation switcher in the header. The app reloads inside that organisation, with a banner at the top:
+Choose **Open** or **Continue setup** on the Customers page, or pick the customer from the organisation switcher in the header. The app reloads inside that organisation, with a banner at the top:
 
-> Viewing Acme Logistics as Northwind Cloud. Changes are recorded in their audit log.
+> Inside Acme Logistics as Northwind Cloud. Changes show in their audit log.
+
+Until the customer is set up, the banner also shows its progress and a **Next** button for the step still missing. **All steps** opens the full checklist.
 
 While it is open you work as an admin of that organisation. You can connect cloud accounts, Kubernetes clusters, hosts and LLM agents, create agent keys, set budgets and teams, and invite users. To hand the organisation over, invite the customer's first admin from **Organization Admin**. They then invite the rest of their team.
 
-Choose **Return to** your organisation in the banner, or pick it in the switcher, to leave. The app reloads again, so nothing from the customer stays on screen.
+Choose **Back to** your organisation in the banner, or pick it in the switcher, to leave. The app reloads again, so nothing from the customer stays on screen.
 
 ### Not available while a customer is open
 
@@ -60,7 +66,7 @@ Choose **Return to** your organisation in the banner, or pick it in the switcher
 
 ### Browser only
 
-Opening a customer works only in the browser. API keys, access tokens and AI tools connected through [MCP](/features/mcp) always act in the organisation they belong to.
+Opening a customer works only in the browser. API keys, access tokens and AI tools connected through [MCP](/features/mcp) always act in the organisation they belong to. Through MCP, partner admins can list their customers and add new ones, see [Partner tools](/features/mcp#partner-tools).
 
 ### Access ends straight away
 
@@ -87,7 +93,7 @@ Pages viewed while the organisation is open are covered by the opened and left e
 
 Alerts, budget emails and reports go to the customer's own admins only, never to the partner.
 
-Customers on Growth and above use your [service catalogue](/providers/services#your-partners-catalogue) and its rates. Add services from **Settings → Services** in your own organisation; open a customer to record its usage.
+Customers on Growth and above use your [service catalogue](/providers/services#your-partners-catalogue) and its rates. Add services from **Settings → Services**, in your own organisation or while inside a customer. Either way they go into your one catalogue, shared with all your customers. Open a customer to record its usage.
 
 Set the [provider bill](/providers/provider-bills#set-the-bill-format) format once in your own organisation and every customer uses it. Open a customer to import its monthly bill and match its lines.
 

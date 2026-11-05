@@ -8,8 +8,8 @@ This guide walks through setting up as a [partner](/account/partners): your own 
 | Step | Where |
 |---|---|
 | [1. Set up your organisation](#1-set-up-your-organisation) | Your own **Settings** |
-| [2. Create each customer](#2-create-each-customer) | **Customers** |
-| [3. Set up each customer](#3-set-up-each-customer) | The customer's **Settings** and source pages |
+| [2. Add each customer](#2-add-each-customer) | **Customers → Add customer** |
+| [3. Set up each customer](#3-set-up-each-customer) | **Continue setup**, then the banner's **Next** button |
 | [4. Every month](#4-every-month) | **Settings → Provider bills** |
 
 <Info>
@@ -20,7 +20,7 @@ This guide walks through setting up as a [partner](/account/partners): your own 
 
 ## 1. Set up your organisation
 
-Sign in to your own organisation as an admin.
+Sign in to your own organisation as an admin and open **Customers**. **Your setup** at the top ticks these off as you go.
 
 | Do this | Where | Why |
 |---|---|---|
@@ -32,33 +32,36 @@ Rates start on a date and never change past days, so add each service with the d
 
 ---
 
-## 2. Create each customer
+## 2. Add each customer
 
-Open **Customers** from the profile menu.
+Open **Customers** in the main menu and choose **Add customer**. Four short steps:
 
-1. Enter the customer's name in **New customer** and pick its plan. The list stops at your highest plan. Services and provider bills need **Growth** or above.
-2. Choose **Create**. It is turned off once you reach your customer limit.
+1. **Customer.** Its name and plan. The list stops at your highest plan. Services and provider bills need **Growth** or above.
+2. **Currency.** Amounts are never converted, so host rates, services and provider bills must all be in this currency. Connecting AWS, Azure or GCP needs a USD organisation, and Kubernetes costs show in USD. It can't change once costs arrive.
+3. **Their admin.** The email of the person who looks after costs on their side. They get an invite to sign in as admin and invite the rest of their team. Skip it to invite them later from the customer's row.
+4. **Check** and create.
 
-The customer starts with no users. You set it up first, then hand it over in the next step.
+**Add customer** is turned off once you reach your customer limit.
 
 ---
 
 ## 3. Set up each customer
 
-Choose **Open** on the customer's row, or pick it from the organisation switcher in the header. A banner shows you are inside the customer, and everything you do is in its [audit log](/account/audit-log).
+Each customer shows its progress, for example **2 of 5 set up · Next: Connect what they run**. Choose **Continue setup** to go inside the customer, straight to that step. A banner shows you are inside, and everything you do is in its [audit log](/account/audit-log). Its **Next** button takes you to the following step.
 
-Work through these in order:
+The steps:
 
-1. **Currency.** Pick the customer's display currency in **Settings**. Amounts are never converted, so host rates, services and provider bills must all be in this currency. Connecting AWS, Azure or GCP needs a USD organisation, and Kubernetes costs show in USD.
-2. **Sources.** Connect what the customer runs:
+1. **Currency**, if you didn't pick it when adding the customer. In **Settings**.
+2. **Connect what they run:**
    - [Hosts](/providers/hosts): install the host agent on each machine and set what each one costs.
    - [Kubernetes](/providers/kubernetes) clusters.
    - [AWS](/providers/aws), [Azure](/providers/azure) or [GCP](/providers/gcp) accounts, for a USD customer.
    - [LLM](/providers/llm) coding tools.
 3. **Teams.** Create the customer's teams on [Ownership](/features/ownership) and claim what each one owns, so bills split by team.
-4. **Services.** Under **Settings → Services**, record what the customer uses from your catalogue, with the team for each line.
-5. **Hand over.** Invite the customer's first admin from **Organization Admin → Users → Invite User**. They invite the rest of their team.
-6. Choose **Return to** your organisation in the banner.
+4. **Services**, for Growth and above. Under **Settings → Services**, record what the customer uses, with the team for each line. If your catalogue is still empty, you can add services on the same page. They go into your catalogue, shared with all your customers.
+5. **First admin**, if you skipped it. On the Customers page choose **More** on the customer, then **Do this** next to **Invite their first admin**. You don't need to go inside the customer.
+
+Choose **Back to** your organisation in the banner when you're done.
 
 Agent keys you create inside the customer keep working if you later leave the partner. Other API keys you create there stop working once you can no longer open the customer.
 
@@ -74,7 +77,7 @@ After each month ends:
 4. Under **Bill lines**, match anything that wasn't matched to a host or service. Later bills reuse your matches.
 5. Check the month on **Ownership → Monthly bills**. It shows **Reconciled to provider bill**, and team totals add up to your bill.
 
-A bill imported before the month closes waits and reconciles on its own. See [Provider Bills](/providers/provider-bills) for how lines are matched and split.
+A bill imported before the month closes waits and reconciles on its own. From the 6th, customers whose bill for last month is missing show under **Needs attention** on the Customers page. See [Provider Bills](/providers/provider-bills) for how lines are matched and split.
 
 ---
 
