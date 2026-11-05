@@ -1,0 +1,123 @@
+---
+title: Catalogue Services
+description: Add costs that no cloud bill or agent reports, such as backup, storage or public IPs, from a catalogue of monthly rates.
+---
+
+## Overview
+
+Some of what you pay for never shows up in a cloud bill or an agent: backup storage, extra IPs, a support contract, a SaaS bill. **Services** covers them. You keep a catalogue of services with a monthly rate, then record how much each team uses.
+
+Each usage line costs its rate times the quantity, spread across the days it runs. That cost appears as **Services** on [Overview](/features/overview), [Ownership](/features/ownership), team [budgets](/features/budgets), monthly team bills and reports, next to your other sources.
+
+Services are on **Growth** and above. Open them from **Settings → Services**.
+
+---
+
+## The catalogue
+
+Each service has a name, a unit and a currency, and one or more rates.
+
+| Field | Description |
+|---|---|
+| Name | What the service is, such as `Backup storage` |
+| Unit | A label for what one is, such as `TB-month`, `IP-month` or `month`. Every unit is priced per month. |
+| Currency | The currency its rates are in. Defaults to your organisation's currency. |
+| Rate | The price of one unit for a full month, from a start date |
+
+**Rate changes start on a date and never rewrite the past.** Add a new rate with the date it starts; earlier days keep the old one. Once a service is in use, a new rate can start this month at the earliest. A rate set for a future date shows on the page until it starts.
+
+A service that is in use can't be deleted. **Archive** it instead: it stays priced for the lines that use it, and no new lines can be added.
+
+### Your partner's catalogue
+
+If your organisation is managed by a [partner](/account/partners), you use the partner's catalogue and its rates. You can't change it, but you record your own usage. If you leave the partner, the lines you already have keep the partner's rates as they were that day, until you end them.
+
+Partner admins can also record usage while they have your organisation open. Each change shows in your [audit log](/account/audit-log).
+
+---
+
+## Record what you use
+
+A usage line is one service, a quantity, a team and the dates it runs.
+
+| Field | Description |
+|---|---|
+| Service | A service from the catalogue |
+| Quantity | How many units, such as `3` for 3 TB. Decimals are allowed. |
+| Team | The team that owns this cost. Leave it empty and it counts as unclaimed. |
+| From | The first day it is in use |
+| To | Optional. The last day it is in use. Leave it empty while it is still running. |
+| Note | Optional, up to 200 characters |
+
+**A quantity change keeps history.** Choose **Quantity** on a line, enter the new amount and the day it starts. The line ends the day before and a new one starts, so earlier days keep the old quantity.
+
+**To stop paying for something**, set an end date. Deleting a line removes its cost entirely, so it is only possible while the line starts in an open month.
+
+Only organisation admins can change services and usage. Everyone in the organisation can see them.
+
+---
+
+## How cost is worked out
+
+A day costs the rate on that day, times the quantity, divided by the number of days in that month. A full month costs exactly rate x quantity, whether the month has 28 or 31 days.
+
+| Example | Cost |
+|---|---|
+| 3 TB of backup at $120 per TB-month for all of October | $360 |
+| The same 3 TB for the first 4 days of November | $48 (4 of 30 days) |
+| 5 IPs at $4 per IP-month, from 15 October | $10.97 for October (17 of 31 days) |
+
+Days before a service's first rate cost nothing.
+
+### Currency
+
+There is no currency conversion. If your organisation shows costs in a currency other than USD, you can only add services priced in that currency. Services in another currency are listed apart on Overview and are never added to team bills or budgets.
+
+---
+
+## Closed months
+
+Five days after month end, so late entries can still go in, the month closes into a sealed Services bill per team. After that it can't change. New lines and quantity changes can only start from the first open day, and a line that started in a closed month can't switch team: change its quantity from an open day (the same quantity works), then set the team on the new line. If you split [shared costs](/features/ownership#shared-costs), a month whose split has sealed is closed too.
+
+The page says which months are closed. To stop a line that started in a closed month, set an end date.
+
+---
+
+## Import a CSV
+
+Under **Import a CSV**, upload a file with a header row and these columns:
+
+| Column | Required | Example |
+|---|---|---|
+| `service` | Yes | `Backup storage` |
+| `quantity` | Yes | `3` |
+| `start_date` | Yes | `2026-11-01` |
+| `end_date` | No | `2026-12-31` |
+| `team` | No | `Payments` |
+| `note` | No | `Nightly DB backups` |
+
+Service and team match by name or ID. Nothing is saved unless every line is valid; the page lists each line that needs fixing. Up to 5,000 lines per file.
+
+---
+
+## API
+
+Use an API key with write access from **Settings → API Keys**, or a signed-in admin session.
+
+| Method and path | What it does |
+|---|---|
+| `GET /api/v1/services/catalogue` | The catalogue you use and whether you can edit it |
+| `POST /api/v1/services/catalogue` | Add a service: `name`, `unit`, `currency`, `rate`, `effective_from` |
+| `PUT /api/v1/services/catalogue/{id}` | Rename, change the unit, or archive: `name`, `unit`, `archived` |
+| `POST /api/v1/services/catalogue/{id}/rates` | Add a rate: `rate`, `effective_from` |
+| `DELETE /api/v1/services/catalogue/{id}` | Delete a service that is not in use |
+| `GET /api/v1/services/usage` | Every usage line, with this month's cost and the first open day |
+| `POST /api/v1/services/usage` | Add a line: `service_id`, `quantity`, `team_id`, `start_date`, `end_date`, `note` |
+| `PUT /api/v1/services/usage/{id}` | Change `team_id`, `end_date` or `note` |
+| `POST /api/v1/services/usage/{id}/quantity` | Change the quantity: `quantity`, `from` |
+| `DELETE /api/v1/services/usage/{id}` | Delete a line that starts in an open month |
+| `POST /api/v1/services/usage/import` | Import a CSV sent as the request body |
+| `GET /api/v1/services/teams/monthly-spend` | Month to date per team |
+| `GET /api/v1/services/teams/monthly-bill?month=YYYY-MM` | A sealed month's bill per team |
+
+Dates are `YYYY-MM-DD`.

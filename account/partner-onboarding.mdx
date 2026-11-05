@@ -1,0 +1,89 @@
+---
+title: Partner Onboarding
+description: Every step to set up as a partner and bring your customers onto CostOptix, from your own organisation to the first reconciled monthly bill.
+---
+
+This guide walks through setting up as a [partner](/account/partners): your own organisation, each customer, and the monthly routine.
+
+| Step | Where |
+|---|---|
+| [1. Set up your organisation](#1-set-up-your-organisation) | Your own **Settings** |
+| [2. Create each customer](#2-create-each-customer) | **Customers** |
+| [3. Set up each customer](#3-set-up-each-customer) | The customer's **Settings** and source pages |
+| [4. Every month](#4-every-month) | **Settings → Provider bills** |
+
+<Info>
+  CostOptix sets up your partner organisation, with the highest plan your customers can have and how many customers you can add. [Contact us](mailto:support@costoptix.com) to become a partner.
+</Info>
+
+---
+
+## 1. Set up your organisation
+
+Sign in to your own organisation as an admin.
+
+| Do this | Where | Why |
+|---|---|---|
+| Invite the rest of your team | **Organization Admin → Users → Invite User** | Only partner **admins** can manage customers. Members and viewers can't. |
+| Add the services you charge for | **Settings → Services** | Every customer on Growth and above uses this catalogue and its rates. See [Catalogue Services](/providers/services). |
+| Set your bill format | **Settings → Provider bills → Bill format** | Set the columns of your monthly bill once and every customer uses them. See [Provider Bills](/providers/provider-bills#set-the-bill-format). |
+
+Rates start on a date and never change past days, so add each service with the date its price begins.
+
+---
+
+## 2. Create each customer
+
+Open **Customers** from the profile menu.
+
+1. Enter the customer's name in **New customer** and pick its plan. The list stops at your highest plan. Services and provider bills need **Growth** or above.
+2. Choose **Create**. It is turned off once you reach your customer limit.
+
+The customer starts with no users. You set it up first, then hand it over in the next step.
+
+---
+
+## 3. Set up each customer
+
+Choose **Open** on the customer's row, or pick it from the organisation switcher in the header. A banner shows you are inside the customer, and everything you do is in its [audit log](/account/audit-log).
+
+Work through these in order:
+
+1. **Currency.** Pick the customer's display currency in **Settings**. Amounts are never converted, so host rates, services and provider bills must all be in this currency. Connecting AWS, Azure or GCP needs a USD organisation, and Kubernetes costs show in USD.
+2. **Sources.** Connect what the customer runs:
+   - [Hosts](/providers/hosts): install the host agent on each machine and set what each one costs.
+   - [Kubernetes](/providers/kubernetes) clusters.
+   - [AWS](/providers/aws), [Azure](/providers/azure) or [GCP](/providers/gcp) accounts, for a USD customer.
+   - [LLM](/providers/llm) coding tools.
+3. **Teams.** Create the customer's teams on [Ownership](/features/ownership) and claim what each one owns, so bills split by team.
+4. **Services.** Under **Settings → Services**, record what the customer uses from your catalogue, with the team for each line.
+5. **Hand over.** Invite the customer's first admin from **Organization Admin → Users → Invite User**. They invite the rest of their team.
+6. Choose **Return to** your organisation in the banner.
+
+Agent keys you create inside the customer keep working if you later leave the partner. Other API keys you create there stop working once you can no longer open the customer.
+
+---
+
+## 4. Every month
+
+After each month ends:
+
+1. Wait for the month to close. Host bills seal about two days after month end, and Services bills five days after.
+2. Open the customer, or let its admins do it, and go to **Settings → Provider bills**.
+3. **Import a bill**: pick the month, choose the bill's CSV and, if you like, enter the invoice total as a check.
+4. Under **Bill lines**, match anything that wasn't matched to a host or service. Later bills reuse your matches.
+5. Check the month on **Ownership → Monthly bills**. It shows **Reconciled to provider bill**, and team totals add up to your bill.
+
+A bill imported before the month closes waits and reconciles on its own. See [Provider Bills](/providers/provider-bills) for how lines are matched and split.
+
+---
+
+## Checklist
+
+- [ ] Your team invited as admins
+- [ ] Service catalogue added with start dates
+- [ ] Bill format saved
+- [ ] For each customer: created, currency set, sources connected, teams made, services recorded, first admin invited
+- [ ] First month: bill imported, lines matched, Ownership shows reconciled
+
+To remove a customer later, see [Deactivate a customer](/account/partners#deactivate-a-customer).

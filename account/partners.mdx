@@ -1,0 +1,104 @@
+---
+title: Partners
+description: Create and manage customer organisations as a partner, with every visit and change recorded in the customer's audit log.
+---
+
+<Info>
+  Partner access is set up by CostOptix. [Contact us](mailto:support@costoptix.com) to become a partner. For every step from setup to the first monthly bill, see [Partner Onboarding](/account/partner-onboarding).
+</Info>
+
+A partner is an organisation that runs CostOptix for its own customers, such as a managed service provider or a cloud reseller. Each customer gets its own organisation with its own data, users, budgets and alerts. Admins of the partner organisation can create those organisations, open them to set them up, and change their plans.
+
+Each partner agreement sets two limits:
+
+- **Highest plan** a customer can be on.
+- **Customer limit**, the number of customer organisations. Some agreements have no limit.
+
+---
+
+## Who can do what
+
+| | Partner admins | Partner members and viewers | Customer users |
+|---|---|---|---|
+| See the Customers page | Yes | No | No |
+| Create customers and change their plans | Yes | No | No |
+| Open a customer organisation | Yes | No | No |
+| See the customer's data | Only while they have it open | No | Yes, as their role allows |
+
+Customer users never see the partner's data or its other customers.
+
+---
+
+## Customers page
+
+Open **Customers** from your profile menu, or **All customers** from the organisation switcher in the header.
+
+The page lists each customer with its plan, connected sources, spend this month and when it was created.
+
+**Create a customer.** Enter the organisation name, pick a plan and choose **Create**. The plan list stops at your highest plan. When you reach your customer limit, **Create** is turned off.
+
+**Change a plan.** Pick a new plan in the customer's row. The change is recorded in the customer's audit log.
+
+---
+
+## Open a customer organisation
+
+Choose **Open** on the Customers page, or pick the customer from the organisation switcher in the header. The app reloads inside that organisation, with a banner at the top:
+
+> Viewing Acme Logistics as Northwind Cloud. Changes are recorded in their audit log.
+
+While it is open you work as an admin of that organisation. You can connect cloud accounts, Kubernetes clusters, hosts and LLM agents, create agent keys, set budgets and teams, and invite users. To hand the organisation over, invite the customer's first admin from **Organization Admin**. They then invite the rest of their team.
+
+Choose **Return to** your organisation in the banner, or pick it in the switcher, to leave. The app reloads again, so nothing from the customer stays on screen.
+
+### Not available while a customer is open
+
+- Billing, subscription and checkout
+- Single sign-on settings
+- Organisation settings, such as renaming or deleting the organisation
+- Approving AI apps on the MCP sign-in page
+
+### Browser only
+
+Opening a customer works only in the browser. API keys, access tokens and AI tools connected through [MCP](/features/mcp) always act in the organisation they belong to.
+
+### Access ends straight away
+
+Access is checked on every request. If the customer is unlinked from your organisation, or you stop being an admin of it, your next click takes you back to your own organisation.
+
+When a customer is unlinked, API keys that partner users created in it are revoked. Agent keys stay, so the customer's clusters, hosts and LLM agents keep reporting. Users the partner invited stay too, and are listed for review.
+
+---
+
+## What the customer sees
+
+Every visit and change shows in the customer's [audit log](/account/audit-log) under **Partner access**, with the person's name and your organisation's name:
+
+| Entry | When |
+|---|---|
+| Partner created this organisation | The customer was created from the Customers page |
+| Partner opened this organisation | A partner admin opened it |
+| Partner made a change | Any change made while it was open, with the request that made it |
+| Partner left this organisation | The partner admin went back to their own organisation or opened another customer |
+| Changed the plan | The plan was changed from the Customers page |
+| Partner deactivated or restored this organisation | See below |
+
+Pages viewed while the organisation is open are covered by the opened and left entries, not one entry per page.
+
+Alerts, budget emails and reports go to the customer's own admins only, never to the partner.
+
+Customers on Growth and above use your [service catalogue](/providers/services#your-partners-catalogue) and its rates. Add services from **Settings → Services** in your own organisation; open a customer to record its usage.
+
+Set the [provider bill](/providers/provider-bills#set-the-bill-format) format once in your own organisation and every customer uses it. Open a customer to import its monthly bill and match its lines.
+
+### Branding
+
+If your organisation has co-branding, customers without their own co-branding show yours: your name, colour and logo in the app, and your name in webhook alert footers.
+
+---
+
+## Deactivate a customer
+
+Choose **Deactivate** in the customer's row. Its users lose access straight away. The customer stays on the Customers page with the date its data will be deleted, 30 days later.
+
+Until that date, **Restore** brings it back with all its data. After that date the data is deleted and cannot be recovered. A deactivated customer counts toward your customer limit until its data is deleted.

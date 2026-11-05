@@ -1,0 +1,105 @@
+---
+title: Provider Bills
+description: Import the monthly bill from the provider that charges for your machines and services, so team bills add up to what you were actually charged.
+---
+
+## Overview
+
+Host cost comes from the [cost basis](/providers/hosts#tell-costoptix-what-it-costs) you declare for each machine, and [Services](/providers/services) from catalogue rates. Both are estimates of what your provider will charge. When the provider's bill arrives, import it and CostOptix scales each machine and service to its own lines on the bill. Team bills then add up to the bill, to the cent.
+
+Sealed months are never rewritten. The reconciled bill is kept next to the sealed one and used in its place on [Ownership](/features/ownership#monthly-bills), unit costs, fully loaded cost and reports.
+
+Provider bills are on **Growth** and above. Open them from **Settings → Provider bills**.
+
+---
+
+## Set the bill format
+
+Tell CostOptix which columns of the bill's CSV hold what. Use the column names exactly as they appear in the file's header row; choose a bill file first and the page suggests them.
+
+| Field | Required | What it holds |
+|---|---|---|
+| Amount | Yes | The amount charged for the line |
+| Resource | One of these two | The machine or resource, such as a VM name or ID |
+| Service | One of these two | The service or product, such as `Block storage` |
+| Description | No | Shown next to the line |
+| Currency | No | When set, every line must be in your organisation's currency |
+| Decimal separator | Yes | `1,234.50` or `1.234,50` |
+
+Amounts can carry a currency code or symbol before or after the number, such as `NGN 12,000` or `₦900`. Credits in brackets, such as `(5.00)`, are imported as negative amounts.
+
+If your organisation is managed by a [partner](/account/partners), the partner sets the format once for all its customers and you can't change it.
+
+---
+
+## Import a bill
+
+Under **Import a bill**, choose the month and the bill's CSV file. You can also enter the bill total from the invoice: the import is refused if the lines don't add up to it.
+
+- Only months that have ended can take a bill, and the month needs host or Services cost to reconcile against.
+- Amounts must be in your organisation's currency.
+- Nothing is imported unless every line is valid; the page lists each line that needs fixing. Up to 20,000 lines and 8 MB per file.
+- Importing a month again replaces its bill. Matches you made by hand are kept.
+
+If the month's host or Services bill hasn't sealed yet, the bill is saved as **Waiting** and reconciles on its own once it does.
+
+---
+
+## How lines are matched
+
+Each line is matched in this order:
+
+1. A match you made by hand on the line's resource
+2. A host whose name equals the resource, ignoring case
+3. A match you made by hand on the line's service label
+4. A catalogue service whose name equals the service label, ignoring case
+
+Lines that match nothing are listed under **Bill lines**, never dropped. Pick a host or service next to a line to match it. When a line has both a resource and a service label, choose whether the match applies to that resource only or to every line with that service label. Later bills reuse the match.
+
+Machines billed through a connected cloud account are never matched: their cost already comes from that cloud bill.
+
+---
+
+## How the bill is split
+
+- **Hosts.** Each machine's team split for the month is scaled to its bill lines. A machine billed at twice its estimate charges each of its teams twice as much.
+- **Services.** Each service's bill lines are split by the teams on its usage lines.
+- **Not matched.** Lines that match nothing, and credits, go to **Unclaimed**, so the bill still adds up.
+- **Not on the bill.** Machines and services you were charged for that aren't on the bill are billed 0. The page lists them.
+- **Machines billed by a cloud account** keep their estimate and count outside the bill total.
+
+A month that closed before CostOptix started storing each machine's split has it rebuilt from the sealed daily data with today's team claims. The page says so.
+
+---
+
+## Where it shows
+
+| Place | What changes |
+|---|---|
+| [Ownership](/features/ownership#monthly-bills) monthly bill | Host and Services lines come from the provider bill, with unmatched lines on Unclaimed |
+| Fully loaded cost | The month's [shared cost split](/features/ownership#shared-costs) is rebuilt with its own rules on the next daily close, and again if the bill is replaced or deleted |
+| [Unit Economics](/features/unit-economics) | Team monthly cost uses the reconciled bill |
+| Monthly report webhook | `provider_bill` with the bill total and estimate, when a bill is in |
+| AI assistant | Team spend for the month uses the reconciled lines |
+
+Budgets keep using daily cost, so pacing and alerts are unchanged.
+
+Delete a bill to put the month back on its estimate. Imports, deletions, hand matches and format changes are recorded in the [audit log](/account/audit-log).
+
+---
+
+## API
+
+Use an API key with write access from **Settings → API Keys**, or a signed-in admin session.
+
+| Method and path | What it does |
+|---|---|
+| `GET /api/v1/provider-bills/mapping` | The bill format and whether you can edit it |
+| `PUT /api/v1/provider-bills/mapping` | Set the format: `amount`, `resource`, `service`, `description`, `currency`, `decimal` |
+| `GET /api/v1/provider-bills/imports` | Every month with a bill |
+| `POST /api/v1/provider-bills/imports?month=YYYY-MM` | Import a CSV sent as the request body. Optional `expected_total` and `file_name`. |
+| `GET /api/v1/provider-bills/imports/{id}` | A bill with its lines, team bill and per resource estimate vs billed |
+| `DELETE /api/v1/provider-bills/imports/{id}` | Delete a bill |
+| `POST /api/v1/provider-bills/imports/{id}/lines/{line}/match` | Match a line: `target_kind` (`host`, `service` or empty to clear), `target_id`, optional `ref_kind` (`resource` or `service`) |
+
+The host and Services monthly bill endpoints include a `provider_bill` block when a bill reconciled the month.

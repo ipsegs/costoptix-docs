@@ -1,0 +1,173 @@
+---
+title: AI tools (MCP)
+description: Connect Claude Code, claude.ai, Cursor and other MCP clients to your CostOptix data, so agents can answer cost questions, price changes and record decisions where you work.
+---
+
+<Info>
+  AI tools (MCP) are available on **Growth** and above.
+</Info>
+
+## What it does
+
+CostOptix runs an [MCP](https://modelcontextprotocol.io) server. Any AI tool that speaks MCP can connect to it and use your cost data: cloud accounts, Kubernetes, hosts, AI coding tools, teams, budgets and recommendations, all in one place.
+
+The agent does the reasoning with your own AI tool, so MCP use does not count toward your CostOptix AI queries.
+
+Server URL:
+
+```
+https://costoptix.com/api/v1/mcp
+```
+
+If your organisation reaches CostOptix on its own domain, use that domain with the same path.
+
+---
+
+## Connect
+
+There are two ways to connect. Both act as one person and see only what that person can see.
+
+| | Sign in (OAuth) | API key |
+|---|---|---|
+| Setup | Add the URL, approve in the browser | Create a key, paste it into the client |
+| Good for | People using claude.ai, Claude Code, Cursor and similar | Scripts, CI, and clients without sign-in |
+| Lasts | 90 days, then sign in again | Until the key expires or is revoked |
+| Disconnect | **Settings → API Keys → Connected AI apps** | Revoke the key |
+
+### Sign in
+
+1. Add `https://costoptix.com/api/v1/mcp` as a remote MCP server in your client.
+2. When the client asks you to sign in, a CostOptix page opens. Sign in if you aren't already.
+3. Check the app name and the address you will be sent back to, then choose **Allow**.
+
+Admins also see **Also let it record decisions**. Leave it unticked unless the agent should change things. See [Decision tools](#decision-tools).
+
+The consent page shows who published the app when the app proves it with a published metadata address. An app that registered itself shows as **An app calling itself …**, because anyone can register an app under any name. Only allow it when you started connecting that app yourself a moment ago.
+
+### API key
+
+1. Go to **Settings → API Keys** and create a key with **AI tools (MCP)** (`mcp:read`).
+2. Admins can also tick **AI tools can act (MCP)** (`mcp:act`) for the decision tools.
+3. Send the key in the `Authorization: Bearer` header.
+
+Claude Code:
+
+```bash
+claude mcp add --transport http costoptix https://costoptix.com/api/v1/mcp \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+Other clients that support Streamable HTTP take the same URL and header.
+
+A key with only MCP permissions works on the MCP server and nowhere else. It cannot call the rest of the API.
+
+### Claude Code on the web
+
+Cloud sessions load MCP servers from the repository's `.mcp.json`, not from servers you added on your own machine:
+
+```json
+{
+  "mcpServers": {
+    "costoptix": { "type": "http", "url": "https://costoptix.com/api/v1/mcp" }
+  }
+}
+```
+
+Keep the key out of the file. Add it to the cloud environment as a network secret for `costoptix.com`, with header `Authorization` and prefix `Bearer`. See Anthropic's [cloud environments](https://code.claude.com/docs/en/cloud-environments) guide, then check with `/mcp` that the server shows as connected.
+
+---
+
+## Tools
+
+### Reading data
+
+Every connection gets these.
+
+| Tool | What it returns |
+|---|---|
+| `list_accounts` | Cloud accounts and Kubernetes clusters, as `provider:account_id`. Agents call it first. |
+| `get_costs` | Spend for one account by service, resource, day or month |
+| `get_costs_by_provider` | Spend per cloud across the organisation |
+| `get_service_resources` | Why one service went up or down, month over month |
+| `get_anomalies` | Detected anomalies for an account |
+| `get_anomaly_resources` | What drove an anomaly on a given day |
+| `get_portfolio_analytics` | Long-term trend, growth drivers and concentration for an account |
+| `get_budget_forecast` | Month-end forecast and risk for an account |
+| `get_team_spend` | Team bills and unassigned spend |
+| `get_unit_costs` | Cost per customer, order or other unit |
+| `get_llm_usage` | AI coding tool usage and cost by model, team or person |
+| `get_llm_health` | This month's AI spend, forecast and attention items |
+| `get_repository_ai_usage` | AI usage for one repository, with value per commit, pull request and 1,000 lines |
+| `get_k8s_namespaces` | Namespace efficiency and reclaimable cost for a cluster |
+| `get_k8s_cluster` | Rightsizing, node sizing, cost trend, and which nodes are safe to remove in order |
+| `get_request_advice` | Recommended CPU and memory requests per workload in a namespace |
+| `list_recommendations` | Open recommendations with projected saving, owning team and verification status |
+| `get_cost_review` | The [full cost review](/features/cost-review) findings |
+| `price_terraform_plan` | A Terraform plan priced against what you really pay, as in [Design Review](/features/design-review) |
+
+Admins also get `get_budgets` (configured budgets), `list_budget_proposals` (suggested budgets and daily limits) and the per-person breakdown in `get_llm_usage`.
+
+Values in `get_repository_ai_usage` are at API list prices. They show what the work was worth, not what you are billed. Use `get_llm_usage` for billed cost by plan.
+
+### Decision tools
+
+Available when an admin's connection has decision rights: an approval with **Also let it record decisions** ticked, or a key with `mcp:act`. Rights are checked on every call, so they stop the moment the person is no longer an admin.
+
+| Tool | What it does |
+|---|---|
+| `update_recommendation` | Mark a recommendation done, put it on hold, defer, dismiss or reopen it. The same rules as the app apply: hold, defer and dismiss need a reason, and hold and defer need a revisit date. |
+| `accept_budget_proposal` | Create the suggested budget or daily limit |
+| `snooze_budget_proposal` | Hide a proposal for a week |
+
+Marking a recommendation done starts [savings verification](/features/recommendations), so the agent gets the measured saving back later through `list_recommendations`. Every decision is in the [audit log](/account/audit-log) under the person's name.
+
+<Warning>
+  Cost data includes text you don't control, such as resource names and tags from your clouds. That text can try to steer an agent. Give decision rights only to agents you supervise. A recommendation decision can be reversed by reopening it, and a budget created from a proposal can be deleted.
+</Warning>
+
+### Prompts
+
+Clients that support MCP prompts show these as ready-made commands.
+
+| Prompt | What it does |
+|---|---|
+| `anomaly_triage` | Finds the largest recent anomaly, explains it and names the owning team |
+| `monthly_close` | Last month against the month before, team bills, budgets at risk and top savings |
+| `before_merge` | Prices the Terraform plan in the current repository and checks it against budgets. Never applies anything. |
+
+---
+
+## Examples
+
+Agents can combine CostOptix with the other tools you connect:
+
+- "Price this Terraform plan before I open the pull request."
+- "Which recommendations does my team own on the payments account? Fix the Kubernetes ones in this repo and open a PR." After it merges, mark them done and let verification measure the saving.
+- "Turn every open recommendation over $100 a month into a Jira ticket for the owning team."
+- "Run the cost review and post the three most urgent findings to #platform."
+- "What has this repository cost in AI coding tools this month, and what did it produce?"
+
+---
+
+## Limits
+
+MCP tool calls have their own daily allowance, the same size as your [API limit](/api-reference/authentication), counted separately so agents never use up your API calls. Connecting and listing tools does not count.
+
+| Plan | MCP tool calls / day |
+|---|---|
+| Growth | 500 |
+| Professional | 1,000 |
+| Business | 10,000 |
+| Enterprise | Unlimited |
+
+The allowance resets at 00:00 UTC. When it runs out, the agent gets a message saying so.
+
+---
+
+## Security
+
+- **Acts as you.** A connection sees what its person sees. Budgets and per-person AI usage need an admin.
+- **Tokens.** Sign-in uses OAuth 2.1 with PKCE. Access tokens last an hour and refresh tokens rotate on every use. A reused refresh token or code cuts off the whole connection.
+- **Lifetime.** A sign-in lasts 90 days, then the person approves the app again.
+- **Disconnect any time.** Admins can disconnect anyone's apps in **Settings → API Keys → Connected AI apps**. It takes effect on the next call.
+- **Audit.** Connecting an app, disconnecting it and every decision are in the [audit log](/account/audit-log).

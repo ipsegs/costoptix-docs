@@ -32,6 +32,7 @@ The header shows how much of your spend is owned, how much is unclaimed, and the
 | **Hosts** | Whole machines, or individual services, containers and apps on them. A service claim wins over the whole machine. |
 | **Cloud** | Whole accounts, services or resource groups within an account, or tag values |
 | **AI coding tools** | Team labels set during [LLM setup](/providers/llm). The team gets its share of LLM spend by usage each day. |
+| **Services** | Nothing to claim. Each [usage line](/providers/services#record-what-you-use) names its team. |
 
 The owner is the team a resource exists for, the team whose work drives its cost. That is not always the team that created it. If infra builds an App Service for the checkout team, checkout owns it.
 
@@ -81,7 +82,7 @@ For example, a self-hosted Sentry namespace can be split by each team's event co
 
 ## Unclaimed spend
 
-The **Unclaimed** tab lists everything no team owns this month: Kubernetes namespaces, host units and cloud accounts, with the top resources in each account. Click any group to assign it to an existing team or a new one.
+The **Unclaimed** tab lists everything no team owns this month: Kubernetes namespaces, host units and cloud accounts, with the top resources in each account. Click any group to assign it to an existing team or a new one. Services lines with no team show as one group; **Assign** opens **Settings → Services**, where you set the team on each line.
 
 Idle capacity that no team can share (because no team has direct cost on that cluster or machine) is also shown here as unallocated.
 
@@ -108,6 +109,8 @@ Each month closes into a bill. Once sealed, it never changes: later changes to o
 - **Hosts** lines come from each machine's [cost basis](/providers/hosts#tell-costoptix-what-it-costs), with the share of hours the agents covered.
 - **Cloud** lines come from your cloud billing data.
 - **AI coding tool** lines come from the sealed LLM bill.
+- **Services** lines come from the sealed Services bill, five days after month end. See [Closed months](/providers/services#closed-months).
+- When a [provider bill](/providers/provider-bills) is imported for the month, host and Services lines are scaled to it and its unmatched lines go to Unclaimed. The bill is labelled **Reconciled to provider bill**.
 
 Bills seal a few days after month end, once cloud billing data has settled. If a cluster's billing link needs attention, it falls back to estimated rates so the bill still seals within about ten days. Until then, the **Teams** tab shows the live month to date.
 
@@ -143,6 +146,6 @@ Set **Team notifications** on a team to one of your [webhooks](/features/webhook
 
 ## Where team spend shows up
 
-- [Overview](/features/overview) shows spend by team across cloud, Kubernetes and hosts.
+- [Overview](/features/overview) shows spend by team across cloud, Kubernetes, hosts, LLM and services.
 - [Budgets](/features/budgets) can target a team.
 - The [AI assistant](/features/ai-insights) can answer questions about a team's spend.

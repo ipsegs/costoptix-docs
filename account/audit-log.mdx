@@ -7,7 +7,7 @@ description: See who viewed or changed sensitive data, such as revenue, and when
   Only organisation admins can view the audit log.
 </Info>
 
-The audit log records access to sensitive data in your organisation. Today that is revenue metrics in [Unit Economics](/features/unit-economics#revenue). Open it from **Settings → Audit log**.
+The audit log records access to sensitive data in your organisation: revenue metrics in [Unit Economics](/features/unit-economics#revenue), what AI tools connected through [MCP](/features/mcp) did, and what a [partner](/account/partners) did in your organisation. Open it from **Settings → Audit log**.
 
 Each entry shows when it happened, who did it, what they did, which metric, and the IP address it came from. Hover the IP address to see the browser or tool.
 
@@ -28,6 +28,20 @@ Revenue figures are never written to the log, only what was touched. A changed v
 | AI assistant read revenue | The assistant was given revenue to answer a question |
 | Connected or disconnected a payment platform | A metric is connected to Stripe, or disconnected |
 | Imported revenue | An import changed values. The daily import shows as **Daily import**. |
+| Connected or disconnected an AI app | Someone approved an app on the MCP sign-in page, or disconnected it |
+| AI tool decided a recommendation | An agent marked a recommendation done, put it on hold, deferred, dismissed or reopened it |
+| AI tool accepted or snoozed a budget proposal | An agent created a suggested budget or daily limit, or hid the proposal for a week |
+| Partner opened or left this organisation | An admin of your [partner](/account/partners) opened your organisation, or left it |
+| Partner made a change | A change a partner admin made while your organisation was open, with the request that made it |
+| Partner created, deactivated or restored this organisation | Your partner did this from their Customers page |
+| Changed the plan | Your plan was changed by your partner or by CostOptix |
+| Added, changed or deleted a catalogue service, or set a rate | A [Services](/providers/services) catalogue change |
+| Added, changed, deleted or imported service usage | A usage line or quantity change, by hand or CSV |
+| Changed the provider bill format | The [bill format](/providers/provider-bills#set-the-bill-format) was saved |
+| Imported or deleted a provider bill | A month's bill was imported, replaced or deleted |
+| Matched a provider bill line | A line was matched to a host or service by hand, or the match was cleared |
+
+Partner entries show the person's name with the partner organisation in brackets. Filter by **Partner access** to see the partner entries.
 
 Writes made with an API key show as **API key**, with the key recorded.
 

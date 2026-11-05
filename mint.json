@@ -56,7 +56,9 @@
         "providers/gcp",
         "providers/kubernetes",
         "providers/hosts",
-        "providers/llm"
+        "providers/llm",
+        "providers/services",
+        "providers/provider-bills"
       ]
     },
     {
@@ -86,6 +88,7 @@
       "group": "Tools and Alerts",
       "pages": [
         "features/ai-insights",
+        "features/mcp",
         "features/webhooks",
         "features/provider-news"
       ]
@@ -101,7 +104,9 @@
       "pages": [
         "account/team-management",
         "account/sso",
-        "account/audit-log"
+        "account/audit-log",
+        "account/partners",
+        "account/partner-onboarding"
       ]
     },
     {

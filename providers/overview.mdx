@@ -13,6 +13,7 @@ description: The sources CostOptix supports, how each one connects, and how they
 | Kubernetes | Agent inside the cluster | None, accrues live | [Kubernetes](/providers/kubernetes) |
 | Linux machines | Host agent running under systemd | None, accrues live | [Hosts](/providers/hosts) |
 | AI coding tools | OpenTelemetry sent by the tool | None | [AI coding tools](/providers/llm) |
+| Catalogue services | Entered in the app, by CSV or by API | None | [Services](/providers/services) |
 
 New sources are added regularly. If you need one that is not listed, contact [support@costoptix.com](mailto:support@costoptix.com).
 
@@ -40,6 +41,7 @@ Some spend shows up in two places. A Kubernetes node running in AWS is on your A
 | Clusters and machines on a **connected** cloud account | Shown as a breakdown of that cloud bill, not added again |
 | Clusters and machines anywhere else (bare metal, on-prem, another provider) | Added to the total |
 | AI coding tool plans | Added to the total |
+| Catalogue services | Added to the total. They are never part of a cloud bill. |
 
 To make this work, tell CostOptix where a cluster or machine is billed:
 

@@ -40,8 +40,10 @@ Limits reset at 00:00 UTC.
 | `host:ingest` | Only lets the host agent push machine metrics |
 | `llm:ingest` | Only lets AI coding tools push usage telemetry |
 | `metrics:ingest` | Only lets your systems send [Unit Economics](/features/unit-economics#give-it-values) metric values |
+| `mcp:read` | Only lets AI tools read cost data through the [MCP server](/features/mcp) |
+| `mcp:act` | Also lets AI tools record decisions through MCP. Only admins can create these. |
 
-The four `ingest` permissions are deliberately narrow. A key that holds only ingest permissions can push that data and nothing else: it cannot read costs or change settings. Adding `read`, `write` or `admin` to the same key removes that limit, so keep ingest keys separate. That makes them safe to leave on a cluster, a machine or a developer laptop. The guided setup on the Kubernetes, Hosts and LLM Usage pages creates the right key for you.
+The four `ingest` permissions are deliberately narrow. A key that holds only ingest permissions can push that data and nothing else: it cannot read costs or change settings. Adding `read`, `write` or `admin` to the same key removes that limit, so keep ingest keys separate. That makes them safe to leave on a cluster, a machine or a developer laptop. The MCP permissions work the same way: a key with only `mcp:read` or `mcp:act` reaches the MCP server and nothing else. The guided setup on the Kubernetes, Hosts and LLM Usage pages creates the right key for you.
 
 ---
 
