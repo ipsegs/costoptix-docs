@@ -1,13 +1,13 @@
 ---
 title: Catalogue Services
-description: Add costs that no cloud bill or agent reports, such as backup, storage or public IPs, from a catalogue of monthly rates.
+description: Add costs that no cloud bill or agent reports, such as backup, storage or public IPs, from a catalogue of monthly or hourly rates.
 ---
 
 ## Overview
 
-Some of what you pay for never shows up in a cloud bill or an agent: backup storage, extra IPs, a support contract, a SaaS bill. **Services** covers them. You keep a catalogue of services with a monthly rate, then record how much each team uses.
+Some of what you pay for never shows up in a cloud bill or an agent: backup storage, extra IPs, a support contract, a SaaS bill. **Services** covers them. You keep a catalogue of services with a monthly or hourly rate, then record how much each team uses.
 
-Each usage line costs its rate times the quantity, spread across the days it runs. That cost appears as **Services** on [Overview](/features/overview), [Ownership](/features/ownership), team [budgets](/features/budgets), monthly team bills and reports, next to your other sources.
+That cost appears as **Services** on [Overview](/features/overview), [Ownership](/features/ownership), team [budgets](/features/budgets), monthly team bills and reports, next to your other sources.
 
 Services are on **Growth** and above. Open them from **Settings → Services**.
 
@@ -15,14 +15,15 @@ Services are on **Growth** and above. Open them from **Settings → Services**.
 
 ## The catalogue
 
-Each service has a name, a unit and a currency, and one or more rates.
+Each service has a name, a unit, a billing type and a currency, and one or more rates.
 
 | Field | Description |
 |---|---|
 | Name | What the service is, such as `Backup storage` |
-| Unit | A label for what one is, such as `TB-month`, `IP-month` or `month`. Every unit is priced per month. |
+| Unit | A label for what one is, such as `TB`, `IP` or `licence` |
+| Billing | **Monthly** or **Hourly**. It can't be changed after the service is created. |
 | Currency | The currency its rates are in. Defaults to your organisation's currency. |
-| Rate | The price of one unit for a full month, from a start date |
+| Rate | The price of one unit per month or per hour, from a start date |
 
 **Rate changes start on a date and never rewrite the past.** Add a new rate with the date it starts; earlier days keep the old one. Once a service is in use, a new rate can start this month at the earliest. A rate set for a future date shows on the page until it starts.
 
@@ -38,7 +39,7 @@ Partner admins can also record usage while they have your organisation open. Eac
 
 ## Record what you use
 
-A usage line is one service, a quantity, a team and the dates it runs.
+A usage line is one service, a quantity, a team and the day it starts.
 
 | Field | Description |
 |---|---|
@@ -46,12 +47,14 @@ A usage line is one service, a quantity, a team and the dates it runs.
 | Quantity | How many units, such as `3` for 3 TB. Decimals are allowed. |
 | Team | The team that owns this cost. Leave it empty and it counts as unclaimed. |
 | From | The first day it is in use |
-| To | Optional. The last day it is in use. Leave it empty while it is still running. |
+| To | Hourly services only, and optional. The last day it is in use. Leave it empty while it is still running. |
 | Note | Optional, up to 200 characters |
 
-**A quantity change keeps history.** Choose **Quantity** on a line, enter the new amount and the day it starts. The line ends the day before and a new one starts, so earlier days keep the old quantity.
+Lines keep running with nothing to renew or approve. A monthly service renews every month until someone cancels it.
 
-**To stop paying for something**, set an end date. Deleting a line removes its cost entirely, so it is only possible while the line starts in an open month.
+**A quantity change keeps history.** Choose **Quantity** on a line and enter the new amount. On a monthly service it applies from the next charge, because the current month is already paid. On an hourly service you choose the day it starts, and earlier days keep the old quantity.
+
+**To stop paying for something**, choose **Cancel service** on a monthly line, or set an end date on an hourly one. Deleting a line removes its cost entirely, so it is only possible while the line starts in an open month.
 
 Only organisation admins can change services and usage. Everyone in the organisation can see them.
 
@@ -59,15 +62,19 @@ Only organisation admins can change services and usage. Everyone in the organisa
 
 ## How cost is worked out
 
-A day costs the rate on that day, times the quantity, divided by the number of days in that month. A full month costs exactly rate x quantity, whether the month has 28 or 31 days.
+**Monthly services** are a flat charge. The full rate times the quantity is charged on the day the line starts, then on the same day every month. The cost lands on that day, not spread across the month, so the daily view shows one jump and the month's total shows what was actually charged. There is no part-month rate: a line that starts on 28 October pays the full month on 28 October. If the month has no such day, as with the 31st, the charge falls on its last day. A charge uses the rate on that day.
+
+**Hourly services** cost the rate times the quantity for 24 hours of every day they run, from the first day to the last.
 
 | Example | Cost |
 |---|---|
-| 3 TB of backup at $120 per TB-month for all of October | $360 |
-| The same 3 TB for the first 4 days of November | $48 (4 of 30 days) |
-| 5 IPs at $4 per IP-month, from 15 October | $10.97 for October (17 of 31 days) |
+| 3 TB of backup at $120 per TB per month, from 15 October | $360 on 15 October, then $360 on 15 November and each month after |
+| 5 IPs at $4 per IP per month, from 28 October, cancelled 10 November | $20 on 28 October, nothing after |
+| 2 GPUs at $1.50 per GPU per hour, from 1 to 3 October | $72 a day, $216 in total |
 
 Days before a service's first rate cost nothing.
+
+Budget forecasts count each monthly charge once, at its real amount on its real day, so a charge early in the month doesn't push the forecast up.
 
 ### Currency
 
@@ -79,7 +86,7 @@ There is no currency conversion. If your organisation shows costs in a currency 
 
 Five days after month end, so late entries can still go in, the month closes into a sealed Services bill per team. After that it can't change. New lines and quantity changes can only start from the first open day, and a line that started in a closed month can't switch team: change its quantity from an open day (the same quantity works), then set the team on the new line. If you split [shared costs](/features/ownership#shared-costs), a month whose split has sealed is closed too.
 
-The page says which months are closed. To stop a line that started in a closed month, set an end date.
+The page says which months are closed. To stop a line that started in a closed month, cancel it or set an end date.
 
 ---
 
