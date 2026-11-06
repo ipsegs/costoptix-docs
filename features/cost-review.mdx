@@ -74,7 +74,7 @@ The review runs 14 checks. Amounts below are the defaults and follow your [thres
 | **Anomaly backlog** | 10 or more anomaly investigations are still open | Confirmed | Every source |
 | **Spend without an owner** | At least 10% of last month's spend was not claimed by any team | Confirmed | Every source |
 | **New or doubled spend** | Something cost at least 100 last month and nothing the month before, or more than doubled by at least 100 | Confirmed | Every source |
-| **Lasting cost changes** | A service stepped up at least 15% above its usual daily cost, judged against the 14 days before and with weekdays and weekends kept apart, stayed there, and adds at least 100 a month. A change younger than 7 days must rise at least 30% | Likely until 7 days old, then Confirmed | Azure, AWS, GCP |
+| **Lasting cost changes** | A service stepped up at least 15% above its usual daily cost, judged against the 14 days before and with weekdays and weekends kept apart, stayed there, and adds at least 100 a month. A change younger than 7 days must average at least 30% | Likely until 7 days old, then Confirmed | Azure, AWS, GCP |
 | **Temporary cost bursts** | A service ran at least 80% above its usual daily cost on 3 or more days within two weeks, cost at least 100 extra, returned to normal in the last 30 days, and did not do the same a month earlier | Confirmed | Azure, AWS, GCP |
 | **Agents that stopped reporting** | A Kubernetes or host agent has not reported for 7 days | Confirmed | Kubernetes, hosts |
 
@@ -126,7 +126,7 @@ Admins can change the review's limits in **Settings > Detection thresholds**, un
 |---|---|---|
 | **Minimum amount** | 50 a month | The smallest saving the review raises on its own. Every other amount the checks use scales with it, and medium severity starts at twice it |
 | **High severity from** | 1,000 a month | Where high severity starts. Must be more than twice the minimum amount |
-| **Lasting cost change from** | 15% | How far a service must rise above its usual daily cost and stay there. Changes younger than the confirm period must rise twice this much |
+| **Lasting cost change from** | 15% | How far a service must rise above its usual daily cost and stay there. Changes younger than the confirm period must average twice this much |
 | **Confirm a cost change after** | 7 days | Until then the finding is marked Likely, because recent days can still change |
 | **Temporary burst from** | 80% | How far a service must rise above its usual daily cost, on at least 3 days, before returning to normal |
 
