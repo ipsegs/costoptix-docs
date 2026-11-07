@@ -59,11 +59,12 @@ The total at the top adds up the savings of every finding. Kubernetes savings th
 
 ## Checks
 
-The review runs 14 checks. Amounts below are the defaults and follow your [thresholds](#thresholds).
+The review runs 15 checks. Amounts below are the defaults and follow your [thresholds](#thresholds).
 
 | Check | Raised when | Certainty | Sources |
 |---|---|---|---|
 | **Data sync and credentials** | An account's credentials failed, or its sync has errored for more than 48 hours. Shows the provider's error and the spend missing since the last billed day | Confirmed | Azure, AWS, GCP |
+| **Resource detail behind billing** | Resource detail for an account trails its billing totals by 3 days or more. Totals and budgets stay correct. Findings that name a resource show the date their data ends, and confirmed ones become likely | Confirmed | Azure, AWS, GCP |
 | **Budgets forecast to overrun** | A budget is forecast to end at least 10 and at least 5% over. Raised even when the budget still shows as good | Forecast | Every budget |
 | **Provider commitment recommendations** | Your provider recommends a savings plan worth at least 50 a month that is not open in Optimisation. Figures older than 7 days are marked to confirm in the portal first | Confirmed | AWS compute, Azure compute and database |
 | **Overlapping commitments** | New reservations were charged on a service that was already at least 90% covered by commitments in the 14 days before | Likely | Azure |
@@ -136,7 +137,7 @@ The defaults were set for US dollars. If your organisation uses another currency
 
 ## Limits
 
-- **Fixed checks only.** The review finds what its 14 checks look for. Something outside them, however costly, will not appear.
+- **Fixed checks only.** The review finds what its 15 checks look for. Something outside them, however costly, will not appear.
 - **Stored data only.** A resource deleted since your last sync can still show up until the next sync.
 - **Not every check covers every provider.** See the Sources column in [Checks](#checks).
 - **Incomplete data.** If an account stopped syncing, the other checks for that account run on the data that arrived. Fix the sync finding first.
