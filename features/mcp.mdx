@@ -85,7 +85,7 @@ Every connection gets these.
 
 | Tool | What it returns |
 |---|---|
-| `list_accounts` | Cloud accounts and Kubernetes clusters, as `provider:account_id`. Agents call it first. |
+| `list_accounts` | Cloud accounts and Kubernetes clusters, as `provider:account_id`, plus the hosts reporting through the host agent. Agents call it first. |
 | `get_costs` | Spend for one account by service, resource, day or month |
 | `get_costs_by_provider` | Spend per cloud across the organisation |
 | `get_service_resources` | Why one service went up or down, month over month |
@@ -100,6 +100,7 @@ Every connection gets these.
 | `get_repository_ai_usage` | AI usage for one repository, with value per commit, pull request and 1,000 lines |
 | `get_k8s_namespaces` | Namespace efficiency and reclaimable cost for a cluster |
 | `get_k8s_cluster` | Rightsizing, node sizing, cost trend, and which nodes are safe to remove in order |
+| `get_hosts` | Cost, idle cost and cost basis per host, or one host's sizing and estimated saving |
 | `get_request_advice` | Recommended CPU and memory requests per workload in a namespace |
 | `list_recommendations` | Open recommendations with projected saving, owning team and verification status |
 | `get_cost_review` | The [full cost review](/features/cost-review) findings |

@@ -19,7 +19,7 @@ Every finding comes from a fixed set of rules applied to your billing and usage 
 | **Orphaned** | Resources attached to nothing that still bill | Every Azure account |
 | **Commitments** | Services billing steadily on demand with no commitment applied | Selected AWS or Azure account |
 | **Kubernetes** | Pod rightsizing, node sizing and idle capacity | Selected cluster |
-| **Hosts** | Idle services on a machine | Selected host |
+| **Hosts** | Machines larger than their workload, and idle services on a machine | Selected host |
 | **AI plans** | Idle seats and plans that do not fit how people use them | Your LLM plans |
 | **Anomalies** | High and critical anomalies from the last 90 days, to investigate | Selected account |
 
@@ -59,7 +59,10 @@ From the sealed daily ledger, not live metrics:
 
 ### Hosts
 
-Services that sit idle on a machine, measured from the host agent.
+Measured from the host agent.
+
+- **Rightsizing.** A machine billed hourly whose daily peaks fit a smaller size, judged on 30 days. The suggested size keeps the peak at 80% or below. Machines paid monthly are left out, since a smaller footprint does not lower what they cost.
+- **Idle services.** Services that sit idle on a machine while holding memory.
 
 ### AI plans
 
@@ -96,6 +99,7 @@ Marking a finding **Done** does not count the saving straight away. CostOptix wa
 How it is checked:
 
 - **Kubernetes rightsizing, orphaned resources and commitments** compare 14 billed days before the change with 14 days after. The day of the change is left out of both. Cloud findings also wait 5 more days for the provider's billing to settle, Kubernetes 1 day, so restated figures are not measured.
+- **Host rightsizing** compares the machine's billed cost for 14 days before and after the change, after 2 days for the host ledger to settle. Update the machine's hourly cost when you resize it, or the check has nothing to measure. A machine that comes back under a new name cannot be checked.
 - **AI plans** are checked two weeks after you mark them done, against your plan settings.
 - Savings under $5 a month are not verified, to keep noise out. Orphaned resources are the exception: any saving from one cent counts, since a small forgotten disk is still worth deleting.
 - **Commitments** only verify if the daily spend billed at committed rates rose by more than 5% of the total daily spend before the change. A cost drop with no new coverage means nothing was bought, so it stays unconfirmed.
