@@ -110,6 +110,20 @@ Admins also get `get_budgets` (configured budgets), `list_budget_proposals` (sug
 
 Values in `get_repository_ai_usage` are at API list prices. They show what the work was worth, not what you are billed. Use `get_llm_usage` for billed cost by plan.
 
+### Data freshness
+
+Cloud billing arrives late, so the most recent days of a cost result can be empty because they have not loaded yet, not because spend dropped. `list_accounts` and the tools that show recent spend (`get_costs`, `get_costs_by_provider`, `get_service_resources`, `get_anomalies`, `get_budget_forecast`, `get_budgets`, `get_team_spend`) include a `data_freshness` block:
+
+| Field | Meaning |
+|---|---|
+| `data_through` | The last day with cost data. Days after it have not loaded yet. |
+| `normal_delay_days` | How far behind this provider's billing normally runs: AWS 2 days, Azure 1, Google Cloud 3. |
+| `stale` | True when the source is further behind than its normal delay plus 2 days. |
+| `last_successful_sync`, `sync_status`, `consecutive_sync_failures` | Sync health for a cloud account. |
+| `agent_last_reported` | When the agent last reported, for a Kubernetes cluster or host. |
+
+Results that cover the whole organisation give one `data_through` for the sources that are on time and list the ones behind in `stale_sources`. Agents are told to compare only days that have data and to say when a source is stale or failing to sync before explaining a change.
+
 ### Decision tools
 
 Available when an admin's connection has decision rights: an approval with **Also let it record decisions** ticked, or a key with `mcp:act`. Rights are checked on every call, so they stop the moment the person is no longer an admin.
